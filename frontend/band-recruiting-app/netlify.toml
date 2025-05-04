@@ -1,7 +1,7 @@
 [build]
   base = "frontend/band-recruiting-app"
   publish = "dist/band-recruiting-app"
-  command = "npm run build -- --configuration production"
+  command = "ng build"
 
 [dev]
   framework = "angular"
