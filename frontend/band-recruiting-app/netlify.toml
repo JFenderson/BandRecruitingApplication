@@ -1,5 +1,5 @@
 [build]
-  base = "frontend/band-recruiting-app"
+  base = "."
   publish = "dist/band-recruiting-app"
   command = "npm install && ng build --configuration production"
 
