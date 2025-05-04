@@ -3,6 +3,7 @@
   command = "npm install && npx ng build --configuration production"
   publish = "dist/browser"
 
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
