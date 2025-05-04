@@ -45,3 +45,4 @@ TestResult.xml
 *.pfx
 
 .vs/
+node_modules/
