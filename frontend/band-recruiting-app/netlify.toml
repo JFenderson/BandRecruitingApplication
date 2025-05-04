@@ -1,0 +1,12 @@
+[build]
+  base = "frontend/band-recruiting-app"
+  publish = "dist/band-recruiting-app"
+  command = "npm run build -- --configuration production"
+
+[dev]
+  framework = "angular"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
