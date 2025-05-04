@@ -1,7 +1,7 @@
 [build]
   base = "frontend/band-recruiting-app"
-  command = "npm install && npx ng build --configuration production"
-  publish = "dist/band-recruiting-app"
+  command = "npm install && npx ng build --configuration production --verbose"
+  publish = "dist"
 
 [[redirects]]
   from = "/*"
