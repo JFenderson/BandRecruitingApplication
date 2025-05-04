@@ -1,10 +1,7 @@
 [build]
   base = "frontend/band-recruiting-app"
-  publish = "dist/band-recruiting-app"
-  command = "ng build"
-
-[dev]
-  framework = "angular"
+  publish = "frontend/band-recruiting-app/dist/band-recruiting-app"
+  command = "npm install && ng build --configuration production"
 
 [[redirects]]
   from = "/*"
