@@ -1,8 +1,9 @@
-using BandRecruitingApp.Core.Entities;
+using BandRecruiting.Core.Entities;
 
-namespace BandRecruitingApp.Core.Interfaces;
-
-public interface IRatingRepository
+namespace BandRecruiting.Core.Interfaces
 {
-    void Add(Rating rating);
+    public interface IRatingRepository
+    {
+        Task AddAsync(Rating rating);
+    }
 }

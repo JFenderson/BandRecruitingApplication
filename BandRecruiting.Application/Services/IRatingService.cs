@@ -1,8 +1,8 @@
-using BandRecruitingApp.Application.DTOs;
-
-namespace BandRecruitingApp.Application.Services;
-
-public interface IRatingService
+namespace BandRecruiting.Application.Services
 {
-    void AddRating(AddRatingDTO dto);
+    public interface IRatingService
+    {
+        // Example method
+        Task AddRatingAsync(Guid videoId, string recruiterId, int score);
+    }
 }

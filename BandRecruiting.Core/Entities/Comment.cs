@@ -1,9 +1,9 @@
-namespace BandRecruiting.Core.Entities
+﻿namespace BandRecruiting.Core.Entities
 {
-    public class Rating
+    public class Comment
     {
-        public Guid RatingId { get; set; } = Guid.NewGuid();
-        public int Score { get; set; }
+        public Guid CommentId { get; set; } = Guid.NewGuid();
+        public string Text { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Guid VideoId { get; set; }

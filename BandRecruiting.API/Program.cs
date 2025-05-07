@@ -1,13 +1,15 @@
+using BandRecruiting.Application.Services;
+using BandRecruiting.Core.Interfaces;
+using BandRecruiting.Infrastructure.Identity;
+using BandRecruiting.Infrastructure.Persistence;
 using BandRecruitingApp.Application.Services;
-using BandRecruitingApp.Core.Interfaces;
-using BandRecruitingApp.Infrastructure.Identity;
-using BandRecruitingApp.Infrastructure.Persistence;
 using BandRecruitingApp.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,15 +50,19 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-// EF Core InMemory (for now)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("BandRecruitingDb"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // DI for app services
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+
 
 
 var app = builder.Build();

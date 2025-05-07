@@ -1,8 +1,6 @@
-using BandRecruitingApp.Core.Entities;
-using BandRecruitingApp.Core.Interfaces;
-using BandRecruitingApp.Infrastructure.Persistence;
-
-namespace BandRecruitingApp.Infrastructure.Services;
+using BandRecruiting.Core.Entities;
+using BandRecruiting.Core.Interfaces;
+using BandRecruiting.Infrastructure.Persistence;
 
 public class RatingRepository : IRatingRepository
 {
@@ -13,9 +11,9 @@ public class RatingRepository : IRatingRepository
         _context = context;
     }
 
-    public void Add(Rating rating)
+    public async Task AddAsync(Rating rating)
     {
-        _context.Ratings.Add(rating);
-        _context.SaveChanges();
+        await _context.Ratings.AddAsync(rating);
+        await _context.SaveChangesAsync();
     }
 }

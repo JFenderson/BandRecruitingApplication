@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
+using BandRecruiting.Application.Services;
 using BandRecruitingApp.Application.DTOs;
-using BandRecruitingApp.Application.Services;
-using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BandRecruitingApp.API.Controllers;
 
@@ -17,11 +16,11 @@ public class RatingsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult AddRating([FromBody] AddRatingDTO dto)
+    public async Task<IActionResult> AddRating([FromBody] AddRatingDTO dto)
     {
         try
         {
-            _ratingService.AddRating(dto);
+            await _ratingService.AddRatingAsync(dto.VideoId, dto.RecruiterId, dto.Score);
             return Ok(new { message = "Rating added successfully." });
         }
         catch (ArgumentException ex)

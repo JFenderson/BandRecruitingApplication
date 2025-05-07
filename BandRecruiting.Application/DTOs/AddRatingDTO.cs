@@ -1,8 +1,9 @@
-namespace BandRecruitingApp.Application.DTOs;
-
-public class AddRatingDTO
+namespace BandRecruitingApp.Application.DTOs
 {
-    public int VideoId { get; set; }
-    public int RecruiterId { get; set; }
-    public int Score { get; set; }
+    public class AddRatingDTO
+    {
+        public Guid VideoId { get; set; }
+        public string RecruiterId { get; set; }
+        public int Score { get; set; }
+    }
 }

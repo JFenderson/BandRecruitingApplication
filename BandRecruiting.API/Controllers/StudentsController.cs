@@ -1,47 +1,67 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BandRecruitingApp.Application.DTOs;
+﻿using BandRecruiting.Application.DTOs;
 using BandRecruitingApp.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
-namespace BandRecruitingApp.API.Controllers;
+namespace BandRecruiting.API.Controllers;
 
-[Authorize] // Requires valid JWT
 [ApiController]
-[Route("api/[controller]")]
-public class StudentsController : ControllerBase
+[Route("api/students")]
+public class StudentController : ControllerBase
 {
     private readonly IStudentService _studentService;
 
-    public StudentsController(IStudentService studentService)
+    public StudentController(IStudentService studentService)
     {
         _studentService = studentService;
     }
 
-    [HttpPost]
-    public IActionResult CreateStudent([FromBody] CreateStudentDTO dto)
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public IActionResult GetAll()
     {
-        // TODO: Replace this with the actual user ID from Identity once hooked up
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
-
-        _studentService.CreateStudent(userId, dto);
-        return Ok(new { message = "Student profile created successfully." });
+        var students = _studentService.GetAll();
+        return Ok(students);
     }
 
     [HttpGet("me")]
+    [Authorize(Roles = "Student")]
     public IActionResult GetMyProfile()
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var student = _studentService.GetByUserId(userId);
-        if (student == null)
-            return NotFound(new { message = "Student profile not found." });
-
+        if (student == null) return NotFound();
         return Ok(student);
     }
 
+    [HttpPut("me")]
+    [Authorize(Roles = "Student")]
+    public IActionResult UpdateMyProfile([FromBody] UpdateStudentDTO dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var success = _studentService.UpdateStudent(userId, dto);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    [HttpDelete("me")]
+    [Authorize(Roles = "Student")]
+    public IActionResult DeleteMyProfile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var success = _studentService.DeleteByUserId(userId);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Recruiter")]
+    public IActionResult GetById(Guid id)
+    {
+        var student = _studentService.GetById(id);
+        if (student == null) return NotFound();
+        return Ok(student);
+    }
 }

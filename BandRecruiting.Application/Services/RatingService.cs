@@ -1,31 +1,29 @@
-using BandRecruitingApp.Application.DTOs;
-using BandRecruitingApp.Core.Entities;
-using BandRecruitingApp.Core.Interfaces;
-using System;
+using BandRecruiting.Application.Services;
+using BandRecruiting.Core.Entities;
+using BandRecruiting.Core.Interfaces;
 
 namespace BandRecruitingApp.Application.Services;
 
 public class RatingService : IRatingService
 {
-    private readonly IRatingRepository _repository;
+    private readonly IRatingRepository _ratingRepository;
 
-    public RatingService(IRatingRepository repository)
+    public RatingService(IRatingRepository ratingRepository)
     {
-        _repository = repository;
+        _ratingRepository = ratingRepository;
     }
 
-    public void AddRating(AddRatingDTO dto)
+    public async Task AddRatingAsync(Guid videoId, string recruiterId, int score)
     {
-        if (dto.Score < 1 || dto.Score > 10)
-            throw new ArgumentException("Score must be between 1 and 10.");
-
         var rating = new Rating
         {
-            VideoId = dto.VideoId,
-            RecruiterId = dto.RecruiterId,
-            Score = dto.Score
+            RatingId = Guid.NewGuid(),
+            VideoId = videoId,
+            RecruiterId = recruiterId,
+            Score = score,
+            CreatedAt = DateTime.UtcNow
         };
 
-        _repository.Add(rating);
+        await _ratingRepository.AddAsync(rating);
     }
 }

@@ -1,12 +1,10 @@
-﻿using Xunit;
-using Moq;
-using FluentAssertions;
+﻿using BandRecruiting.Application.Services;
+using BandRecruiting.Core.Entities;
+using BandRecruiting.Core.Interfaces;
 using BandRecruitingApp.Application.DTOs;
-using BandRecruitingApp.Application.Services;
-using BandRecruitingApp.Core.Interfaces;
-using BandRecruitingApp.Core.Entities;
+using Moq;
 
-namespace BandRecruitingApp.UnitTests.Services;
+namespace BandRecruiting.UnitTests.Services;
 
 public class StudentServiceTests
 {
