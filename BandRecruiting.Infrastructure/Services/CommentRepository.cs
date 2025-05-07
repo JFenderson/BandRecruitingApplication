@@ -46,5 +46,10 @@ namespace BandRecruitingApp.Infrastructure.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
+
+        public async Task<Comment?> GetByIdAsync(Guid commentId)
+        {
+            return await _context.Comments.FindAsync(commentId);
+        }
     }
 }

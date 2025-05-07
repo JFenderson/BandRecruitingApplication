@@ -11,6 +11,7 @@ namespace BandRecruiting.Core.Interfaces
 
         Comment? GetById(Guid id);
         IEnumerable<Comment> GetByVideoId(Guid videoId);
+        Task<Comment?> GetByIdAsync(Guid commentId);
 
     }
 }

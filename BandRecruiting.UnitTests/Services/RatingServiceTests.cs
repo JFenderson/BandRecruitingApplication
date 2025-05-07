@@ -17,14 +17,16 @@ namespace BandRecruitingApp.UnitTests.Services
             _service = new RatingService(_mockRepo.Object);
         }
 
-        [Fact]
-        public async Task AddRating_ShouldThrow_WhenScoreIsInvalid()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(11)]
+        public async Task AddRating_ShouldThrow_WhenScoreIsInvalid(int score)
         {
             var dto = new AddRatingDTO
             {
                 VideoId = Guid.NewGuid(),
                 RecruiterId = "1",
-                Score = 11
+                Score = score
             };
 
             Func<Task> act = async () =>

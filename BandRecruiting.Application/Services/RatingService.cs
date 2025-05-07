@@ -13,11 +13,15 @@ public class RatingService : IRatingService
         _ratingRepository = ratingRepository;
     }
 
+
+
     public async Task AddRatingAsync(Guid videoId, string recruiterId, int score)
     {
+        if (score < 1 || score > 10)
+            throw new ArgumentException("Score must be between 1 and 10.");
+
         var rating = new Rating
         {
-            RatingId = Guid.NewGuid(),
             VideoId = videoId,
             RecruiterId = recruiterId,
             Score = score,

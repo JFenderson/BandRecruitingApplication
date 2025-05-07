@@ -58,7 +58,7 @@ public class CommentService : ICommentService
         {
             CommentId = c.CommentId,
             VideoId = c.VideoId,
-            RecruiterId = c.Recruiter.RecruiterId,
+            RecruiterId = c.RecruiterId,
             Text = c.Text,
             CreatedAt = c.CreatedAt
         });
@@ -73,7 +73,7 @@ public class CommentService : ICommentService
         {
             CommentId = comment.CommentId,
             VideoId = comment.VideoId,
-            RecruiterId = comment.Recruiter.RecruiterId,
+            RecruiterId = comment.RecruiterId,
             Text = comment.Text,
             CreatedAt = comment.CreatedAt
         };
