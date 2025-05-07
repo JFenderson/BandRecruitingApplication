@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BandRecruiting.Application\BandRecruiting.Application.csproj" />
+    <ProjectReference Include="..\BandRecruiting.Infrastructure\BandRecruiting.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
