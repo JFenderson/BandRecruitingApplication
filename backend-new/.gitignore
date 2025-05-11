@@ -1,0 +1,48 @@
+# === Angular Frontend ===
+/frontend/band-recruiting-app/dist
+/frontend/band-recruiting-app/tmp
+/frontend/band-recruiting-app/out-tsc
+/frontend/band-recruiting-app/bazel-out
+/frontend/band-recruiting-app/node_modules
+/frontend/band-recruiting-app/npm-debug.log
+/frontend/band-recruiting-app/yarn-error.log
+/frontend/band-recruiting-app/.angular/cache
+
+# IDEs and Editors
+**/.idea/
+**/.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+**/.history
+**/*.sublime-workspace
+**/.DS_Store
+**/Thumbs.db
+
+# === .NET Backend ===
+**/bin/
+**/obj/
+**/out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test Results
+TestResult.xml
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+*.log
+
+# === Misc ===
+/.env
+.env.*
+*.local.json
+*.pfx
+
+.vs/
+node_modules/

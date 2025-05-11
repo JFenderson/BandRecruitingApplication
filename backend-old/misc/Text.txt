@@ -1,0 +1,62 @@
+﻿1. AuthController
+Purpose: Handle authentication and authorization, such as user login and registration.
+Key Actions:
+Register: Register a new user (student or recruiter).
+Login: Authenticate and log in a user.
+Logout: Log out the user.
+RefreshToken: Refresh JWT tokens.
+2. StudentController
+Purpose: Manage student profiles, including video uploads and viewing student details.
+Key Actions:
+GetStudents: Retrieve a list of all students.
+GetStudentById: Retrieve details of a specific student by ID.
+CreateStudent: Create a new student profile.
+UpdateStudent: Update details of an existing student.
+DeleteStudent: Delete a student profile.
+UploadVideo: Upload a video for the student.
+GetStudentVideos: Get all videos uploaded by a student.
+3. SchoolController
+Purpose: Manage school profiles and their associated recruiters.
+Key Actions:
+GetSchools: Retrieve a list of all schools.
+GetSchoolById: Retrieve details of a specific school by ID.
+CreateSchool: Create a new school profile.
+UpdateSchool: Update details of an existing school.
+DeleteSchool: Delete a school profile.
+AddRecruiterToSchool: Associate a recruiter with a school.
+GetSchoolRecruiters: Get all recruiters associated with a school.
+4. RecruiterController
+Purpose: Manage recruiter profiles and their interactions with students and schools.
+Key Actions:
+GetRecruiters: Retrieve a list of all recruiters.
+GetRecruiterById: Retrieve details of a specific recruiter by ID.
+CreateRecruiter: Create a new recruiter profile.
+UpdateRecruiter: Update details of an existing recruiter.
+DeleteRecruiter: Delete a recruiter profile.
+RateStudent: Allow recruiters to rate a student.
+CommentOnStudent: Allow recruiters to comment on a student.
+5. VideoController
+Purpose: Manage videos uploaded by students.
+Key Actions:
+GetVideos: Retrieve a list of all videos.
+GetVideoById: Retrieve details of a specific video by ID.
+UploadVideo: Upload a new video (could also be in StudentController).
+DeleteVideo: Delete a video.
+RateVideo: Allow recruiters to rate a video.
+CommentOnVideo: Allow recruiters to comment on a video.
+6. CommentController
+Purpose: Manage comments related to students, schools, and videos.
+Key Actions:
+GetCommentsByStudent: Retrieve comments related to a specific student.
+GetCommentsBySchool: Retrieve comments related to a specific school.
+GetCommentsByVideo: Retrieve comments related to a specific video.
+AddComment: Add a new comment to a student, school, or video.
+DeleteComment: Delete a comment.
+7. RatingController
+Purpose: Manage ratings related to students, schools, and videos.
+Key Actions:
+GetRatingsByStudent: Retrieve ratings for a specific student.
+GetRatingsBySchool: Retrieve ratings for a specific school.
+GetRatingsByVideo: Retrieve ratings for a specific video.
+AddRating: Add a new rating to a student, school, or video.
+DeleteRating: Delete a rating.

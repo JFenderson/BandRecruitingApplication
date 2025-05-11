@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.Core", "BandRecruiting.Core\BandRecruiting.Core.csproj", "{DF8E181F-0CFE-454A-9270-16CD60D15836}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.Application", "BandRecruiting.Application\BandRecruiting.Application.csproj", "{4A0AD2E5-281F-4688-B0C9-30EECA2C4522}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.Infrastructure", "BandRecruiting.Infrastructure\BandRecruiting.Infrastructure.csproj", "{B121B3AF-A954-4832-A88D-52EE70DB978A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.API", "BandRecruiting.API\BandRecruiting.API.csproj", "{A9AB08DA-7AC9-4550-A105-F44B0FA5FC4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.UnitTests", "BandRecruiting.UnitTests\BandRecruiting.UnitTests.csproj", "{2D16FE54-3437-43E1-81BC-C81A7625D157}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BandRecruiting.IntegrationTests", "BandRecruiting.IntegrationTests\BandRecruiting.IntegrationTests.csproj", "{9312A08E-DD72-4C8B-B9FF-1273C18C8BC7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF8E181F-0CFE-454A-9270-16CD60D15836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF8E181F-0CFE-454A-9270-16CD60D15836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF8E181F-0CFE-454A-9270-16CD60D15836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF8E181F-0CFE-454A-9270-16CD60D15836}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A0AD2E5-281F-4688-B0C9-30EECA2C4522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A0AD2E5-281F-4688-B0C9-30EECA2C4522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A0AD2E5-281F-4688-B0C9-30EECA2C4522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A0AD2E5-281F-4688-B0C9-30EECA2C4522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B121B3AF-A954-4832-A88D-52EE70DB978A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B121B3AF-A954-4832-A88D-52EE70DB978A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B121B3AF-A954-4832-A88D-52EE70DB978A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B121B3AF-A954-4832-A88D-52EE70DB978A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9AB08DA-7AC9-4550-A105-F44B0FA5FC4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9AB08DA-7AC9-4550-A105-F44B0FA5FC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9AB08DA-7AC9-4550-A105-F44B0FA5FC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9AB08DA-7AC9-4550-A105-F44B0FA5FC4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D16FE54-3437-43E1-81BC-C81A7625D157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D16FE54-3437-43E1-81BC-C81A7625D157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D16FE54-3437-43E1-81BC-C81A7625D157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D16FE54-3437-43E1-81BC-C81A7625D157}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9312A08E-DD72-4C8B-B9FF-1273C18C8BC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9312A08E-DD72-4C8B-B9FF-1273C18C8BC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9312A08E-DD72-4C8B-B9FF-1273C18C8BC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9312A08E-DD72-4C8B-B9FF-1273C18C8BC7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

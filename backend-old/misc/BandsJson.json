@@ -1,0 +1,93 @@
+﻿//{
+//  "HBCUs": [
+//    {
+//      "schoolName": "Alabama State University",
+//      "marchingBand": "Mighty Marching Hornets",
+//      "location": {
+//        "city": "Montgomery",
+//        "state": "AL",
+//        "zip": "36104"
+//      }
+//    },
+//    {
+//      "schoolName": "Bethune-Cookman University",
+//      "marchingBand": "Marching Wildcats",
+//      "location": {
+//        "city": "Daytona Beach",
+//        "state": "FL",
+//        "zip": "32114"
+//      }
+//    },
+//    {
+//      "schoolName": "Florida A&M University",
+//      "marchingBand": "Marching 100",
+//      "location": {
+//        "city": "Tallahassee",
+//        "state": "FL",
+//        "zip": "32307"
+//      }
+//    },
+//    {
+//      "schoolName": "Grambling State University",
+//      "marchingBand": "World Famed Tiger Marching Band",
+//      "location": {
+//        "city": "Grambling",
+//        "state": "LA",
+//        "zip": "71245"
+//      }
+//    },
+//    {
+//      "schoolName": "Howard University",
+//      "marchingBand": "Showtime Marching Band",
+//      "location": {
+//        "city": "Washington",
+//        "state": "DC",
+//        "zip": "20059"
+//      }
+//    },
+//    {
+//      "schoolName": "Jackson State University",
+//      "marchingBand": "Sonic Boom of the South",
+//      "location": {
+//        "city": "Jackson",
+//        "state": "MS",
+//        "zip": "39217"
+//      }
+//    },
+//    {
+//      "schoolName": "North Carolina A&T State University",
+//      "marchingBand": "Blue and Gold Marching Machine",
+//      "location": {
+//        "city": "Greensboro",
+//        "state": "NC",
+//        "zip": "27411"
+//      }
+//    },
+//    {
+//      "schoolName": "Prairie View A&M University",
+//      "marchingBand": "Marching Storm",
+//      "location": {
+//        "city": "Prairie View",
+//        "state": "TX",
+//        "zip": "77446"
+//      }
+//    },
+//    {
+//      "schoolName": "Southern University and A&M College",
+//      "marchingBand": "Human Jukebox",
+//      "location": {
+//        "city": "Baton Rouge",
+//        "state": "LA",
+//        "zip": "70813"
+//      }
+//    },
+//    {
+//      "schoolName": "Tennessee State University",
+//      "marchingBand": "Aristocrat of Bands",
+//      "location": {
+//        "city": "Nashville",
+//        "state": "TN",
+//        "zip": "37209"
+//      }
+//    }
+//  ]
