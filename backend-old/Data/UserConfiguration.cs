@@ -1,18 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using server.Models;
-using System.Reflection.Emit;
 
 namespace server.Data
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.HasDiscriminator<string>("UserType")
-                    .HasValue<Student>("Student")
-                    .HasValue<Recruiter>("Recruiter")
+                    .HasValue<ApplicationUser>("Student")
+                    .HasValue<ApplicationUser>("Recruiter")
                     .HasValue<Admin>("Admin");
 
         }

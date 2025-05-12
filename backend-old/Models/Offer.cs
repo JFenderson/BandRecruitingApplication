@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Models;
 
 namespace Models
 {
@@ -11,14 +10,14 @@ namespace Models
 
         [ForeignKey("Student")]
         public string StudentId { get; set; }
-        public virtual Student Student { get; set; }
+        public virtual ApplicationUser Student { get; set; }
 
         [ForeignKey("Recruiter")]
         public string RecruiterId { get; set; }
-        public virtual Recruiter Recruiter { get; set; }
+        public virtual ApplicationUser Recruiter { get; set; }
 
         [ForeignKey("BandId")]
-        public string BandId { get; set; }
+        public Guid? BandId { get; set; }
         public virtual Band Band { get; set; }
 
         public string BandName { get; set; }

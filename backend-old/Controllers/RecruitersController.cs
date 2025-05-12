@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using server.Models;
-using server.Services;
 using Models;
 using server.DTOs;
+using server.Services;
 
 namespace server.Controllers
 {
@@ -43,7 +40,7 @@ namespace server.Controllers
 
         // GET: api/recruiter/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Recruiter>> GetRecruiterById(string id)
+        public async Task<ActionResult<ApplicationUser>> GetRecruiterById(string id)
         {
             try
             {
@@ -60,7 +57,7 @@ namespace server.Controllers
 
         // GET: api/recruiter/band/{id}
         [HttpGet("band/{id}")]
-        public async Task<ActionResult<Band>> GetRecruitersByBand(string id)
+        public async Task<ActionResult<Band>> GetRecruitersByBand(Guid id)
         {
             try
             {
@@ -99,7 +96,7 @@ namespace server.Controllers
 
         // PUT: api/recruiter/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<Recruiter>> UpdateRecruiter(string id, [FromBody] UpdateRecruiterDTO updateRecruiterDTO)
+        public async Task<ActionResult<ApplicationUser>> UpdateRecruiter(string id, [FromBody] UpdateRecruiterDTO updateRecruiterDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -194,7 +191,7 @@ namespace server.Controllers
         #endregion
 
         #region Offer
- 
+
 
         [HttpGet("{offerId}/student/{studentId}")]
         public async Task<IActionResult> GetOffer(string offerId, string studentId)

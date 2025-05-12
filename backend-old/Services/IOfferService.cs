@@ -6,7 +6,7 @@ namespace server.Services
     public interface IOfferService : IService<Offer>
     {
         Task<OfferDTO> CreateOfferAsync(OfferDTO offerDto);
-        Task<IEnumerable<OfferDTO>> GetOffersByBandAsync(string bandId);
+        Task<IEnumerable<OfferDTO>> GetOffersByBandAsync(Guid bandId);
         Task<IEnumerable<OfferDTO>> GetOffersByStudentAsync(string studentId);
 
         Task<IEnumerable<OfferDTO>> GetOffersByRecruiterAsync(string recruiterId);

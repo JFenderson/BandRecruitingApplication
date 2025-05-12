@@ -1,24 +1,23 @@
-﻿using server.DTOs;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
-using Microsoft.AspNetCore.Identity;
-using server.Models;
+using server.DTOs;
 
 namespace server.Services
 {
-    public class StudentService : Service<Student>, IStudentService
+    public class StudentService : Service<ApplicationUser>, IStudentService
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public StudentService(ApplicationDbContext context, UserManager<User> userManager) : base(context)
+        public StudentService(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        public async Task<Student> CreateStudentAsync(CreateStudentDTO createStudentDTO)
+        public async Task<ApplicationUser> CreateStudentAsync(CreateStudentDTO createStudentDTO)
         {
             // Check if the email already exists
             var existingUserByEmail = await _userManager.FindByEmailAsync(createStudentDTO.Email);
@@ -35,8 +34,9 @@ namespace server.Services
             }
 
             // Proceed with creating the student
-            var student = new Student
+            var student = new ApplicationUser
             {
+                UserType = "Student",
                 UserName = createStudentDTO.UserName,
                 Email = createStudentDTO.Email,
                 FirstName = createStudentDTO.FirstName,
@@ -62,9 +62,9 @@ namespace server.Services
             return student;
         }
 
-        public async Task<Student> UpdateStudentAsync(string id, UpdateStudentDTO updateStudentDTO)
+        public async Task<ApplicationUser> UpdateStudentAsync(string id, UpdateStudentDTO updateStudentDTO)
         {
-            var student = await _context.Users.OfType<Student>().FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(s => s.Id == id.ToString());
 
             if (student == null)
             {
@@ -111,7 +111,7 @@ namespace server.Services
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            var student = await _context.Users.OfType<Student>()
+            var student = await _context.Users.OfType<ApplicationUser>()
                 .Include(s => s.Videos)  // Fetch related videos
                 .Include(s => s.ScholarshipOffers)  // Fetch related scholarship offers
                 .Include(s => s.Ratings)  // Fetch related ratings
@@ -145,10 +145,10 @@ namespace server.Services
                 .CountAsync();
         }
 
-        public async Task<IEnumerable<Student>> GetAllStudentsAsync()
+        public async Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync()
         {
             return await _context.Users
-                .OfType<Student>()
+                .OfType<ApplicationUser>()
                 .Include(s => s.Videos)
                 .Include(s => s.ScholarshipOffers)
                 .ToArrayAsync();
@@ -156,7 +156,7 @@ namespace server.Services
 
         public async Task<bool> DeleteStudentAsync(string id)
         {
-            var student = await _context.Users.OfType<Student>().FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(s => s.Id == id.ToString());
 
             if (student == null)
             {
@@ -170,10 +170,10 @@ namespace server.Services
         }
 
 
-        public async Task<IEnumerable<Student>> GetStudentsByGradYearAsync(int gradYear)
+        public async Task<IEnumerable<ApplicationUser>> GetStudentsByGradYearAsync(int gradYear)
         {
             return await _context.Users
-                .OfType<Student>()
+                .OfType<ApplicationUser>()
                 .Where(r => r.GraduationYear == gradYear)
                 .ToArrayAsync();
         }
@@ -192,10 +192,10 @@ namespace server.Services
                 .ToArrayAsync();
         }
 
-        public async Task<IEnumerable<Student>> GetStudentsByInstrumentAsync(string studentId, string instrument)
+        public async Task<IEnumerable<ApplicationUser>> GetStudentsByInstrumentAsync(string studentId, string instrument)
         {
             return await _context.Users
-                .OfType<Student>()
+                .OfType<ApplicationUser>()
                 .Where(i => i.Id == studentId)
                 .Where(s => s.Instrument == instrument)
                 .ToArrayAsync();
@@ -227,7 +227,7 @@ namespace server.Services
             {
                 InterestId = interest.InterestId,
                 StudentId = interest.StudentId,
-                BandId = interest.BandId,
+                BandId = (Guid)interest.BandId,
                 InterestDate = interest.InterestDate
             };
 
@@ -241,7 +241,7 @@ namespace server.Services
                 {
                     InterestId = i.InterestId,
                     StudentId = i.StudentId,
-                    BandId = i.BandId,
+                    BandId = (Guid)i.BandId,
                     BandName = i.Band.Name,
                     SchoolName = i.Band.SchoolName,
                     InterestDate = i.InterestDate

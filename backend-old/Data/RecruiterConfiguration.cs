@@ -1,14 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-
-using System.Reflection.Emit;
-using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace server.Data
 {
-    public class RecruiterConfiguration : IEntityTypeConfiguration<Recruiter>
+    public class RecruiterConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
-        public void Configure(EntityTypeBuilder<Recruiter> builder)
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             //builder.HasKey(r => r.Id);
 

@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using server.Models;
-using System.Diagnostics.Metrics;
-using System.Text.Json.Serialization;
 
 namespace server.DTOs
 {
@@ -20,14 +18,14 @@ namespace server.DTOs
         public string Phone { get; set; }
         public string ProfilePicture { get; set; }
         public string Password { get; set; }
-        public string BandId { get; set; }
+        public Guid BandId { get; set; }
 
         public Band? Band { get; set; }
         public List<Offer> OffersMade { get; set; }
         public List<Comment> Comments { get; set; }
         public List<Rating> Ratings { get; set; }
 
-        public RecruiterDTO(Recruiter recruiter)
+        public RecruiterDTO(ApplicationUser recruiter)
         {
 
             if (recruiter == null)
@@ -40,10 +38,10 @@ namespace server.DTOs
             FirstName = recruiter.FirstName;
             LastName = recruiter.LastName;
             Email = recruiter.Email;
-            BandId = recruiter.BandId;
+            BandId = (Guid)recruiter.BandId;
             Phone = recruiter.Phone;
             ProfilePicture = recruiter.ProfilePicture;
-       
+
         }
 
     }

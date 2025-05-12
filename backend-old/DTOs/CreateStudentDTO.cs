@@ -12,6 +12,6 @@
         public string? Phone { get; set; }
         public string? ProfilePicture { get; set; }
         public string HighSchool { get; set; }
-        public int GraduationYear { get; set; }
+        public int? GraduationYear { get; set; }
     }
 }

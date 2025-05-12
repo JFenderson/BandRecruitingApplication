@@ -3,25 +3,24 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
 using server.DTOs;
-using server.Models;
 
 namespace server.Services
 {
-    public class RecruiterService : Service<Recruiter>, IRecruiterService
+    public class RecruiterService : Service<ApplicationUser>, IRecruiterService
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public RecruiterService(ApplicationDbContext context, UserManager<User> userManager) : base(context)
+        public RecruiterService(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<Recruiter>> GetRecruitersByBandAsync(string bandId)
+        public async Task<IEnumerable<ApplicationUser>> GetRecruitersByBandAsync(Guid bandId)
         {
             return await _context.Users
-                .OfType<Recruiter>()
+                .OfType<ApplicationUser>()
                 .Where(r => r.BandId == bandId)
                 .ToArrayAsync();
         }
@@ -48,30 +47,31 @@ namespace server.Services
         }
 
 
-        public async Task<IEnumerable<Recruiter>> GetRecruitersAsync()
+        public async Task<IEnumerable<ApplicationUser>> GetRecruitersAsync()
         {
             return await _context.Users
-                .OfType<Recruiter>()
+                .OfType<ApplicationUser>()
                 .ToArrayAsync();
         }
 
         public async Task<RecruiterDTO> GetRecruiterByIdAsync(string recruiterId)
         {
             var recruiter = await _context.Users
-                .OfType<Recruiter>()
+                .OfType<ApplicationUser>()
                 .FirstOrDefaultAsync(r => r.Id == recruiterId);
 
-            if (recruiter == null) {
+            if (recruiter == null)
+            {
                 throw new Exception("Recruiter not found.");
             }
 
             var RecruiterDto = new RecruiterDTO(recruiter);
 
             return RecruiterDto;
-            
+
         }
 
-        public async Task<Recruiter> CreateRecruiterAsync(CreateRecruiterDTO createRecruiterDTO)
+        public async Task<ApplicationUser> CreateRecruiterAsync(CreateRecruiterDTO createRecruiterDTO)
         {
 
             // Check if the email already exists
@@ -88,8 +88,9 @@ namespace server.Services
                 throw new Exception("A user with this username already exists.");
             }
 
-            var recruiter = new Recruiter
+            var recruiter = new ApplicationUser
             {
+                UserType = "Recruiter",
                 UserName = createRecruiterDTO.UserName,
                 Email = createRecruiterDTO.Email,
                 FirstName = createRecruiterDTO.FirstName,
@@ -114,14 +115,14 @@ namespace server.Services
 
         public async Task<bool> UpdateRecruiterAsync(string recruiterId, UpdateRecruiterDTO recruiterDTO)
         {
-            var recruiter = await _context.Users.OfType<Recruiter>().FirstOrDefaultAsync(r => r.Id == recruiterId);
+            var recruiter = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(r => r.Id == recruiterId);
 
             if (recruiter == null) return false;
 
             recruiter.FirstName = recruiterDTO.FirstName;
             recruiter.LastName = recruiterDTO.LastName;
             recruiter.Email = recruiterDTO.Email;
-            
+
 
             _context.Users.Update(recruiter);
             await _context.SaveChangesAsync();
@@ -131,7 +132,7 @@ namespace server.Services
 
         public async Task<bool> DeleteRecruiterAsync(string recruiterId)
         {
-            var recruiter = await _context.Users.OfType<Recruiter>().FirstOrDefaultAsync(r => r.Id == recruiterId);
+            var recruiter = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(r => r.Id == recruiterId);
 
             if (recruiter == null) return false;
 

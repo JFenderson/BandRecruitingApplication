@@ -1,19 +1,19 @@
-﻿using server.DTOs;
-using Models;
+﻿using Models;
+using server.DTOs;
 
 namespace server.Services
 {
-    public interface IStudentService : IService<Student>
+    public interface IStudentService : IService<ApplicationUser>
     {
-        Task<Student> CreateStudentAsync(CreateStudentDTO createStudentDTO);
-        Task<Student> UpdateStudentAsync(string id, UpdateStudentDTO updateStudentDTO);
+        Task<ApplicationUser> CreateStudentAsync(CreateStudentDTO createStudentDTO);
+        Task<ApplicationUser> UpdateStudentAsync(string id, UpdateStudentDTO updateStudentDTO);
         Task<StudentDTO> GetStudentByIdAsync(string id);
-        Task<IEnumerable<Student>> GetAllStudentsAsync();
+        Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync();
         Task<bool> DeleteStudentAsync(string id);
 
-        Task<IEnumerable<Student>> GetStudentsByGradYearAsync(int gradYear);
+        Task<IEnumerable<ApplicationUser>> GetStudentsByGradYearAsync(int gradYear);
         // Other methods as needed for student-related logic
-        Task<IEnumerable<Student>> GetStudentsByInstrumentAsync(string studentId, string instrument);
+        Task<IEnumerable<ApplicationUser>> GetStudentsByInstrumentAsync(string studentId, string instrument);
         Task<IEnumerable<Video>> GetStudentVideosAsync(string studentId);
         Task<IEnumerable<Offer>> GetStudentScholarshipOffersAsync(string studentId);
         Task<IEnumerable<Rating>> GetStudentRatingsAsync(string studentId);

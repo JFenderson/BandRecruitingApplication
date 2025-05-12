@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using server.Data;
 using server.Helpers;
-using server.Models;
 using server.Services;
 using System.Text;
 
@@ -42,7 +41,7 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -73,7 +72,6 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddAWSService<IAmazonS3>();
-builder.Services.AddSingleton<VideoService>();
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 
 
@@ -125,7 +123,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<User>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     SeedData.Initialize(services, userManager).Wait();
 }
 // Configure the HTTP request pipeline.

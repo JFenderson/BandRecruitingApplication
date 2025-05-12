@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
-using Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace server.DTOs
 {
     public class StudentDTO
@@ -20,7 +16,7 @@ namespace server.DTOs
         public decimal? AverageRating { get; set; }
         public int OfferCount { get; set; }
         public ICollection<InterestDTO> Interests { get; set; }
-        public StudentDTO(Student student)
+        public StudentDTO(ApplicationUser student)
         {
             if (student == null)
             {
@@ -33,7 +29,7 @@ namespace server.DTOs
             LastName = student.LastName;
             Email = student.Email;
             Phone = student.Phone;
-            GraduationYear = student.GraduationYear;
+            GraduationYear = (int)student.GraduationYear;
             Instrument = student.Instrument;
             HighSchool = student.HighSchool;
             ProfilePicture = student.ProfilePicture;

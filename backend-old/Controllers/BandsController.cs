@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using server.Models;
-using server.Data;
 using Models;
-using server.DTOs;
 using server.Services;
-using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers
 {
@@ -33,7 +24,7 @@ namespace server.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Band>> GetBand(string id)
+        public async Task<ActionResult<Band>> GetBand(Guid id)
         {
             try
             {
@@ -63,7 +54,7 @@ namespace server.Controllers
 
         [Authorize(Policy = "RequireRecruiterRole")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBand(string id, Band band)
+        public async Task<IActionResult> UpdateBand(Guid id, Band band)
         {
             if (id != band.BandId)
             {
@@ -81,7 +72,7 @@ namespace server.Controllers
 
         [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBand(string id)
+        public async Task<IActionResult> DeleteBand(Guid id)
         {
             var success = await _bandService.DeleteBandAsync(id);
             if (!success)
@@ -93,7 +84,7 @@ namespace server.Controllers
         }
 
         [HttpGet("{id}/interestedStudents")]
-        public async Task<ActionResult<Band>> GetBandInterestedStudents(string id)
+        public async Task<ActionResult<Band>> GetBandInterestedStudents(Guid id)
         {
             try
             {

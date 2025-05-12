@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Models;
 using server.DTOs;
-using server.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -16,11 +14,11 @@ namespace server.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -54,125 +52,48 @@ namespace server.Controllers
             return BadRequest("Invalid login attempt.");
         }
 
-        [AllowAnonymous]
-        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO model)
         {
-            if (model.UserType == "Recruiter")
+            var user = new ApplicationUser
             {
-                var recruiter = new Recruiter
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    UserType = model.UserType,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    BandId = model.BandId,
-                    Phone = model.Phone,
-                    CreatedAt = DateTime.UtcNow,
-                    RefreshToken = GenerateRefreshToken(), // Generate and assign a refresh token
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7) // Example expiration time, adjust as needed
-                };
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.Phone,
+                UserType = model.UserType,
+                CreatedAt = DateTime.UtcNow,
+                RefreshToken = GenerateRefreshToken(),
+                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7),
+                Instrument = model.UserType == "Student" ? model.Instrument : null,
+                HighSchool = model.UserType == "Student" ? model.HighSchool : null,
+                BandId = model.UserType == "Recruiter" ? model.BandId : null
+            };
 
-                var result = await _userManager.CreateAsync(recruiter, model.Password);
+            var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(recruiter, model.UserType);
-
-                    var token = GenerateJwtToken(recruiter);
-                    var roles = await _userManager.GetRolesAsync(recruiter);
-
-                    return Ok(new
-                    {
-                        Token = token,
-                        Role = roles.FirstOrDefault()
-                    });
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return BadRequest(ModelState);
-            }
-            else if (model.UserType == "Student")
+            if (result.Succeeded)
             {
-                var student = new Student
+                await _userManager.AddToRoleAsync(user, model.UserType);
+
+                var token = GenerateJwtToken(user);
+                var roles = await _userManager.GetRolesAsync(user);
+
+                return Ok(new
                 {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    UserType = model.UserType,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Phone = model.Phone,
-                    Instrument = model.Instrument,
-                    HighSchool = model.HighSchool,
-                    CreatedAt = DateTime.UtcNow,
-                    RefreshToken = GenerateRefreshToken(), // Generate and assign a refresh token
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7) // Example expiration time, adjust as needed
-                };
-
-                var result = await _userManager.CreateAsync(student, model.Password);
-
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(student, model.UserType);
-
-                    var token = GenerateJwtToken(student);
-                    var roles = await _userManager.GetRolesAsync(student);
-
-                    return Ok(new
-                    {
-                        Token = token,
-                        Role = roles.FirstOrDefault()
-                    });
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return BadRequest(ModelState);
+                    Token = token,
+                    Role = roles.FirstOrDefault()
+                });
             }
-            else
+
+            foreach (var error in result.Errors)
             {
-                // Handle other user types (like Student or Admin)
-                var user = new User
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    UserType = model.UserType,
-                    RefreshToken = GenerateRefreshToken(), // Generate and assign a refresh token
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7) // Example expiration time, adjust as needed
-                };
-
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, model.UserType);
-
-                    var token = GenerateJwtToken(user);
-                    var roles = await _userManager.GetRolesAsync(user);
-
-                    return Ok(new
-                    {
-                        Token = token,
-                        Role = roles.FirstOrDefault()
-                    });
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return BadRequest(ModelState);
+                ModelState.AddModelError(string.Empty, error.Description);
             }
+
+            return BadRequest(ModelState);
         }
+
 
 
         [HttpPost("refresh-token")]
@@ -240,7 +161,7 @@ namespace server.Controllers
             }
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(ApplicationUser user)
         {
             var claims = new[]
             {

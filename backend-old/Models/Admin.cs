@@ -1,6 +1,6 @@
 ﻿namespace server.Models
 {
-    public class Admin : User
+    public class Admin : ApplicationUser
     {
         public int AdminId { get; set; }
         public string UserId { get; set; }

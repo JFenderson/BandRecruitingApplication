@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
-using server.Models;
 
 namespace server.Controllers
 {
@@ -11,10 +10,10 @@ namespace server.Controllers
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AdminController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -30,10 +29,9 @@ namespace server.Controllers
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO model)
         {
-            var user = new User
+            var user = new ApplicationUser
             {
-                UserName = model.UserName,
-                Email = model.Email,
+                UserName = model.Email,
                 UserType = model.UserType
             };
 

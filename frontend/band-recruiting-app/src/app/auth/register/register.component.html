@@ -1,0 +1,80 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+  <div class="max-w-xl w-full bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Create Your Account</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Name -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name</label>
+          <input formControlName="firstName" type="text" class="w-full border px-3 py-2 rounded" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name</label>
+          <input formControlName="lastName" type="text" class="w-full border px-3 py-2 rounded" />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input formControlName="email" type="email" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <!-- Phone -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Phone</label>
+        <input formControlName="phone" type="text" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <!-- Password -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input formControlName="password" type="password" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+        <input formControlName="confirmPassword" type="password" class="w-full border px-3 py-2 rounded" />
+      </div>
+
+      <!-- Role -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Role</label>
+        <select formControlName="role" class="w-full border px-3 py-2 rounded">
+          <option value="">Select Role</option>
+          <option value="Student">Student</option>
+          <option value="Recruiter">Recruiter</option>
+        </select>
+      </div>
+
+      <!-- Student: Instrument -->
+      <div *ngIf="roleValue === 'Student'" class="mb-4">
+  <label class="block text-sm font-medium text-gray-700">Instrument</label>
+  <select formControlName="instrument" class="w-full border px-3 py-2 rounded">
+    <option value="" disabled>Select Instrument</option>
+    <option *ngFor="let instrument of instruments" [value]="instrument">{{ instrument }}</option>
+  </select>
+</div>
+
+      <!-- Recruiter: Band -->
+     <div *ngIf="roleValue === 'Recruiter'" class="mb-6">
+  <label class="block text-sm font-medium text-gray-700">Select Band</label>
+  <select formControlName="bandId" class="w-full border px-3 py-2 rounded">
+    <option value="" disabled>Select Band</option>
+    <option *ngFor="let band of bands" [value]="band.id">{{ band.name }}</option>
+  </select>
+</div>
+
+      <button type="submit" [disabled]="registerForm.invalid" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        Register
+      </button>
+    </form>
+
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Already have an account?
+      <a routerLink="/login" class="text-blue-600 hover:underline">Login</a>
+    </p>
+  </div>
+</div>

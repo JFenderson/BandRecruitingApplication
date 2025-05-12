@@ -3,15 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
-using server.Models;
-using System.Diagnostics.Metrics;
 using System.Security.Cryptography;
 
 namespace server.Helpers
 {
     public static class SeedData
     {
-        public static async Task Initialize(IServiceProvider serviceProvider, UserManager<User> userManager)
+        public static async Task Initialize(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
@@ -33,12 +31,12 @@ namespace server.Helpers
             await CreateStudents(userManager, 20, context);
             await CreateRecruiters(userManager, 20, context);
             await CreateOffers(context, 20);
-          
+
 
 
         }
 
-        private static async Task CreateStudents(UserManager<User> userManager, int numStudents, ApplicationDbContext context)
+        private static async Task CreateStudents(UserManager<ApplicationUser> userManager, int numStudents, ApplicationDbContext context)
         {
             var faker = new Faker();
             var rndNum = new Random();
@@ -59,8 +57,9 @@ namespace server.Helpers
 
             for (int i = 0; i < numStudents; i++)
             {
-                var student = new Student
+                var student = new ApplicationUser
                 {
+                    UserType = "Student",
                     UserName = faker.Internet.UserName($"StudentNum{i}"),
                     Email = faker.Internet.Email(),
                     FirstName = faker.Person.FirstName,
@@ -103,7 +102,7 @@ namespace server.Helpers
             }
         }
 
-        private static async Task CreateRecruiters(UserManager<User> userManager, int numRecruiters, ApplicationDbContext context)
+        private static async Task CreateRecruiters(UserManager<ApplicationUser> userManager, int numRecruiters, ApplicationDbContext context)
         {
             var faker = new Faker();
             var bandIds = await context.Bands.Select(b => b.BandId).ToListAsync();
@@ -115,10 +114,11 @@ namespace server.Helpers
 
             for (int i = 0; i < numRecruiters; i++)
             {
-                var randomBandId = faker.PickRandom(bandIds);
+                var randomBandId = new Guid();
 
-                var recruiter = new Recruiter
+                var recruiter = new ApplicationUser
                 {
+                    UserType = "Recruiter",
                     UserName = faker.Internet.UserName($"recruiterNum{i}"),
                     Email = faker.Internet.Email(),
                     FirstName = faker.Person.FirstName,
@@ -148,9 +148,9 @@ namespace server.Helpers
             var faker = new Faker();
 
             // Fetch all existing StudentId and RecruiterId from the database
-            var studentIds = await context.Users.OfType<Student>().Select(s => s.Id).ToListAsync();
+            var studentIds = await context.Users.OfType<ApplicationUser>().Select(s => s.Id).ToListAsync();
             var recruiters = await context.Users
-                                           .OfType<Recruiter>()
+                                           .OfType<ApplicationUser>()
                                            .Include(r => r.Band) // Assuming a Recruiter has a Band navigation property
                                            .Select(r => new
                                            {
@@ -208,7 +208,7 @@ namespace server.Helpers
             return randomFormat();
         }
 
-        private static async Task CreateUserIfNotExists(UserManager<User> userManager, User user, string password, string role)
+        private static async Task CreateUserIfNotExists(UserManager<ApplicationUser> userManager, ApplicationUser user, string password, string role)
         {
             if (await userManager.FindByEmailAsync(user.Email) == null)
             {

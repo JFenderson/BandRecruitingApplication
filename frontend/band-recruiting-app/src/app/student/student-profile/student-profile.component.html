@@ -1,0 +1,41 @@
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow mt-10">
+  <h2 class="text-xl font-bold mb-6 text-blue-600">Complete Your Profile</h2>
+
+  <form [formGroup]="setupForm" (ngSubmit)="onSubmit()">
+    <!-- Instrument -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Instrument</label>
+      <input formControlName="instrument" class="w-full border px-3 py-2 rounded" />
+    </div>
+
+    <!-- High School -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">High School</label>
+      <input formControlName="highSchool" class="w-full border px-3 py-2 rounded" />
+    </div>
+
+    <h3 class="text-md font-semibold mt-6 mb-2">Upload Your First Video</h3>
+
+    <!-- Video Title -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Video Title</label>
+      <input formControlName="videoTitle" class="w-full border px-3 py-2 rounded" />
+    </div>
+
+    <!-- Video Description -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Video Description</label>
+      <textarea formControlName="videoDescription" class="w-full border px-3 py-2 rounded"></textarea>
+    </div>
+
+    <!-- Video Upload -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700">Upload Video File</label>
+      <input type="file" (change)="onFileSelected($event)" accept="video/*" class="mt-2" />
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      Submit and Continue
+    </button>
+  </form>
+</div>

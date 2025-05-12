@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using server.DTOs;
 using server.Services;
@@ -20,17 +21,17 @@ namespace server.Controllers
             _videoService = videoService;
         }
 
-        // GET: api/Student
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetAllStudents()
+        [Authorize(Roles = "Recruiter")]
+        [HttpGet("students")]
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllStudents()
         {
             var students = await _studentService.GetAllStudentsAsync();
             return Ok(students);
         }
 
-        // GET: api/Student/5
+        [Authorize(Roles = "Recruiter")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudentById(string id)
+        public async Task<ActionResult<ApplicationUser>> GetStudentById(string id)
         {
             try
             {
@@ -43,9 +44,9 @@ namespace server.Controllers
             }
         }
 
-        // POST: api/Student
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Student>> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
+        public async Task<ActionResult<ApplicationUser>> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -65,7 +66,7 @@ namespace server.Controllers
 
         // PUT: api/Student/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<Student>> UpdateStudent(string id, [FromBody] UpdateStudentDTO updateStudentDTO)
+        public async Task<ActionResult<ApplicationUser>> UpdateStudent(string id, [FromBody] UpdateStudentDTO updateStudentDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -95,6 +96,7 @@ namespace server.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPost("/{studentId}/videos")]
         public async Task<ActionResult<VideoDTO>> CreateVideo(string studentId, [FromForm] CreateVideoDTO createVideoDTO)
         {
@@ -132,22 +134,25 @@ namespace server.Controllers
 
 
         // GET: api/Student/gradYear/2024
+        [Authorize(Roles = "Recruiter")]
         [HttpGet("gradYear/{gradYear}")]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudentsByGradYear(int gradYear)
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetStudentsByGradYear(int gradYear)
         {
             var students = await _studentService.GetStudentsByGradYearAsync(gradYear);
             return Ok(students);
         }
 
         // GET: api/Student/instrument/Trumpet
+        [Authorize(Roles = "Recruiter")]
         [HttpGet("instrument/{instrument}")]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudentsByInstrument(string studentId, string instrument)
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetStudentsByInstrument(string studentId, string instrument)
         {
             var students = await _studentService.GetStudentsByInstrumentAsync(studentId, instrument);
             return Ok(students);
         }
 
         // GET: api/Student/5/videos
+        [Authorize(Roles = "Recruiter")]
         [HttpGet("{id}/videos")]
         public async Task<ActionResult<IEnumerable<Video>>> GetStudentVideos(string id)
         {
@@ -172,6 +177,7 @@ namespace server.Controllers
         }
 
         // GET: api/Student/5/offers
+        [Authorize(Roles = "Recruiter")]
         [HttpGet("{id}/offers")]
         public async Task<ActionResult<IEnumerable<Offer>>> GetStudentScholarshipOffers(string id)
         {

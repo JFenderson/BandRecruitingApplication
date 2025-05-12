@@ -1,16 +1,15 @@
-﻿using server.DTOs;
-using Models;
+﻿using Models;
 
 namespace server.Services
 {
     public interface IBandService : IService<Band>
     {
         Task<IEnumerable<Band>> GetBandsAsync();
-        Task<Band> GetBandByIdAsync(string id);
+        Task<Band> GetBandByIdAsync(Guid id);
         Task<Band> CreateBandAsync(Band band);
         Task<bool> UpdateBandAsync(Band band);
-        Task<bool> DeleteBandAsync(string id);
-        Task<IEnumerable<Student>> GetInterestedStudentsAsync(string bandId);
-        Task<int> GetInterestedStudentCountAsync(string bandId);
+        Task<bool> DeleteBandAsync(Guid id);
+        Task<IEnumerable<ApplicationUser>> GetInterestedStudentsAsync(Guid bandId);
+        Task<int> GetInterestedStudentCountAsync(Guid bandId);
     }
 }

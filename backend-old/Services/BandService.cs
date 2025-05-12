@@ -1,8 +1,6 @@
-﻿using server.DTOs;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
-using Microsoft.AspNetCore.Mvc;
 
 namespace server.Services
 {
@@ -21,10 +19,10 @@ namespace server.Services
                 .Include(b => b.Offers)
                 .Include(b => b.InterestedStudents)
                 .ToArrayAsync();
-                //.ToListAsync();
+            //.ToListAsync();
         }
 
-        public async Task<Band> GetBandByIdAsync(string id)
+        public async Task<Band> GetBandByIdAsync(Guid id)
         {
             return await _context.Bands
                 .Include(b => b.Recruiters)
@@ -46,7 +44,7 @@ namespace server.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteBandAsync(string id)
+        public async Task<bool> DeleteBandAsync(Guid id)
         {
             var band = await _context.Bands.FindAsync(id);
             if (band == null) return false;
@@ -55,7 +53,7 @@ namespace server.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<IEnumerable<Student>> GetInterestedStudentsAsync(string bandId)
+        public async Task<IEnumerable<ApplicationUser>> GetInterestedStudentsAsync(Guid bandId)
         {
             // Log the bandId being passed
             Console.WriteLine($"Fetching students interested in BandId: {bandId}");
@@ -72,7 +70,7 @@ namespace server.Services
             return interests;
         }
 
-        public async Task<int> GetInterestedStudentCountAsync(string bandId)
+        public async Task<int> GetInterestedStudentCountAsync(Guid bandId)
         {
             return await _context.Interests
                 .CountAsync(i => i.BandId == bandId);

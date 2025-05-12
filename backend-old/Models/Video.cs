@@ -10,7 +10,7 @@
 
         // Navigation Properties
         public string StudentId { get; set; }
-        public Student Student { get; set; }
+        public ApplicationUser Student { get; set; }
         public List<Comment> Comments { get; set; }
         public List<Rating> Ratings { get; set; }
     }

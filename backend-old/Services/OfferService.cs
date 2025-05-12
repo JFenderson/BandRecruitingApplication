@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
 using server.DTOs;
@@ -32,7 +30,7 @@ namespace server.Services
             {
                 StudentId = offer.StudentId,
                 RecruiterId = offer.RecruiterId,
-                BandId = offer.BandId,
+                BandId = (Guid)offer.BandId,
                 BandName = offer.BandName,
                 Amount = offer.Amount,
                 Status = offer.Status,
@@ -62,7 +60,7 @@ namespace server.Services
         }
 
         // Get offers made by a specific band
-        public async Task<IEnumerable<OfferDTO>> GetOffersByBandAsync(string bandId)
+        public async Task<IEnumerable<OfferDTO>> GetOffersByBandAsync(Guid bandId)
         {
             return await _context.Offers
                 .Where(o => o.BandId == bandId)
@@ -71,7 +69,7 @@ namespace server.Services
                     OfferId = o.OfferId,
                     StudentId = o.StudentId,
                     RecruiterId = o.RecruiterId,
-                    BandId = o.BandId,
+                    BandId = (Guid)o.BandId,
                     BandName = o.BandName,
                     Amount = o.Amount,
                     Status = o.Status,
@@ -89,7 +87,7 @@ namespace server.Services
                     OfferId = o.OfferId,
                     StudentId = o.StudentId,
                     RecruiterId = o.RecruiterId,
-                    BandId = o.BandId,
+                    BandId = (Guid)o.BandId,
                     BandName = o.BandName,
                     Amount = o.Amount,
                     Status = o.Status,
@@ -168,7 +166,7 @@ namespace server.Services
                     OfferId = o.OfferId,
                     StudentId = o.StudentId,
                     RecruiterId = o.RecruiterId,
-                    BandId = o.BandId,
+                    BandId = (Guid)o.BandId,
                     BandName = o.BandName,
                     Amount = o.Amount,
                     Status = o.Status,
@@ -179,7 +177,7 @@ namespace server.Services
             return offers;
         }
 
- 
+
         // Update the status of an offer (e.g., Accepted, Rejected)
         public async Task<Offer> UpdateOfferAsync(string offerId, decimal offerDto)
         {

@@ -1,18 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using Models;
-using System.Reflection.Emit;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace server.Data
 {
-    public class StudentConfiguration : IEntityTypeConfiguration<Student>
+    public class StudentConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
-        public void Configure(EntityTypeBuilder<Student> builder)
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
 
             //builder.HasKey(s => s.Id);
 
-          
+
 
             builder.Property(s => s.FirstName).IsRequired().HasMaxLength(50);
             builder.Property(s => s.LastName).IsRequired().HasMaxLength(50);
@@ -37,7 +35,7 @@ namespace server.Data
                    .HasForeignKey(i => i.StudentId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-   
+
         }
     }
 }
