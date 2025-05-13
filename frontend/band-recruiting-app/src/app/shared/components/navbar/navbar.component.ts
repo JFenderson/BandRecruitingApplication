@@ -3,9 +3,9 @@ import { TokenService } from '../../../core/services/token.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrl: './navbar.component.scss',
+  standalone: false
 })
 export class NavbarComponent {
   router: any;

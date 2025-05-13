@@ -14,16 +14,21 @@ import { TokenService } from "../../core/services/token.service";
 
 
 export class LoginComponent {
+  loginForm: FormGroup;
+  
   constructor(
     private authService: AuthService,
     private tokenService: TokenService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
 
-  loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
-  });
 
   onSubmit() {
     if (this.loginForm.invalid) return;

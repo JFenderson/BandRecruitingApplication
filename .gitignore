@@ -4,3 +4,13 @@
 
 /backend-old/.vs
 /backend-old/bin/Debug/net8.0
+.vs/
+*.user
+*.suo
+*.cache/
+*.log
+*.tsbuildinfo
+.angular/
+node_modules/
+bin/
+obj/

@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "server.csproj", "{CF0956F9-F0DC-4628-AE4E-40E274D872A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{49BB43BA-CBC0-4530-8726-EAB507687207}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{A427F088-8036-456E-A0CC-BF023EB80AF1}"
+	ProjectSection(SolutionItems) = preProject
+		dotnet.yml = dotnet.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF0956F9-F0DC-4628-AE4E-40E274D872A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF0956F9-F0DC-4628-AE4E-40E274D872A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF0956F9-F0DC-4628-AE4E-40E274D872A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF0956F9-F0DC-4628-AE4E-40E274D872A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A427F088-8036-456E-A0CC-BF023EB80AF1} = {49BB43BA-CBC0-4530-8726-EAB507687207}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0F7F8C39-DA1C-4951-A115-B79A1712C391}
+	EndGlobalSection
+EndGlobal
