@@ -1,16 +1,61 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/backend-old/.vs
-/backend-old/bin/Debug/net8.0
-.vs/
+﻿# ======= BACKEND (.NET) =======
+**/bin/
+**/obj/
 *.user
 *.suo
 *.cache/
 *.log
 *.tsbuildinfo
+
+# VS project folders
+.vs/
+*.dbmdl
+*.psess
+*.vsp
+*.vspx
+*.vspscc
+*.vssscc
+*.pdb
+
+# EF Core Migrations build artifacts
+Migrations/*.Designer.cs
+Migrations/*.ModelSnapshot.cs
+
+# Azure secrets file
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# If you want to track the base config:
+!appsettings.json
+
+# Rider (optional)
+.idea/
+
+# ======= FRONTEND (Angular) =======
+**/node_modules/
+**/dist/
+**/.angular/
+**/.angular/cache/
+**/.turbo/
+**/.vite/
+.vite/
 .angular/
-node_modules/
-bin/
-obj/
+
+# Local environment files
+**/env.local.ts
+**/environment.*.ts
+
+# Angular cache
+**/.tsbuildinfo
+
+# IDEs (optional)
+*.iml
+*.iws
+.idea/
+.DS_Store
+Thumbs.db
+
+# OS
+ehthumbs.db
+Icon?
