@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Models;
 
 namespace server.Data
@@ -18,15 +18,16 @@ namespace server.Data
                    .HasForeignKey(r => r.VideoId)
                    .OnDelete(DeleteBehavior.Cascade);
 
+
             builder.HasOne(r => r.Recruiter)
-                   .WithMany(r => r.Ratings)
-                   .HasForeignKey(r => r.RecruiterId)
-                   .OnDelete(DeleteBehavior.Restrict);
+    .WithMany(u => u.RatingsGiven)
+    .HasForeignKey(r => r.RecruiterId)
+    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(r => r.Student)
-                .WithMany(s => s.Ratings)
-                .HasForeignKey(r => r.StudentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                   .WithMany(u => u.RatingsReceived)
+                   .HasForeignKey(r => r.StudentId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

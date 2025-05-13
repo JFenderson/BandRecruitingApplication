@@ -64,7 +64,7 @@ namespace server.Services
 
         public async Task<ApplicationUser> UpdateStudentAsync(string id, UpdateStudentDTO updateStudentDTO)
         {
-            var student = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == id.ToString());
 
             if (student == null)
             {
@@ -111,10 +111,10 @@ namespace server.Services
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            var student = await _context.Users.OfType<ApplicationUser>()
+            var student = await _context.Users
                 .Include(s => s.Videos)  // Fetch related videos
                 .Include(s => s.ScholarshipOffers)  // Fetch related scholarship offers
-                .Include(s => s.Ratings)  // Fetch related ratings
+                .Include(s => s.RatingsReceived)  // Fetch related ratings
                 .FirstOrDefaultAsync(s => s.Id == id);  // Find student by ID
 
             if (student == null)
@@ -123,8 +123,8 @@ namespace server.Services
             }
 
             // Calculate the average rating
-            var averageRating = student.Ratings.Any()
-                ? student.Ratings.Average(r => r.Score)
+            var averageRating = student.RatingsReceived.Any()
+                ? student.RatingsReceived.Average(r => r.Score)
                 : 0;
 
             // Create the StudentDTO object
@@ -148,7 +148,6 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync()
         {
             return await _context.Users
-                .OfType<ApplicationUser>()
                 .Include(s => s.Videos)
                 .Include(s => s.ScholarshipOffers)
                 .ToArrayAsync();
@@ -156,7 +155,7 @@ namespace server.Services
 
         public async Task<bool> DeleteStudentAsync(string id)
         {
-            var student = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == id.ToString());
 
             if (student == null)
             {
@@ -173,7 +172,6 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetStudentsByGradYearAsync(int gradYear)
         {
             return await _context.Users
-                .OfType<ApplicationUser>()
                 .Where(r => r.GraduationYear == gradYear)
                 .ToArrayAsync();
         }
@@ -195,7 +193,6 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetStudentsByInstrumentAsync(string studentId, string instrument)
         {
             return await _context.Users
-                .OfType<ApplicationUser>()
                 .Where(i => i.Id == studentId)
                 .Where(s => s.Instrument == instrument)
                 .ToArrayAsync();

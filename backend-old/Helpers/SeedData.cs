@@ -14,27 +14,73 @@ namespace server.Helpers
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Define roles
-            string[] roleNames = { "Admin", "Recruiter", "Student" };
-            IdentityResult roleResult;
 
-            // Create roles if they don't exist
-            foreach (var roleName in roleNames)
-            {
-                var roleExist = await roleManager.RoleExistsAsync(roleName);
-                if (!roleExist)
-                {
-                    roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
-                }
-            }
+            await EnsureRolesExist(roleManager);
 
+            // Seed users and data
+            await CreateDefaultAdmin(userManager);
             await CreateStudents(userManager, 20, context);
             await CreateRecruiters(userManager, 20, context);
             await CreateOffers(context, 20);
-
-
-
         }
+
+        private static async Task EnsureRolesExist(RoleManager<IdentityRole> roleManager)
+        {
+            string[] roleNames = { "Admin", "Recruiter", "Student" };
+
+            foreach (var roleName in roleNames)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    var result = await roleManager.CreateAsync(new IdentityRole(roleName));
+                    if (result.Succeeded)
+                    {
+                        Console.WriteLine($"Created role: {roleName}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to create role: {roleName}");
+                    }
+                }
+            }
+        }
+
+
+        private static async Task CreateDefaultAdmin(UserManager<ApplicationUser> userManager)
+        {
+            var defaultEmail = "admin@bandrecruitingapp.com";
+
+            var existingAdmin = await userManager.FindByEmailAsync(defaultEmail);
+            if (existingAdmin != null)
+            {
+                Console.WriteLine("Admin user already exists.");
+                return;
+            }
+
+            var adminUser = new ApplicationUser
+            {
+                UserName = defaultEmail,
+                Email = defaultEmail,
+                FirstName = "System",
+                LastName = "Administrator",
+                UserType = "Admin",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                Console.WriteLine("Default Admin user created successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to create Admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+
 
         private static async Task CreateStudents(UserManager<ApplicationUser> userManager, int numStudents, ApplicationDbContext context)
         {
@@ -47,9 +93,11 @@ namespace server.Helpers
                         "Saxophone",
                         "Tuba",
                         "Clarinet",
-                        "Percussion",
+                        "Snare Drum",
+                        "Tenor Drum",
+                        "Bass Drum",
+                        "Cymbals",
                         "Flute",
-                        "Euphonium",
                         "Mellophone",
                         "Piccolo",
                         "Baritone"

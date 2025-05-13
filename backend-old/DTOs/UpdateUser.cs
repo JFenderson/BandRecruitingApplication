@@ -1,6 +1,6 @@
 ﻿namespace server.DTOs
 {
-    public class UpdateStudentDTO
+    public class UpdateUser
     {
         public string? Email { get; set; }
         public string? Password { get; set; }
@@ -12,5 +12,7 @@
         public string? ProfilePicture { get; set; }
         public string? HighSchool { get; set; }
         public int? GraduationYear { get; set; }
+
+        public Guid? BandId { get; set; }
     }
 }

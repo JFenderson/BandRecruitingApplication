@@ -20,7 +20,6 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetRecruitersByBandAsync(Guid bandId)
         {
             return await _context.Users
-                .OfType<ApplicationUser>()
                 .Where(r => r.BandId == bandId)
                 .ToArrayAsync();
         }
@@ -50,14 +49,12 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetRecruitersAsync()
         {
             return await _context.Users
-                .OfType<ApplicationUser>()
                 .ToArrayAsync();
         }
 
         public async Task<RecruiterDTO> GetRecruiterByIdAsync(string recruiterId)
         {
             var recruiter = await _context.Users
-                .OfType<ApplicationUser>()
                 .FirstOrDefaultAsync(r => r.Id == recruiterId);
 
             if (recruiter == null)
@@ -115,7 +112,7 @@ namespace server.Services
 
         public async Task<bool> UpdateRecruiterAsync(string recruiterId, UpdateRecruiterDTO recruiterDTO)
         {
-            var recruiter = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(r => r.Id == recruiterId);
+            var recruiter = await _context.Users.FirstOrDefaultAsync(r => r.Id == recruiterId);
 
             if (recruiter == null) return false;
 
@@ -132,7 +129,7 @@ namespace server.Services
 
         public async Task<bool> DeleteRecruiterAsync(string recruiterId)
         {
-            var recruiter = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(r => r.Id == recruiterId);
+            var recruiter = await _context.Users.FirstOrDefaultAsync(r => r.Id == recruiterId);
 
             if (recruiter == null) return false;
 

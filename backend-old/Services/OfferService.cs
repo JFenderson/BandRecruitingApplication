@@ -110,8 +110,8 @@ namespace server.Services
                 .Select(student => new
                 {
                     Student = student,
-                    AverageRating = student.Ratings != null && student.Ratings.Any()
-                        ? student.Ratings.Average(r => r.Score)
+                    AverageRating = student.RatingsReceived != null && student.RatingsReceived.Any()
+                        ? student.RatingsReceived.Average(r => r.Score)
                         : 0,  // Safely calculate the average rating
                     OfferCount = student.ScholarshipOffers != null
                         ? student.ScholarshipOffers.Count()

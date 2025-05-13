@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,11 +12,11 @@ export class AuthService {
 
   constructor(private http: HttpClient, private tokenService: TokenService, private router: Router) {}
 
- login(credentials: { email: string; password: string }) {
-  return this.http.post<any>(`${this.baseUrl}/login`, credentials).pipe(
+login(credentials: { email: string; password: string }): Observable<any> {
+  return this.http.post<any>(`${environment.apiUrl}/account/login`, credentials).pipe(
     tap(res => {
-      this.tokenService.setToken(res.token);
-      this.tokenService.setRefreshToken(res.refreshToken);
+      localStorage.setItem('access_token', res.token);
+      localStorage.setItem('refresh_token', res.refreshToken);
     })
   );
 }

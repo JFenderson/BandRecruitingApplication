@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Models;
 
 namespace server.Data
@@ -19,9 +19,10 @@ namespace server.Data
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(c => c.Recruiter)
-                   .WithMany(r => r.Comments)
+                   .WithMany(r => r.CommentsGiven)
                    .HasForeignKey(c => c.RecruiterId)
                    .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

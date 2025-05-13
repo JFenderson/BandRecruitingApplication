@@ -13,5 +13,6 @@
         public Video Video { get; set; }
         public string RecruiterId { get; set; }  // Foreign Key
         public ApplicationUser Recruiter { get; set; }
+
     }
 }

@@ -12,9 +12,14 @@
         // Student
         public string? Instrument { get; set; }
         public string? HighSchool { get; set; }
-
+        public string? ProfilePicture { get; set; }
+        public int? GraduationYear { get; set; }
         // Recruiter
         public Guid? BandId { get; set; }
+
+        public string UserName { get; set; }
+
+
     }
 
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using server.Constants;
 using server.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -52,8 +53,14 @@ namespace server.Controllers
             return BadRequest("Invalid login attempt.");
         }
 
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO model)
         {
+            if (!Roles.All.Contains(model.UserType))
+            {
+                return BadRequest($"Invalid role type. Must be one of: {string.Join(", ", Roles.All)}");
+            }
+
             var user = new ApplicationUser
             {
                 UserName = model.Email,
@@ -65,35 +72,23 @@ namespace server.Controllers
                 CreatedAt = DateTime.UtcNow,
                 RefreshToken = GenerateRefreshToken(),
                 RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7),
-                Instrument = model.UserType == "Student" ? model.Instrument : null,
-                HighSchool = model.UserType == "Student" ? model.HighSchool : null,
-                BandId = model.UserType == "Recruiter" ? model.BandId : null
+                Instrument = model.UserType == Roles.Student ? model.Instrument : null,
+                HighSchool = model.UserType == Roles.Student ? model.HighSchool : null,
+                GraduationYear = model.UserType == Roles.Student ? model.GraduationYear : null,
+                BandId = model.UserType == Roles.Recruiter ? model.BandId : null
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
 
-            if (result.Succeeded)
+            await _userManager.AddToRoleAsync(user, model.UserType);
+
+            return Ok(new
             {
-                await _userManager.AddToRoleAsync(user, model.UserType);
-
-                var token = GenerateJwtToken(user);
-                var roles = await _userManager.GetRolesAsync(user);
-
-                return Ok(new
-                {
-                    Token = token,
-                    Role = roles.FirstOrDefault()
-                });
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-
-            return BadRequest(ModelState);
+                message = $"{model.UserType} registered successfully",
+                userId = user.Id
+            });
         }
-
 
 
         [HttpPost("refresh-token")]
@@ -161,15 +156,24 @@ namespace server.Controllers
             }
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim("UserType", user.UserType),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+
+            foreach (var role in roles)
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Role, user.UserType) // Assuming UserType is your role
-        };
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -178,8 +182,9 @@ namespace server.Controllers
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: creds);
+                expires: DateTime.UtcNow.AddMinutes(30),
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

@@ -119,7 +119,7 @@ namespace server.Services
             {
                 int averageRating = (int)ratings.Average(r => r.Score);
                 //var student = await _context.Students.FindAsync(studentId);
-                var student = await _context.Users.OfType<ApplicationUser>().FirstOrDefaultAsync(s => s.Id == studentId.ToString());
+                var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == studentId.ToString());
 
                 if (student != null)
                 {

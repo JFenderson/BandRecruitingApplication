@@ -5,7 +5,7 @@ using server.DTOs;
 
 namespace server.Controllers
 {
-    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
@@ -19,7 +19,8 @@ namespace server.Controllers
             _roleManager = roleManager;
         }
 
-        [HttpGet("users")]
+        [HttpGet("all-users")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetUsers()
         {
             var users = _userManager.Users.ToList();
