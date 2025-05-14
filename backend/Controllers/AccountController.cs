@@ -29,29 +29,37 @@ namespace server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            var user = await _userManager.FindByNameAsync(model.Email);
+            if (user == null)
+                return BadRequest("Invalid login attempt.");
+
+            var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!passwordValid)
+                return BadRequest("Invalid login attempt.");
+
+            // Generate JWT and Refresh Token
+            var token = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+            // Ensure this finishes before continuing
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                return StatusCode(500, "Failed to update refresh token.");
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
             {
-                // Generate JWT token
-                var token = GenerateJwtToken(user);
-                var refreshToken = GenerateRefreshToken();
-
-                user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); // Set the expiry time for the refresh token
-                await _userManager.UpdateAsync(user);
-
-                var roles = await _userManager.GetRolesAsync(user);
-
-                return Ok(new
-                {
-                    Token = token,
-                    Role = roles.FirstOrDefault(),
-                    RefreshToken = refreshToken,
-                    UserId = user.Id,
-                });
-            }
-            return BadRequest("Invalid login attempt.");
+                Token = token,
+                Role = roles.FirstOrDefault(),
+                RefreshToken = refreshToken,
+                UserId = user.Id,
+            });
         }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO model)
