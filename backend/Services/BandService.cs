@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
+using server.DTOs;
 
 namespace server.Services
 {
@@ -12,36 +13,84 @@ namespace server.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Band>> GetBandsAsync()
+        public async Task<List<BandDTO>> GetBandsAsync()
         {
             return await _context.Bands
-                .Include(b => b.Recruiters)
-                .Include(b => b.Offers)
-                .Include(b => b.InterestedStudents)
-                .ToArrayAsync();
-            //.ToListAsync();
+                .Select(b => new BandDTO
+                {
+                    BandId = b.BandId,
+                    Name = b.Name,
+                    SchoolName = b.SchoolName,
+                    State = b.State,
+                    City = b.City,
+                    Division = b.Division,
+                    Conference = b.Conference,
+                    RecruiterCount = b.Recruiters.Count
+                })
+                .ToListAsync();
         }
 
-        public async Task<Band> GetBandByIdAsync(Guid id)
+        public async Task<BandDTO?> GetBandByIdAsync(Guid id)
         {
-            return await _context.Bands
-                .Include(b => b.Recruiters)
-                .Include(b => b.Offers)
-                .Include(b => b.InterestedStudents)
-                .FirstOrDefaultAsync(b => b.BandId == id);
-        }
+            var band = await _context.Bands
+                .Where(b => b.BandId == id)
+                .Select(b => new BandDTO
+                {
+                    BandId = b.BandId,
+                    Name = b.Name,
+                    SchoolName = b.SchoolName,
+                    State = b.State,
+                    City = b.City,
+                    Division = b.Division,
+                    Conference = b.Conference,
+                    RecruiterCount = b.Recruiters.Count
+                })
+                .FirstOrDefaultAsync();
 
-        public async Task<Band> CreateBandAsync(Band band)
-        {
-            _context.Bands.Add(band);
-            await _context.SaveChangesAsync();
             return band;
         }
 
-        public async Task<bool> UpdateBandAsync(Band band)
+        public async Task<BandDTO> CreateBandAsync(CreateBandDTO bandDto)
         {
-            _context.Bands.Update(band);
-            return await _context.SaveChangesAsync() > 0;
+            var band = new Band
+            {
+                BandId = Guid.NewGuid(),
+                Name = bandDto.Name,
+                SchoolName = bandDto.SchoolName,
+                State = bandDto.State,
+                Division = bandDto.Division,
+                Conference = bandDto.Conference
+            };
+
+            _context.Bands.Add(band);
+            await _context.SaveChangesAsync();
+            return new BandDTO
+            {
+                BandId = band.BandId,
+                Name = band.Name,
+                SchoolName = band.SchoolName,
+                State = band.State,
+                Division = band.Division,
+                Conference = band.Conference,
+                RecruiterCount = 0
+            };
+        }
+
+        public async Task<bool> UpdateBandAsync(UpdateBandDTO bandDto)
+        {
+            var band = await _context.Bands.FindAsync(bandDto.BandId);
+            if (band == null)
+                return false;
+
+            band.Name = bandDto.Name;
+            band.SchoolName = bandDto.SchoolName;
+            band.State = bandDto.State;
+            band.City = bandDto.City;
+            band.Division = bandDto.Division;
+            band.Conference = bandDto.Conference;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteBandAsync(Guid id)

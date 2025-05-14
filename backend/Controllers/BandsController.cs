@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using server.DTOs;
 using server.Services;
 
 namespace server.Controllers
@@ -17,51 +18,41 @@ namespace server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Band>>> GetBands()
+        public async Task<ActionResult<IEnumerable<BandDTO>>> GetBands()
         {
             var bands = await _bandService.GetBandsAsync();
             return Ok(bands);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Band>> GetBand(Guid id)
+        public async Task<ActionResult<BandDTO>> GetBand(Guid id)
         {
-            try
+            var band = await _bandService.GetBandByIdAsync(id);
+            if (band == null)
             {
-                var band = await _bandService.GetBandByIdAsync(id);
-                if (band == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(band);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-
-
+            return Ok(band);
         }
 
         [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
-        public async Task<ActionResult<Band>> CreateBand(Band band)
+        public async Task<ActionResult<BandDTO>> CreateBand([FromBody] CreateBandDTO bandDto)
         {
-            var createdBand = await _bandService.CreateBandAsync(band);
+            var createdBand = await _bandService.CreateBandAsync(bandDto);
             return CreatedAtAction(nameof(GetBand), new { id = createdBand.BandId }, createdBand);
         }
 
         [Authorize(Policy = "RequireRecruiterRole")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBand(Guid id, Band band)
+        public async Task<IActionResult> UpdateBand(Guid id, [FromBody] UpdateBandDTO bandDto)
         {
-            if (id != band.BandId)
+            if (id != bandDto.BandId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched BandId");
             }
 
-            var success = await _bandService.UpdateBandAsync(band);
+            var success = await _bandService.UpdateBandAsync(bandDto);
             if (!success)
             {
                 return NotFound();
