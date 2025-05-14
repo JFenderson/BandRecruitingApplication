@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Models;
 
 namespace server.Data
@@ -10,8 +10,12 @@ namespace server.Data
         {
             builder.HasKey(b => b.BandId);
 
-            builder.Property(b => b.Name).IsRequired().HasMaxLength(100);
-            builder.Property(b => b.SchoolName).IsRequired().HasMaxLength(100);
+            builder.Property(b => b.Name).HasMaxLength(100);
+            builder.Property(b => b.SchoolName).HasMaxLength(100);
+            builder.Property(b => b.City).HasMaxLength(100);
+            builder.Property(b => b.State).HasMaxLength(100);
+            builder.Property(b => b.Conference).HasMaxLength(100);
+            builder.Property(b => b.Division).HasMaxLength(100);
 
             builder.HasMany(b => b.Recruiters)
                    .WithOne(r => r.Band)

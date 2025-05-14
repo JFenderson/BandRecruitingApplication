@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
 using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace server.Helpers
 {
@@ -18,9 +20,10 @@ namespace server.Helpers
             await EnsureRolesExist(roleManager);
 
             // Seed users and data
+            await SeedBandsAndRecruiters(context, userManager);
             await CreateDefaultAdmin(userManager);
             await CreateStudents(userManager, 20, context);
-            await CreateRecruiters(userManager, 20, context);
+            //await CreateRecruiters(userManager, 20, context);
             await CreateOffers(context, 20);
         }
 
@@ -64,6 +67,7 @@ namespace server.Helpers
                 FirstName = "System",
                 LastName = "Administrator",
                 UserType = "Admin",
+                Phone = "000-000-0000",
                 EmailConfirmed = true,
                 CreatedAt = DateTime.UtcNow,
                 RefreshToken = GenerateRefreshToken(),
@@ -114,12 +118,12 @@ namespace server.Helpers
                     Email = faker.Internet.Email(),
                     FirstName = faker.Person.FirstName,
                     LastName = faker.Person.LastName,
-                    PhoneNumber = faker.Phone.PhoneNumber(),
+                    Phone = faker.Phone.PhoneNumber(),
                     Instrument = faker.PickRandom(instruments),
                     HighSchool = GenerateHighSchoolName(faker),
                     GraduationYear = faker.Date.Future().Year,
                     CreatedAt = DateTime.UtcNow,
-                    AverageRating = rndNum.Next(1, 5),
+                    AverageRating = Math.Round(faker.Random.Decimal(1, 5), 1),
                     RefreshToken = GenerateRefreshToken(),
                     RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
                 };
@@ -131,6 +135,7 @@ namespace server.Helpers
                     Console.WriteLine($"Created student: {student.UserName}");
 
                     var bandIds = await context.Bands.Select(b => b.BandId).ToListAsync();
+                    if (!bandIds.Any()) continue;
                     var interestedBands = faker.PickRandom(bandIds, faker.Random.Int(1, 3));
 
                     foreach (var bandId in interestedBands)
@@ -164,7 +169,7 @@ namespace server.Helpers
 
             for (int i = 0; i < numRecruiters; i++)
             {
-                var randomBandId = new Guid();
+                var randomBandId = faker.PickRandom(bandIds);
 
                 var recruiter = new ApplicationUser
                 {
@@ -173,7 +178,7 @@ namespace server.Helpers
                     Email = faker.Internet.Email(),
                     FirstName = faker.Person.FirstName,
                     LastName = faker.Person.LastName,
-                    PhoneNumber = faker.Phone.PhoneNumber(),
+                    Phone = faker.Phone.PhoneNumber(),
                     BandId = randomBandId,
                     CreatedAt = DateTime.UtcNow,
                     RefreshToken = GenerateRefreshToken(),
@@ -197,18 +202,21 @@ namespace server.Helpers
         {
             var faker = new Faker();
 
-            // Fetch all existing StudentId and RecruiterId from the database
-            var studentIds = await context.Users.OfType<ApplicationUser>().Select(s => s.Id).ToListAsync();
+            var studentIds = await context.Users
+                            .Where(u => u.UserType == "Student")
+                            .Select(s => s.Id)
+                            .ToListAsync();
+
             var recruiters = await context.Users
-                                           .OfType<ApplicationUser>()
-                                           .Include(r => r.Band) // Assuming a Recruiter has a Band navigation property
-                                           .Select(r => new
-                                           {
-                                               RecruiterId = r.Id,
-                                               BandId = r.Band.BandId,
-                                               BandName = r.Band.Name
-                                           })
-                                           .ToListAsync();
+                            .Where(u => u.UserType == "Recruiter" && u.Band != null)
+                            .Include(r => r.Band)
+                            .Select(r => new
+                            {
+                                RecruiterId = r.Id,
+                                BandId = r.Band.BandId,
+                                BandName = r.Band.Name
+                            })
+                            .ToListAsync();
 
             if (!studentIds.Any() || !recruiters.Any())
             {
@@ -279,5 +287,89 @@ namespace server.Helpers
                 return Convert.ToBase64String(randomNumber);
             }
         }
+
+        public static async Task SeedBandsAndRecruiters(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        {
+            var faker = new Faker();
+
+            if (!context.Bands.Any())
+            {
+                var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Bands.json");
+                var jsonData = File.ReadAllText(jsonPath);
+                var bandSeedList = JsonSerializer.Deserialize<List<BandSeedModel>>(jsonData);
+
+                var bands = bandSeedList.Select(h => new Band
+                {
+                    BandId = Guid.NewGuid(),
+                    SchoolName = h.SchoolName,
+                    Name = h.MarchingBand,
+                    City = h.City,
+                    State = h.state,
+                    Conference = h.Conference,
+                    Division = h.Division
+                }).ToList();
+
+                await context.Bands.AddRangeAsync(bands);
+                await context.SaveChangesAsync();
+            }
+
+            // Fetch bands to use their IDs
+            var bandList = context.Bands.ToList();
+
+            // Seed Recruiters
+            if (!context.Users.Any(u => u.UserType == "Recruiter"))
+            {
+                var rng = new Random();
+                for (int i = 1; i <= 20; i++)
+                {
+                    var band = bandList[i % bandList.Count]; // round-robin or use rng.Next(bandList.Count)
+
+                    var recruiterUser = new ApplicationUser
+                    {
+                        UserName = $"recruiter{i}@hbcu.edu",
+                        Email = $"recruiter{i}@hbcu.edu",
+                        FirstName = $"Recruiter{i}",
+                        LastName = "HBCU",
+                        Phone = faker.Phone.PhoneNumber(),
+                        EmailConfirmed = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UserType = "Recruiter",
+                        BandId = band.BandId
+                    };
+
+                    var result = await userManager.CreateAsync(recruiterUser, "DefaultP@ss123!");
+
+                    if (result.Succeeded)
+                    {
+                        // No need to add recruiter separately if it’s all in ApplicationUser
+                        Console.WriteLine($"Created recruiter{i}@hbcu.edu");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to create recruiter{i}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                }
+            }
+        }
+
+        public class BandSeedModel
+        {
+            [JsonPropertyName("university")]
+            public string SchoolName { get; set; }
+            [JsonPropertyName("band_name")]
+            public string MarchingBand { get; set; }
+            [JsonPropertyName("city")]
+            public string City { get; set; }
+            [JsonPropertyName("state")]
+            public string state { get; set; }
+            [JsonPropertyName("division")]
+            public string Division { get; set; }
+            [JsonPropertyName("conference")]
+            public string Conference { get; set; }
+
+        }
+
+
+
     }
 }

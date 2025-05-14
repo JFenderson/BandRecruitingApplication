@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Models;
 
 namespace server.Data
 {
@@ -8,10 +7,8 @@ namespace server.Data
     {
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
-            builder.HasDiscriminator<string>("UserType")
-                    .HasValue<ApplicationUser>("Student")
-                    .HasValue<ApplicationUser>("Recruiter")
-                    .HasValue<Admin>("Admin");
+            builder.Property(u => u.UserType)
+                    .IsRequired();
 
             builder.Property(u => u.AverageRating)
                    .HasPrecision(3, 1);

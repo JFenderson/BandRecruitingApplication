@@ -1,0 +1,346 @@
+﻿[
+  {
+    "university": "Alabama A&M University",
+    "band_name": "Marching Maroon and White",
+    "city": "Normal",
+    "state": "AL",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Alabama State University",
+    "band_name": "Mighty Marching Hornets",
+    "city": "Montgomery",
+    "state": "AL",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Alcorn State University",
+    "band_name": "Sounds of Dyn-O-Mite",
+    "city": "Lorman",
+    "state": "MS",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Bethune-Cookman University",
+    "band_name": "Marching Wildcats",
+    "city": "Daytona Beach",
+    "state": "FL",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Florida A&M University",
+    "band_name": "Marching 100",
+    "city": "Tallahassee",
+    "state": "FL",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Grambling State University",
+    "band_name": "Tiger Marching Band",
+    "city": "Grambling",
+    "state": "LA",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Jackson State University",
+    "band_name": "Sonic Boom of the South",
+    "city": "Jackson",
+    "state": "MS",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Mississippi Valley State University",
+    "band_name": "Mean Green Marching Machine",
+    "city": "Itta Bena",
+    "state": "MS",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Prairie View A&M University",
+    "band_name": "Marching Storm",
+    "city": "Prairie View",
+    "state": "TX",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Southern University",
+    "band_name": "Human Jukebox",
+    "city": "Baton Rouge",
+    "state": "LA",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Texas Southern University",
+    "band_name": "Ocean of Soul",
+    "city": "Houston",
+    "state": "TX",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "University of Arkansas at Pine Bluff",
+    "band_name": "Marching Musical Machine of the Mid-South",
+    "city": "Pine Bluff",
+    "state": "AR",
+    "division": "I",
+    "conference": "SWAC"
+  },
+  {
+    "university": "Delaware State University",
+    "band_name": "Approaching Storm",
+    "city": "Dover",
+    "state": "DE",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "Howard University",
+    "band_name": "Showtime Marching Band",
+    "city": "Washington",
+    "state": "DC",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "Morgan State University",
+    "band_name": "Magnificent Marching Machine",
+    "city": "Baltimore",
+    "state": "MD",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "Norfolk State University",
+    "band_name": "Spartan Legion",
+    "city": "Norfolk",
+    "state": "VA",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "North Carolina Central University",
+    "band_name": "Marching Sound Machine",
+    "city": "Durham",
+    "state": "NC",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "South Carolina State University",
+    "band_name": "Marching 101",
+    "city": "Orangeburg",
+    "state": "SC",
+    "division": "I",
+    "conference": "MEAC"
+  },
+  {
+    "university": "Tennessee State University",
+    "band_name": "Aristocrat of Bands",
+    "city": "Nashville",
+    "state": "TN",
+    "division": "I",
+    "conference": "OVC"
+  },
+  {
+    "university": "North Carolina A&T State University",
+    "band_name": "Blue and Gold Marching Machine",
+    "city": "Greensboro",
+    "state": "NC",
+    "division": "I",
+    "conference": "CAA"
+  },
+  {
+    "university": "Hampton University",
+    "band_name": "Marching Force",
+    "city": "Hampton",
+    "state": "VA",
+    "division": "I",
+    "conference": "CAA"
+  },
+  {
+    "university": "Miles College",
+    "band_name": "Purple Marching Machine",
+    "city": "Fairfield",
+    "state": "AL",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Tuskegee University",
+    "band_name": "Crimson Pipers",
+    "city": "Tuskegee",
+    "state": "AL",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Fort Valley State University",
+    "band_name": "Blue Machine Marching Band",
+    "city": "Fort Valley",
+    "state": "GA",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Savannah State University",
+    "band_name": "Powerhouse of the South",
+    "city": "Savannah",
+    "state": "GA",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Albany State University",
+    "band_name": "Marching Rams Show Band",
+    "city": "Albany",
+    "state": "GA",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Clark Atlanta University",
+    "band_name": "Mighty Marching Panthers",
+    "city": "Atlanta",
+    "state": "GA",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Benedict College",
+    "band_name": "Marching Tiger Band of Distinction",
+    "city": "Columbia",
+    "state": "SC",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Morehouse College",
+    "band_name": "House of Funk",
+    "city": "Atlanta",
+    "state": "GA",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Kentucky State University",
+    "band_name": "Mighty Marching Thorobreds",
+    "city": "Frankfort",
+    "state": "KY",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Lane College",
+    "band_name": "Marching Dragons",
+    "city": "Jackson",
+    "state": "TN",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Central State University",
+    "band_name": "Invincible Marching Marauders",
+    "city": "Wilberforce",
+    "state": "OH",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Virginia State University",
+    "band_name": "Trojan Explosion",
+    "city": "Petersburg",
+    "state": "VA",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Virginia Union University",
+    "band_name": "Ambassadors of Sound",
+    "city": "Richmond",
+    "state": "VA",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Elizabeth City State University",
+    "band_name": "Marching Sound of Class",
+    "city": "Elizabeth City",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Winston-Salem State University",
+    "band_name": "Red Sea of Sound",
+    "city": "Winston-Salem",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Livingstone College",
+    "band_name": "Marching Blue Bears",
+    "city": "Salisbury",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Fayetteville State University",
+    "band_name": "Marching Bronco Express",
+    "city": "Fayetteville",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Shaw University",
+    "band_name": "Platinum Sound Marching Band",
+    "city": "Raleigh",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Johnson C. Smith University",
+    "band_name": "International Institution of Sound",
+    "city": "Charlotte",
+    "state": "NC",
+    "division": "II",
+    "conference": "CIAA"
+  },
+  {
+    "university": "Langston University",
+    "band_name": "Marching Pride",
+    "city": "Langston",
+    "state": "OK",
+    "division": "II",
+    "conference": "Independent"
+  },
+  {
+    "university": "Edward Waters University",
+    "band_name": "Triple Threat Marching Band",
+    "city": "Jacksonville",
+    "state": "FL",
+    "division": "II",
+    "conference": "SIAC"
+  },
+  {
+    "university": "Talladega College",
+    "band_name": "Great Tornado Band",
+    "city": "Talladega",
+    "state": "AL",
+    "division": "II",
+    "conference": "NAIA"
+  }
+]

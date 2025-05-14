@@ -14,9 +14,9 @@ namespace server.Data
 
             builder.Property(s => s.FirstName).IsRequired().HasMaxLength(50);
             builder.Property(s => s.LastName).IsRequired().HasMaxLength(50);
-            builder.Property(s => s.Instrument).IsRequired().HasMaxLength(50);
-            builder.Property(s => s.HighSchool).IsRequired().HasMaxLength(100);
-            builder.Property(s => s.GraduationYear).IsRequired();
+            builder.Property(s => s.GraduationYear);
+            builder.Property(s => s.Instrument).HasMaxLength(50);
+            builder.Property(s => s.HighSchool).HasMaxLength(100);
 
 
 

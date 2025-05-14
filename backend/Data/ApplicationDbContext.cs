@@ -4,13 +4,7 @@ using Models;
 
 namespace server.Data
 {
-    //Band has many Recruiters and Offers.
-    //Recruiter belongs to one Band and has many Offers, Ratings, and Comments.
-    //Student has many Videos and Offers.
-    //Video belongs to one Student and has many Ratings and Comments.
-    //Offer belongs to one Band and one Student, optionally linked to a Recruiter.
-    //Rating belongs to one Video and one Recruiter.
-    //Comment belongs to one Video and one Recruiter.
+
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
