@@ -37,26 +37,24 @@ namespace server.Controllers
             if (!passwordValid)
                 return BadRequest("Invalid login attempt.");
 
-            // Generate JWT and Refresh Token
-            var token = GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user); // ✅ get once at the top
+
+            var token = await GenerateJwtToken(user, roles); // 🔄 pass it in
             var refreshToken = GenerateRefreshToken();
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
 
-            // Ensure this finishes before continuing
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return StatusCode(500, "Failed to update refresh token.");
 
-            var roles = await _userManager.GetRolesAsync(user);
-
             return Ok(new
             {
-                Token = token,
-                Role = roles.FirstOrDefault(),
-                RefreshToken = refreshToken,
-                UserId = user.Id,
+                token = token,
+                role = roles.FirstOrDefault(),
+                refreshToken = refreshToken,
+                userId = user.Id
             });
         }
 
@@ -117,8 +115,8 @@ namespace server.Controllers
             {
                 return BadRequest("Invalid client request");
             }
-
-            var newAccessToken = await GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var newAccessToken = await GenerateJwtToken(user, roles);
             var newRefreshToken = GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
@@ -164,19 +162,16 @@ namespace server.Controllers
             }
         }
 
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, IList<string> roles)
         {
-            var roles = await _userManager.GetRolesAsync(user);
-
             var claims = new List<Claim>
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim("UserType", user.UserType),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                };
-
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim("UserType", user.UserType),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
             foreach (var role in roles)
             {
