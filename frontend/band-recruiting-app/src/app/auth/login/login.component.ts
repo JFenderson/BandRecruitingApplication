@@ -3,6 +3,7 @@ import { AuthService } from "../../core/services/auth.service";
 import { Router } from "@angular/router";
 import { Component } from '@angular/core';
 import { TokenService } from "../../core/services/token.service";
+import { jwtDecode } from "jwt-decode";
 
 
 
@@ -30,26 +31,40 @@ export class LoginComponent {
   }
 
 
-  onSubmit() {
-    if (this.loginForm.invalid) return;
+onSubmit(): void {
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
-        const role = this.tokenService.getRole();
-
-        if (role === 'Admin') {
-          this.router.navigate(['/admin-dashboard']);
-        } else if (role === 'Recruiter') {
-          this.router.navigate(['/recruiter-dashboard']);
-        } else {
-          this.router.navigate(['/student-dashboard']);
-        }
-      },
-      error: err => {
-        console.error('Login failed', err);
-        // Optionally show error message
-      }
-    });
+  if (this.loginForm.invalid) {
+    return;
   }
+
+
+  this.authService.login(this.loginForm.value).subscribe({
+    next: (res) => {
+
+      this.tokenService.setToken(res.token);
+      this.tokenService.setRefreshToken(res.refreshToken);
+
+     const decoded = jwtDecode<any>(res.token);
+const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+
+      if (role === 'Admin') {
+        this.router.navigate(['/admin-dashboard']);
+        console.log('[ROUTING] Navigating to Admin Dashboard');
+      } else if (role === 'Recruiter') {
+        this.router.navigate(['/recruiter-dashboard']);
+        console.log('[ROUTING] Navigating to Recruiter Dashboard');
+      } else {
+        this.router.navigate(['/student-dashboard']);
+        console.log('[ROUTING] Navigating to Student Dashboard');
+      }
+    },
+    error: (err) => {
+      console.error('[DEBUG] Login failed:', err);
+    }
+  });
+}
+
+
 }
 

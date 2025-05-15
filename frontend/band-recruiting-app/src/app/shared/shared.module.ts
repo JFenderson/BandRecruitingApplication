@@ -11,4 +11,4 @@ import { NgModule } from '@angular/core';
     // other modules...
   ]
 })
-export class RecruiterModule {}
+export class SharedModule {}
