@@ -21,6 +21,8 @@ login(credentials: { email: string; password: string }): Observable<any> {
   );
 }
 
+
+
   register(data: any) {
     return this.http.post<{ token: string }>(`${this.baseUrl}/register`, data).pipe(
       tap(res => this.tokenService.setToken(res.token))

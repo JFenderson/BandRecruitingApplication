@@ -1,20 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { TokenService } from '../../core/services/token.service';
+import { UserService } from '../../core/services/user.service';
+import { UserDTO } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [],
   templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.scss'
+  styleUrl: './admin-dashboard.component.scss',
+  standalone: false
+ 
 })
 
 export class AdminDashboardComponent implements OnInit {
   role: string | null = null;
+users: UserDTO[] = [];
+  constructor(private tokenService: TokenService, private userService: UserService) {}
 
-  constructor(private tokenService: TokenService) {}
-
-  ngOnInit() {
-    this.role = this.tokenService.getRole();
+  ngOnInit(): void {
+       this.userService.getAll().subscribe({
+      next: (data) => (this.users = data),
+      error: (err) => console.error('Failed to load users', err)
+    });
   }
 
   isAdmin(): boolean {
@@ -28,4 +34,8 @@ export class AdminDashboardComponent implements OnInit {
     isStudent(): boolean {
     return this.role === 'Student';
   }
+
+  logout(): void {
+  this.tokenService.logout();
+}
 }

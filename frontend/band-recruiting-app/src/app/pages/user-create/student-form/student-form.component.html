@@ -1,0 +1,19 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3">
+  <input formControlName="email" placeholder="Email" class="border p-2 w-full" />
+  <input type="password" formControlName="password" placeholder="Password" class="border p-2 w-full" />
+  <input formControlName="userName" placeholder="Username" class="border p-2 w-full" />
+  <input formControlName="firstName" placeholder="First Name" class="border p-2 w-full" />
+  <input formControlName="lastName" placeholder="Last Name" class="border p-2 w-full" />
+  <input formControlName="phone" placeholder="Phone" class="border p-2 w-full" />
+  <input formControlName="instrument" placeholder="Instrument" class="border p-2 w-full" />
+  <input formControlName="highSchool" placeholder="High School" class="border p-2 w-full" />
+  <input type="number" formControlName="graduationYear" placeholder="Graduation Year" class="border p-2 w-full" />
+
+  <input type="file" (change)="onFileSelected($event)" class="border p-2 w-full" />
+  <img *ngIf="imagePreview" [src]="imagePreview" class="h-24 rounded mt-2" />
+
+  <button type="submit" [disabled]="form.invalid" class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+
+  <div class="text-green-600" *ngIf="success">{{ success }}</div>
+  <div class="text-red-600" *ngIf="error">{{ error }}</div>
+</form>

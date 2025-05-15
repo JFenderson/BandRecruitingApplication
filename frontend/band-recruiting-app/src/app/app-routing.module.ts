@@ -10,19 +10,21 @@ import { StudentDashboardComponent } from './student/student-dashboard/student-d
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
 import { RoleGuard } from './core/guards/role.guard';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { UserListComponent } from './pages/user-list/user-list.component';
+import { UserCreateComponent } from './pages/user-create/user-create.component';
 
 const routes: Routes = [
-  { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-  { path: '**', redirectTo: 'login' }, // Fallback
-  { path: 'login', component: LoginComponent },
+    { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  // { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'student/profile', component: StudentProfileComponent, canActivate: [AuthGuard] },
-  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Admin'] }
-  },
-  { path: 'recruiter-dashboard', component: RecruiterDashboardComponent, canActivate: [RoleGuard],data: { roles: ['Recruiter'] }},
-  { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [RoleGuard],data: { roles: ['Student'] }},
-  { path: 'unauthorized', component: UnauthorizedComponent},
+  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] }},
+  { path: 'recruiter-dashboard', component: RecruiterDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Recruiter'] }},
+  { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Student'] }},
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'users', component: UserListComponent },
+  { path: 'create-user', component: UserCreateComponent },
+  { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) }, // Move this down
+  { path: '**', redirectTo: 'login' }
 ];
 
 @NgModule({

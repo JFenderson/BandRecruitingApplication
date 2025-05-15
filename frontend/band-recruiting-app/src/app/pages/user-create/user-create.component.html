@@ -1,0 +1,9 @@
+<div class="space-y-4 max-w-xl">
+  <select (change)="onUserTypeChange($event)" class="border p-2 w-full">
+    <option value="Student">Student</option>
+    <option value="Recruiter">Recruiter</option>
+  </select>
+
+  <app-student-form *ngIf="userType === 'Student'"></app-student-form>
+  <app-recruiter-form *ngIf="userType === 'Recruiter'"></app-recruiter-form>
+</div>

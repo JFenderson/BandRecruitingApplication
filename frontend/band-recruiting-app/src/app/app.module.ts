@@ -12,6 +12,7 @@ import { StudentModule } from './student/student.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptors';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { PagesModule } from './pages/pages.module';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { ToastrModule } from 'ngx-toastr';
     AppRoutingModule,
     ReactiveFormsModule,
     AuthModule,
+    PagesModule,
     StudentModule,
      BrowserAnimationsModule,
     ToastrModule.forRoot(),

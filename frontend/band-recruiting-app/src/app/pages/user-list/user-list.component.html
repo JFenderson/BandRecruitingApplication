@@ -1,0 +1,23 @@
+<div *ngIf="isLoading">Loading users...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<table *ngIf="!isLoading && users.length" class="table-auto w-full border mt-4">
+  <thead>
+    <tr>
+      <th class="border px-4 py-2">First Name</th>
+      <th class="border px-4 py-2">Last Name</th>
+      <th class="border px-4 py-2">Email</th>
+      <th class="border px-4 py-2">User Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td class="border px-4 py-2">{{ user.firstName }}</td>
+      <td class="border px-4 py-2">{{ user.lastName }}</td>
+      <td class="border px-4 py-2">{{ user.email }}</td>
+      <td class="border px-4 py-2">{{ user.userType }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="!isLoading && !users.length">No users found.</p>
