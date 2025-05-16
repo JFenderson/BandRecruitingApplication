@@ -6,7 +6,7 @@ import { UserDTO } from '../../core/models/user.model';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.scss',
+  styleUrls: ['./admin-dashboard.component.scss'],
   standalone: false
  
 })
@@ -16,12 +16,15 @@ export class AdminDashboardComponent implements OnInit {
 users: UserDTO[] = [];
   constructor(private tokenService: TokenService, private userService: UserService) {}
 
-  ngOnInit(): void {
-       this.userService.getAll().subscribe({
-      next: (data) => (this.users = data),
-      error: (err) => console.error('Failed to load users', err)
-    });
-  }
+ngOnInit(): void {
+  this.userService.getAll().subscribe({
+    next: (data) => {
+      console.log('[DEBUG] API Response:', data);
+      this.users = data;
+    },
+    error: (err) => console.error('Failed to load users', err)
+  });
+}
 
   isAdmin(): boolean {
     return this.role === 'Admin';

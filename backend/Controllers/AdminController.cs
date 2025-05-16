@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
+using server.Services.Interfaces;
 
 namespace server.Controllers
 {
@@ -12,18 +13,21 @@ namespace server.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUserService _userService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IUserService userService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _userService = userService;
+
         }
 
         [HttpGet("all-users")]
         [Authorize(Roles = "Admin")]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 

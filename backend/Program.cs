@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using server.Data;
 using server.Helpers;
 using server.Services;
+using server.Services.Interfaces;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +34,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.IncludeFields = true;
     });
@@ -74,7 +75,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 
-
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IRecruiterService, RecruiterService>();
 builder.Services.AddScoped<IBandService, BandService>();
