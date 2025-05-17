@@ -27,3 +27,4 @@ export interface UpdateOfferDTO {
     status: string;
     offerDate: string;
 }
+

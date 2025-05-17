@@ -1,15 +1,30 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { ApiService } from './api.service';
+import { Observable } from 'rxjs';
+import { Instrument } from '../models/instrument.model';
+import { StudentService } from './student.service';
 
 @Injectable({ providedIn: 'root' })
 export class InstrumentService {
-  private instruments: string[] = [
-    'Flute', 'Clarinet', 'Saxophone', 'Trumpet', 'Trombone',
-    'Mellophone', 'Baritone', 'Sousaphone', 'Snare Drum',
-    'Bass Drum', 'Tenor Drum', 'Cymbals',
-  ];
+  constructor(private api: ApiService) {}
 
-  getInstruments(): Observable<string[]> {
-    return of(this.instruments);
+  getAllInstruments(): Observable<Instrument[]> {
+    return this.api.get<Instrument[]>('api/Instruments');
+  }
+
+  getInstrumentById(id: number): Observable<Instrument> {
+    return this.api.get<Instrument>(`api/Instruments/${id}`);
+  }
+
+  createInstrument(data: Instrument): Observable<Instrument> {
+    return this.api.post<Instrument>('api/Instruments', data);
+  }
+
+  updateInstrument(id: number, data: Instrument): Observable<Instrument> {
+    return this.api.put<Instrument>(`api/Instruments/${id}`, data);
+  }
+
+  deleteInstrument(id: number): Observable<void> {
+    return this.api.delete<void>(`api/Instruments/${id}`);
   }
 }

@@ -27,7 +27,7 @@ import { AdminModule } from './admin/admin.module';
     AuthModule,
     PagesModule,
     AdminModule,
-    StudentModule,
+   
      BrowserAnimationsModule,
     ToastrModule.forRoot(),
     HttpClientModule

@@ -11,6 +11,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     ReactiveFormsModule
-  ]
+  ],
+  exports: [StudentProfileComponent]
 })
 export class StudentModule { }

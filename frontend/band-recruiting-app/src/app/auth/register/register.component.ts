@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { InstrumentService } from '../../core/services/instrument.service';
+import { Instrument } from '../../core/models/instrument.model';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,7 @@ import { InstrumentService } from '../../core/services/instrument.service';
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   bands: { id: string; name: string }[] = [];
-instruments: string[] = [];
+instruments: Instrument[] = [];
 
   get roleValue() {
     return this.registerForm.get('role')?.value;
@@ -41,8 +42,8 @@ instruments: string[] = [];
       bandId: ['']
     });
 
-    this.instrumentService.getInstruments().subscribe({
-  next: list => this.instruments = list,
+    this.instrumentService.getAllInstruments().subscribe({
+  next: (list: Instrument[]) => this.instruments = list,
   error: err => console.error('Failed to load instruments', err)
 });
 

@@ -12,14 +12,18 @@ import { RoleGuard } from './core/guards/role.guard';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { UserCreateComponent } from './pages/user-create/user-create.component';
+import { RecruiterProfileComponent } from './recruiter/recruiter-profile/recruiter-profile.component';
+import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
-    { path: 'login', component: LoginComponent },
+  { path: '', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'student/profile', component: StudentProfileComponent, canActivate: [AuthGuard] },
-  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] }},
-  { path: 'recruiter-dashboard', component: RecruiterDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Recruiter'] }},
-  { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Student'] }},
+  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
+  { path: 'recruiter-dashboard', component: RecruiterDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Recruiter'] } },
+  { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Student'] } },
+  { path: 'student-profile/:id', component: StudentProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
+  { path: 'recruiter-profile/:id', component: RecruiterProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'users', component: UserListComponent },
   { path: 'create-user', component: UserCreateComponent },

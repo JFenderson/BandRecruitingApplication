@@ -5,6 +5,6 @@ import { Component } from '@angular/core';
   templateUrl: './recruiter-profile.component.html',
   styleUrls: ['./recruiter-profile.component.scss']
 })
-export class ProfileComponent {
+export class RecruiterProfileComponent {
 
 }

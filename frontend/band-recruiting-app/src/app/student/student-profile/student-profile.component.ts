@@ -1,59 +1,66 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { StudentService } from '../../core/services/student.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-student-profile',
   templateUrl: './student-profile.component.html',
-  styleUrl: './student-profile.component.scss',
+  styleUrls: ['./student-profile.component.scss'],
   standalone: false
 })
 export class StudentProfileComponent implements OnInit {
-  setupForm!: FormGroup;
-  videoFile: File | null = null;
+  studentForm!: FormGroup;
+  originalStudent: any;
+  editMode: { [key: string]: boolean } = {};
+  studentId!: string;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private studentService: StudentService,
+    private route: ActivatedRoute
+  ) {}
 
-  ngOnInit() {
-    this.setupForm = this.fb.group({
-      instrument: ['', Validators.required],
-      highSchool: ['', Validators.required],
-      videoTitle: ['', Validators.required],
-      videoDescription: ['']
+  ngOnInit(): void {
+    this.studentId = this.route.snapshot.paramMap.get('id')!;
+    this.studentService.getStudentById(this.studentId).subscribe(student => {
+      this.originalStudent = student;
+      this.studentForm = this.fb.group({
+        firstName: [student.firstName],
+        lastName: [student.lastName],
+        email: [student.email],
+        phone: [student.phone],
+        instrument: [student.instrument],
+        highSchool: [student.highSchool],
+        videoUrl: [student.videoUrl]
+      });
     });
   }
 
-  onFileSelected(event: any) {
-    this.videoFile = event.target.files[0];
+  toggleEdit(field: string): void {
+    this.editMode[field] = !this.editMode[field];
   }
 
-  onSubmit() {
-    if (this.setupForm.invalid || !this.videoFile) {
-      alert('Fill all fields and select a video.');
-      return;
+  saveChanges(): void {
+    if (!this.studentForm) return;
+
+    const changes: any = {};
+    Object.keys(this.studentForm.controls).forEach(key => {
+      const current = this.studentForm.get(key)?.value;
+      const original = this.originalStudent[key];
+      if (current !== original) {
+        changes[key] = current;
+      }
+    });
+
+    if (Object.keys(changes).length > 0) {
+      this.studentService.updateStudent(this.studentId, changes).subscribe(() => {
+        alert('Changes saved');
+        Object.assign(this.originalStudent, changes);
+        this.editMode = {};
+      });
+    } else {
+      alert('No changes to save');
     }
-
-    const formData = new FormData();
-    formData.append('title', this.setupForm.get('videoTitle')?.value);
-    formData.append('description', this.setupForm.get('videoDescription')?.value);
-    formData.append('file', this.videoFile);
-
-    // 1. Save extra profile info
-    this.http.put(`${environment.apiUrl}/students/profile`, {
-      instrument: this.setupForm.get('instrument')?.value,
-      highSchool: this.setupForm.get('highSchool')?.value
-    }).subscribe({
-      next: () => {
-        // 2. Upload video after profile is updated
-        this.http.post(`${environment.apiUrl}/students/videos`, formData)
-          .subscribe({
-            next: () => this.router.navigate(['/student/dashboard']),
-            error: err => console.error(err)
-          });
-      },
-      error: err => console.error(err)
-    });
   }
 }

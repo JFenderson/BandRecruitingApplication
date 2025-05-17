@@ -12,15 +12,26 @@ export class AuthService {
 
   constructor(private http: HttpClient, private tokenService: TokenService, private router: Router) {}
 
-login(credentials: { email: string; password: string }): Observable<any> {
-  return this.http.post<any>(`${environment.apiUrl}/account/login`, credentials).pipe(
-    tap(res => {
-      localStorage.setItem('access_token', res.token);
-      localStorage.setItem('refresh_token', res.refreshToken);
-    })
-  );
-}
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/login`, credentials).pipe(
+      tap(res => {
+        this.tokenService.setToken(res.token);
+        this.tokenService.setRefreshToken(res.refreshToken);
 
+        const role = this.tokenService.getRole();
+
+        if (role === 'Admin') {
+          this.router.navigate(['/admin-dashboard']);
+        } else if (role === 'Recruiter') {
+          this.router.navigate(['/recruiter-dashboard']);
+        } else if (role === 'Student') {
+          this.router.navigate(['/student-dashboard']);
+        } else {
+          this.router.navigate(['/unauthorized']);
+        }
+      })
+    );
+  }
 
 
   register(data: any) {

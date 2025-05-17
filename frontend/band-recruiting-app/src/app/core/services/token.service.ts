@@ -56,6 +56,7 @@ export class TokenService {
     (decoded as any)['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? null
   );
 }
+
   isAdmin(): boolean {
     return this.getRole() === 'Admin';
   }

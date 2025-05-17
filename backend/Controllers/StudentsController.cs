@@ -44,6 +44,21 @@ namespace server.Controllers
             }
         }
 
+        [Authorize(Roles = "Recruiter")]
+        [HttpGet("-profile/{id}")]
+        public async Task<ActionResult<ApplicationUser>> GetStudentProfileById(string id)
+        {
+            try
+            {
+                var student = await _studentService.GetStudentByIdAsync(id);
+                return Ok(student);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ApplicationUser>> CreateStudent([FromBody] CreateUserDTO createStudentDTO)
