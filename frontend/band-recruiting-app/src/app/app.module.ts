@@ -1,44 +1,18 @@
-import { AppComponent } from './app.component';
-import { LoginComponent } from './auth/login/login.component';
-import { RegisterComponent } from './auth/register/register.component';
-// import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
-import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { AppRoutingModule } from './app-routing.module';
-import { AuthModule } from './auth/auth.module';
-import { StudentModule } from './student/student.module';
-import { AuthInterceptor } from './core/interceptors/auth.interceptors';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { importProvidersFrom } from '@angular/core';
 import { ToastrModule } from 'ngx-toastr';
-import { PagesModule } from './pages/pages.module';
-import { AdminModule } from './admin/admin.module';
 
-@NgModule({
-  declarations: [
-    AppComponent
-    // DashboardComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    AuthModule,
-    PagesModule,
-    AdminModule,
-   
-     BrowserAnimationsModule,
-    ToastrModule.forRoot(),
-    HttpClientModule
-  ],
+bootstrapApplication(AppComponent, {
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
-  ],
-  bootstrap: [AppComponent]
-})
-export class AppModule {}
+    provideAnimations(),
+    importProvidersFrom(
+      ToastrModule.forRoot({
+        timeOut: 3000,
+        positionClass: 'toast-bottom-right',
+        preventDuplicates: true,
+      })
+    )
+  ]
+}).catch(err => console.error(err));

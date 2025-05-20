@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { CreateUserDTO } from '../../../core/models/user.model';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-student-form',
   templateUrl: './student-form.component.html',
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
 })
 export class StudentFormComponent {
   form: FormGroup;

@@ -14,20 +14,51 @@ import { UserListComponent } from './pages/user-list/user-list.component';
 import { UserCreateComponent } from './pages/user-create/user-create.component';
 import { RecruiterProfileComponent } from './recruiter/recruiter-profile/recruiter-profile.component';
 import { HomeComponent } from './pages/home/home.component';
+import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { RecruiterLayoutComponent } from './layouts/recruiter-layout/recruiter-layout.component';
+import { StudentLayoutComponent } from './layouts/student-layout/student-layout.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
+   {
+    path: 'login',
+    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
+  },
   { path: 'register', component: RegisterComponent },
-  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
-  { path: 'recruiter-dashboard', component: RecruiterDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Recruiter'] } },
-  { path: 'student-dashboard', component: StudentDashboardComponent, canActivate: [RoleGuard], data: { roles: ['Student'] } },
-  { path: 'student-profile/:id', component: StudentProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
-  { path: 'recruiter-profile/:id', component: RecruiterProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Admin'] } },
+    {
+    path: 'admin-dashboard',
+    component: AdminLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin'] },
+    children: [
+      { path: '', component: AdminDashboardComponent },
+      { path: 'all-users', component: UserListComponent },
+      { path: 'create-user', component: UserCreateComponent }
+    ]
+  },
+  {
+    path: 'recruiter-dashboard',
+    component: RecruiterLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Recruiter'] },
+    children: [
+      { path: '', component: RecruiterDashboardComponent },
+      { path: 'recruiter-profile/:id', component: RecruiterProfileComponent }
+    ]
+  },
+    {
+    path: 'student-dashboard',
+    component: StudentLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Student'] },
+    children: [
+      { path: '', component: StudentDashboardComponent },
+      { path: 'student-profile/:id', component: StudentProfileComponent }
+    ]
+  },
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'users', component: UserListComponent },
   { path: 'create-user', component: UserCreateComponent },
-  { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) }, // Move this down
   { path: '**', redirectTo: 'login' }
 ];
 

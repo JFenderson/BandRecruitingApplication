@@ -1,56 +1,78 @@
-<div class="p-6">
-  <h2 class="text-2xl font-bold mb-4 text-blue-700">All Users</h2>
-<div class="mb-4">
-  <input
-    type="text"
-    [(ngModel)]="searchTerm"
-    (input)="filterUsers()"
-    placeholder="Search by name, email, or role"
-    class="w-full px-4 py-2 border rounded-md"
-  />
+<div *ngIf="isLoading" class="spinner-container">
+  <app-spinner></app-spinner>
+  <!-- or your own loader markup -->
 </div>
+<div class="p-6" *ngIf="!isLoading">
+  <h2 class="text-2xl font-bold mb-4 text-blue-700">All Users</h2>
+  <div class="mb-4">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="filterUsers()"
+      placeholder="Search by name, email, or role"
+      class="w-full px-4 py-2 border rounded-md"
+    />
+  </div>
   <table class="min-w-full bg-white rounded shadow">
-<thead>
-  <tr class="bg-gray-200 text-left text-sm text-gray-600">
-    <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('name')">Name</th>
-    <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('email')">Email</th>
-    <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('userType')">Role</th>
-    <th class="px-4 py-2">Actions</th>
-  </tr>
-</thead>
+    <thead>
+      <tr class="bg-gray-200 text-left text-sm text-gray-600">
+        <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('name')">
+          Name
+        </th>
+        <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('email')">
+          Email
+        </th>
+        <th class="px-4 py-2 cursor-pointer" (click)="sortUsers('userType')">
+          Role
+        </th>
+        <th class="px-4 py-2">Actions</th>
+      </tr>
+    </thead>
     <tbody>
       <tr *ngFor="let user of pagedUsers" class="border-b">
         <td class="px-4 py-2">{{ user.firstName }} {{ user.lastName }}</td>
         <td class="px-4 py-2">{{ user.email }}</td>
-        <td class="px-4 py-2">{{ user.userType }}</td>
         <td class="px-4 py-2">
-          <button 
-  class="text-blue-600 hover:underline" 
-  [routerLink]="getProfileLink(user)">
-  View
-</button>
+          <span
+            class="px-2 py-1 text-xs font-semibold rounded-full"
+            [ngClass]="{
+              'bg-blue-100 text-blue-800': user.userType === 'Admin',
+              'bg-green-100 text-green-800': user.userType === 'Student',
+              'bg-purple-100 text-purple-800': user.userType === 'Recruiter'
+            }"
+          >
+            {{ user.userType }}
+          </span>
+        </td>
+        <td class="px-4 py-2">
+          <button
+            class="text-blue-600 hover:underline"
+            [routerLink]="getProfileLink(user)"
+          >
+            View
+          </button>
           <button class="text-red-600 hover:underline ml-2">Delete</button>
         </td>
       </tr>
     </tbody>
   </table>
   <div class="flex justify-between items-center mt-4">
-  <button
-    class="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-    (click)="currentPage = currentPage - 1"
-    [disabled]="currentPage === 1"
-  >
-    Previous
-  </button>
+    <button
+      class="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+      (click)="currentPage = currentPage - 1"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
 
-  <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-  <button
-    class="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-    (click)="currentPage = currentPage + 1"
-    [disabled]="currentPage === totalPages"
-  >
-    Next
-  </button>
-</div>
+    <button
+      class="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+      (click)="currentPage = currentPage + 1"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
 </div>

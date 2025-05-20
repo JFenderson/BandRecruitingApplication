@@ -1,20 +1,22 @@
 import { Component } from '@angular/core';
 import { TokenService } from '../../../core/services/token.service';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
-  standalone: false
+  styleUrls: ['./navbar.component.scss'],
+   standalone: true,
+  imports: [CommonModule, RouterModule],
 })
 export class NavbarComponent {
-  router: any;
   
 logout() {
   this.tokenService.clearToken();
   this.router.navigate(['/login']);
 }
-  constructor(private tokenService: TokenService) {}
+  constructor(private tokenService: TokenService, private router: Router) {}
 
   get isAdmin() {
     return this.tokenService.isAdmin();

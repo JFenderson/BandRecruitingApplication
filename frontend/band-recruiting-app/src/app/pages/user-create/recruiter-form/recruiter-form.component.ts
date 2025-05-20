@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../../../core/services/user.service';
 import { CreateUserDTO } from '../../../core/models/user.model';
 import { environment } from '../../../../environments/environment';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 interface Band {
   bandId: string;
@@ -13,7 +15,8 @@ interface Band {
 @Component({
   selector: 'app-recruiter-form',
   templateUrl: './recruiter-form.component.html',
-  standalone: false
+   standalone: true,
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
 })
 export class RecruiterFormComponent implements OnInit {
   form: FormGroup;

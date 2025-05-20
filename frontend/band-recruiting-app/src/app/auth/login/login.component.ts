@@ -1,16 +1,18 @@
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AuthService } from "../../core/services/auth.service";
-import { Router } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { Component } from '@angular/core';
 import { TokenService } from "../../core/services/token.service";
 import { jwtDecode } from "jwt-decode";
+import { CommonModule } from "@angular/common";
 
 
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
 })
 
 

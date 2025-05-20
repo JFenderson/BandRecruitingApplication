@@ -1,11 +1,6 @@
 <nav>
-  <ul>
-    <li *ngIf="isAdmin"><a routerLink="/admin-dashboard">Admin Dashboard</a></li>
-    <li *ngIf="isRecruiter"><a routerLink="/recruiter-dashboard">Recruiter Dashboard</a></li>
-    <li *ngIf="isStudent"><a routerLink="/student-dashboard">Student Dashboard</a></li>
-
-    <!-- Optional shared links -->
-    <li><a routerLink="/profile">My Profile</a></li>
-    <li><a (click)="logout()">Logout</a></li>
-  </ul>
+  <a *ngIf="isAdmin" routerLink="/admin-dashboard">Admin Dashboard</a>
+  <a *ngIf="isRecruiter" routerLink="/recruiter-dashboard">Recruiter Dashboard</a>
+  <a *ngIf="isStudent" routerLink="/student-dashboard">Student Dashboard</a>
+  <a (click)="logout()">Logout</a>
 </nav>

@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { UserDTO } from '../../core/models/user.model';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
-  standalone: false
+   standalone: true,
+  imports: [CommonModule, RouterModule, ReactiveFormsModule]
 })
 export class UserListComponent implements OnInit {
   users: UserDTO[] = [];

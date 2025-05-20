@@ -1,1 +1,14 @@
-<p>admin-layout works!</p>
+<!-- <app-navbar></app-navbar> -->
+<div class="layout">
+  <aside class="sidebar">
+    <h3>Admin Menu</h3>
+    <ul>
+      <li><a routerLink="/admin-dashboard">Dashboard</a></li>
+      <li><a routerLink="/users">User Management</a></li>
+      <li><a routerLink="/create-user">Create User</a></li>
+    </ul>
+  </aside>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>

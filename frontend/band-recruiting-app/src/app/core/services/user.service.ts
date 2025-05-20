@@ -10,6 +10,7 @@ export class UserService {
   constructor(private api: ApiService) {}
 
   getAll(): Observable<UserDTO[]> {
+    console.log("Calling API to get all users");
     return this.api.get<UserDTO[]>('Admin/all-users');
   }
   
