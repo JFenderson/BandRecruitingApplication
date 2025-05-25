@@ -20,7 +20,8 @@ import { StudentLayoutComponent } from './layouts/student-layout/student-layout.
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-   {
+  { path: 'login', component: LoginComponent },
+     {
     path: 'login',
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
   },

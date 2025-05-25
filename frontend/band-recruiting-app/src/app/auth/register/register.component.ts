@@ -7,6 +7,8 @@ import { environment } from '../../../environments/environment';
 import { InstrumentService } from '../../core/services/instrument.service';
 import { Instrument } from '../../core/models/instrument.model';
 import { CommonModule } from '@angular/common';
+import { INSTRUMENT_OPTIONS } from '../../constants/insturments';
+
 
 @Component({
   selector: 'app-register',
@@ -18,6 +20,8 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   bands: { id: string; name: string }[] = [];
 instruments: Instrument[] = [];
+instrumentOptions: any;
+form: any;
 
   get roleValue() {
     return this.registerForm.get('role')?.value;
