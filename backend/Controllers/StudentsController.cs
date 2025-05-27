@@ -21,7 +21,7 @@ namespace server.Controllers
             _videoService = videoService;
         }
 
-        [Authorize(Roles = "Recruiter")]
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet("students")]
         public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllStudents()
         {
@@ -29,7 +29,7 @@ namespace server.Controllers
             return Ok(students);
         }
 
-        [Authorize(Roles = "Recruiter")]
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ApplicationUser>> GetStudentById(string id)
         {
@@ -44,7 +44,7 @@ namespace server.Controllers
             }
         }
 
-        [Authorize(Roles = "Recruiter")]
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet("-profile/{id}")]
         public async Task<ActionResult<ApplicationUser>> GetStudentProfileById(string id)
         {
@@ -80,6 +80,7 @@ namespace server.Controllers
         }
 
         // PUT: api/Student/5
+        [Authorize(Roles = "Recruiter,Student")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ApplicationUser>> UpdateStudent(string id, [FromBody] UpdateUserDTO updateUserDTO)
         {
@@ -100,6 +101,7 @@ namespace server.Controllers
         }
 
         // DELETE: api/Student/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteStudent(string id)
         {

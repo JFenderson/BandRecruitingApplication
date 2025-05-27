@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
+using server.Services;
 using server.Services.Interfaces;
 
 namespace server.Controllers
@@ -14,12 +15,14 @@ namespace server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserService _userService;
+        private readonly IDashboardService _dashboardService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IUserService userService)
+        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IUserService userService, IDashboardService dashboardService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _userService = userService;
+            _dashboardService = dashboardService;
 
         }
 
@@ -84,6 +87,13 @@ namespace server.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [HttpGet("dashboard-summary")]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            var summary = await _dashboardService.GetDashboardSummaryAsync();
+            return Ok(summary);
         }
     }
 }

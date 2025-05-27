@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using server.DTOs;
 using server.Services;
@@ -31,6 +32,7 @@ namespace server.Controllers
 
         #region Recruiter
         // GET: api/recruiter
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetRecruiters()
         {
@@ -39,6 +41,7 @@ namespace server.Controllers
         }
 
         // GET: api/recruiter/{id}
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ApplicationUser>> GetRecruiterById(string id)
         {
@@ -73,6 +76,7 @@ namespace server.Controllers
         }
 
         // POST: api/recruiter
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> CreateRecruiter([FromBody] CreateUserDTO recruiterDto)
         {
@@ -95,6 +99,7 @@ namespace server.Controllers
         }
 
         // PUT: api/recruiter/{id}
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ApplicationUser>> UpdateRecruiter(string id, [FromBody] UpdateUserDTO updateUserDTO)
         {
@@ -115,6 +120,7 @@ namespace server.Controllers
         }
 
         // DELETE: api/recruiter/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRecruiter(string id)
         {

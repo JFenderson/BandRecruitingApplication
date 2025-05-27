@@ -35,7 +35,7 @@ namespace server.Controllers
             return Ok(band);
         }
 
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<BandDTO>> CreateBand([FromBody] CreateBandDTO bandDto)
         {
@@ -43,7 +43,7 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetBand), new { id = createdBand.BandId }, createdBand);
         }
 
-        [Authorize(Policy = "RequireRecruiterRole")]
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBand(Guid id, [FromBody] UpdateBandDTO bandDto)
         {
@@ -61,7 +61,7 @@ namespace server.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBand(Guid id)
         {
@@ -74,6 +74,7 @@ namespace server.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Recruiter,Admin")]
         [HttpGet("{id}/interestedStudents")]
         public async Task<ActionResult<Band>> GetBandInterestedStudents(Guid id)
         {
