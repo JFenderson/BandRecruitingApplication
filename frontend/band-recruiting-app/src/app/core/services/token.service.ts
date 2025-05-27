@@ -57,7 +57,7 @@ getRole(): string | null {
     null
   );
 
-  console.log('[TokenService] Resolved role:', role);
+  // console.log('[TokenService] Resolved role:', role);
   return role;
 }
 
