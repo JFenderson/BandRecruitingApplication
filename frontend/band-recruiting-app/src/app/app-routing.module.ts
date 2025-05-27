@@ -26,6 +26,8 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
   },
   { path: 'register', component: RegisterComponent },
+    { path: 'student-profile/:id', component: StudentProfileComponent },
+  { path: 'recruiter-profile/:id', component: RecruiterProfileComponent },
     {
     path: 'admin-dashboard',
     component: AdminLayoutComponent,
@@ -34,7 +36,8 @@ export const routes: Routes = [
     children: [
       { path: '', component: AdminDashboardComponent },
       { path: 'all-users', component: UserListComponent },
-      { path: 'create-user', component: UserCreateComponent }
+      { path: 'create-user', component: UserCreateComponent },
+      { path: 'admin-profile', component: UserCreateComponent }
     ]
   },
   {
@@ -43,28 +46,24 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Recruiter'] },
     children: [
-      { path: '', component: RecruiterDashboardComponent },
-      { path: 'recruiter-profile/:id', component: RecruiterProfileComponent }
+      { path: '', component: RecruiterDashboardComponent }
     ]
   },
-    {
+  {
     path: 'student-dashboard',
     component: StudentLayoutComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Student'] },
     children: [
-      { path: '', component: StudentDashboardComponent },
-      { path: 'student-profile/:id', component: StudentProfileComponent }
+      { path: '', component: StudentDashboardComponent }
     ]
   },
   { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: 'users', component: UserListComponent },
-  { path: 'create-user', component: UserCreateComponent },
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'login' },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

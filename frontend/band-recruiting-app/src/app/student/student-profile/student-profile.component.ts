@@ -3,6 +3,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { StudentService } from '../../core/services/student.service';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { StudentDTO } from '../../core/models/student.model';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-student-profile',
@@ -13,14 +16,18 @@ import { CommonModule } from '@angular/common';
 })
 export class StudentProfileComponent implements OnInit {
   studentForm!: FormGroup;
-  originalStudent: any;
+  originalStudent!: StudentDTO;
   editMode: { [key: string]: boolean } = {};
   studentId!: string;
+  readonly editableFields: (keyof StudentDTO)[] = [
+  'firstName', 'lastName', 'email', 'phone', 'instrument', 'highSchool', 'videoUrl'
+];
 
   constructor(
     private fb: FormBuilder,
     private studentService: StudentService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+      private toast: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -44,25 +51,28 @@ export class StudentProfileComponent implements OnInit {
   }
 
   saveChanges(): void {
-    if (!this.studentForm) return;
+  if (!this.studentForm) return;
 
-    const changes: any = {};
-    Object.keys(this.studentForm.controls).forEach(key => {
-      const current = this.studentForm.get(key)?.value;
-      const original = this.originalStudent[key];
-      if (current !== original) {
-        changes[key] = current;
-      }
-    });
+  const changes: any = {};
 
-    if (Object.keys(changes).length > 0) {
-      this.studentService.updateStudent(this.studentId, changes).subscribe(() => {
-        alert('Changes saved');
-        Object.assign(this.originalStudent, changes);
-        this.editMode = {};
-      });
-    } else {
-      alert('No changes to save');
+  Object.keys(this.studentForm.controls).forEach(key => {
+    const current = this.studentForm.get(key)?.value;
+    const original = this.originalStudent[key as keyof StudentDTO];
+
+    if (current !== original) {
+      changes[key] = current;
     }
+  });
+
+  if (Object.keys(changes).length > 0) {
+    this.studentService.updateStudent(this.studentId, changes).subscribe(() => {
+      this.toast.success('Changes saved successfully');
+      Object.assign(this.originalStudent, changes);
+      this.editMode = {};
+    });
+  } else {
+    this.toast.info('No changes to save');
   }
+}
+
 }

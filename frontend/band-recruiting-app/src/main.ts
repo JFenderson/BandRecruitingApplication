@@ -7,6 +7,9 @@ import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/
 import { ToastrModule } from 'ngx-toastr';
 import { routes } from './app/app-routing.module';
 import { authInterceptor } from './app/core/interceptors/auth.interceptors';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 bootstrapApplication(AppComponent, {
   providers: [

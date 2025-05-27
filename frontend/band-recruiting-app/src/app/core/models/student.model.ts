@@ -1,5 +1,6 @@
 // student.model.ts
 export interface StudentDTO {
+profilePicture: any;
   studentId: string;
   firstName: string;
   lastName: string;

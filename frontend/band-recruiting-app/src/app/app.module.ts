@@ -3,6 +3,8 @@ import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { importProvidersFrom } from '@angular/core';
 import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 bootstrapApplication(AppComponent, {
   providers: [

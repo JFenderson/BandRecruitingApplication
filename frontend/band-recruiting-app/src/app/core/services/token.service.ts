@@ -48,13 +48,17 @@ export class TokenService {
   }
 
   // Extract role (first if array)
- getRole(): string | null {
+getRole(): string | null {
   const decoded = this.decodeToken();
-  if (!decoded) return null;
-
-  return (
-    (decoded as any)['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? null
+  const role = (
+    (decoded as any)['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+    (decoded as any)['role'] ??
+    (decoded as any)['UserType'] ??
+    null
   );
+
+  console.log('[TokenService] Resolved role:', role);
+  return role;
 }
 
   isAdmin(): boolean {
