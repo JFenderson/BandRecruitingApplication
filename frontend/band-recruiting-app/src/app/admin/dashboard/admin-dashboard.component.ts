@@ -6,14 +6,18 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component'; // Adjust the path if needed
-
+import { DashboardService } from '../../core/services/dashboard.service';
+import {DashboardSummary} from '../../core/models/dashboard.model';
+import { ChartOptions, ChartType, ChartData } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts'
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, SpinnerComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, SpinnerComponent, BaseChartDirective ],
 })
 export class AdminDashboardComponent implements OnInit {
 sortUsers(arg0: string) {
@@ -28,12 +32,35 @@ throw new Error('Method not implemented.');
   currentPage: number = 1;
   itemsPerPage: number = 20;
   isLoading = true;
+totalStudents = 0;
+totalRecruiters = 0;
+totalOffers = 0;
+isSummaryLoading = true;
 
+barChartOptions: ChartOptions = {
+  responsive: true,
+  scales: {
+    x: {},
+    y: { beginAtZero: true }
+  }
+};
 
-  constructor(
-    private tokenService: TokenService,
-    private userService: UserService
-  ) { }
+barChartLabels: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+barChartData: ChartData<'bar'> = {
+  labels: this.barChartLabels,
+  datasets: [
+    { data: [5, 8, 3, 6, 4, 7, 2], label: 'Scholarship Offers' }
+  ]
+};
+
+barChartType: ChartType = 'bar';
+
+ constructor(
+  private tokenService: TokenService,
+  private userService: UserService,
+  private dashboardService: DashboardService,
+  private toast: ToastrService
+) {}
 
 
   ngOnInit(): void {
@@ -48,12 +75,38 @@ throw new Error('Method not implemented.');
         console.error('Failed to load users', err);
       }
     });
+
+    this.dashboardService.getDashboardSummary().subscribe({
+  next: (data) => {
+    this.totalStudents = data.totalStudents;
+    this.totalRecruiters = data.totalRecruiters;
+    this.totalOffers = data.totalOffers;
+  },
+  error: (err) => {
+    console.error('Failed to load dashboard summary', err);
+  }
+});
   }
 
   filterUsers(): void {
     this.applyFilters();
   }
 
+  refreshSummary(): void {
+  this.isSummaryLoading = true;
+  this.dashboardService.getDashboardSummary().subscribe({
+    next: (data) => {
+      this.totalStudents = data.totalStudents;
+      this.totalRecruiters = data.totalRecruiters;
+      this.totalOffers = data.totalOffers;
+      this.isSummaryLoading = false;
+    },
+    error: (err) => {
+      console.error('Failed to load dashboard summary', err);
+      this.isSummaryLoading = false;
+    }
+  });
+}
 
   applyFilters(): void {
     const term = this.searchTerm.toLowerCase();
@@ -97,15 +150,15 @@ throw new Error('Method not implemented.');
     return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
   }
 
-  getProfileLink(user: UserDTO): string[] {
-    if (user.userType === 'Student') {
-      return ['/student-profile', user.id];
-    } else if (user.userType === 'Recruiter') {
-      return ['/recruiter-profile', user.id];
-    } else {
-      return ['/unauthorized']; // or just disable the button for Admins
-    }
+getProfileLink(user: UserDTO): string[] | null {
+  if (user.userType === 'Student') {
+    return ['/student-profile', user.id];
+  } else if (user.userType === 'Recruiter') {
+    return ['/recruiter-profile', user.id];
+  } else {
+    return null;
   }
+}
 
   isAdmin(): boolean {
     return this.role === 'Admin';
@@ -122,4 +175,20 @@ throw new Error('Method not implemented.');
   logout(): void {
     this.tokenService.logout();
   }
+
+  deleteUser(user: UserDTO): void {
+  const confirmed = confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`);
+  if (!confirmed) return;
+
+  this.userService.delete(user.id).subscribe({
+    next: () => {
+      this.toast.success('User deleted successfully');
+      this.users = this.users.filter(u => u.id !== user.id);
+      this.applyFilters();
+    },
+    error: () => {
+      this.toast.error('Failed to delete user');
+    }
+  });
+}
 }

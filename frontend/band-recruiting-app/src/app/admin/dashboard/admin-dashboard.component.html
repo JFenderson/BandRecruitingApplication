@@ -1,9 +1,44 @@
+<div class="flex justify-between items-center mb-4">
+  <h2 class="text-2xl font-bold text-blue-700">Dashboard Summary</h2>
+  <button
+    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+    (click)="refreshSummary()"
+    [disabled]="isSummaryLoading"
+  >
+    Refresh Summary
+  </button>
+</div>
 <div *ngIf="isLoading" class="spinner-container">
   <app-spinner></app-spinner>
   <!-- or your own loader markup -->
 </div>
 <div class="p-6" *ngIf="!isLoading">
   <h2 class="text-2xl font-bold mb-4 text-blue-700">All Users</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded shadow p-4">
+      <p class="text-sm text-gray-500">Total Students</p>
+      <p class="text-2xl font-bold text-gray-800">{{ totalStudents }}</p>
+    </div>
+    <div class="bg-white rounded shadow p-4">
+      <p class="text-sm text-gray-500">Total Recruiters</p>
+      <p class="text-2xl font-bold text-gray-800">{{ totalRecruiters }}</p>
+    </div>
+    <div class="bg-white rounded shadow p-4">
+      <p class="text-sm text-gray-500">Scholarship Offers</p>
+      <p class="text-2xl font-bold text-gray-800">{{ totalOffers }}</p>
+    </div>
+  </div>
+  <div class="bg-white rounded shadow p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4 text-gray-800">Weekly Offer Trends</h3>
+    <canvas
+      baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      [type]="barChartType"
+    >
+    </canvas>
+  </div>
+
   <div class="mb-4">
     <input
       type="text"
@@ -46,12 +81,18 @@
         </td>
         <td class="px-4 py-2">
           <button
+            *ngIf="getProfileLink(user)"
             class="text-blue-600 hover:underline"
             [routerLink]="getProfileLink(user)"
           >
             View
           </button>
-          <button class="text-red-600 hover:underline ml-2">Delete</button>
+          <button
+            class="text-red-600 hover:underline ml-2"
+            (click)="deleteUser(user)"
+          >
+            Delete
+          </button>
         </td>
       </tr>
     </tbody>
