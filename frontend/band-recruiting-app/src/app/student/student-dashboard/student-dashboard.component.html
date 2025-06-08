@@ -1,47 +1,16 @@
-<div *ngIf="isLoading">
-  <p>Loading student dashboard...</p>
-</div>
-
-<div *ngIf="!isLoading">
-  <h2 class="text-2xl font-bold text-blue-700 mb-4">Welcome, {{ student?.firstName }}</h2>
-
-  <!-- Profile Info -->
-  <section class="mb-6">
-    <h3 class="text-lg font-semibold">Profile</h3>
-    <p><strong>Name:</strong> {{ student?.firstName }} {{ student?.lastName }}</p>
-    <p><strong>Email:</strong> {{ student?.email }}</p>
-    <p><strong>Instrument:</strong> {{ student?.instrument }}</p>
-    <p><strong>High School:</strong> {{ student?.highSchool }}</p>
-  </section>
-
-  <!-- Videos -->
-  <section class="mb-6">
-    <h3 class="text-lg font-semibold">Uploaded Videos</h3>
-    <ul>
-      <li *ngFor="let video of videos" class="mb-2">
-        <strong>{{ video.title }}</strong> - {{ video.createdAt | date }}
-        <p>{{ video.description }}</p>
-      </li>
-    </ul>
-  </section>
-
-  <!-- Interested Bands -->
-  <section class="mb-6">
-    <h3 class="text-lg font-semibold">Interested Bands</h3>
-    <ul>
-      <li *ngFor="let band of interests">
-        {{ band.name }}
-      </li>
-    </ul>
-  </section>
-
-  <!-- Offers -->
-  <section>
-    <h3 class="text-lg font-semibold">Scholarship Offers</h3>
-    <ul>
-      <li *ngFor="let offer of offers">
-        {{ offer.bandName }} - ${{ offer.amount }} (Recruiter: {{ offer.recruiterName }})
-      </li>
-    </ul>
-  </section>
-</div>
+    <div class="min-h-screen bg-gray-50 p-6">
+      <h1 class="text-3xl font-bold text-blue-800 mb-6">Welcome Back!</h1>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="space-y-6">
+          <app-student-summary-card></app-student-summary-card>
+          <app-star-rating></app-star-rating>
+          <app-interest-list></app-interest-list>
+        </div>
+        <div class="md:col-span-2 space-y-6">
+          <app-video-uploader></app-video-uploader>
+          <app-video-list></app-video-list>
+          <app-offer-list></app-offer-list>
+          <app-comment-list></app-comment-list>
+        </div>
+      </div>
+    </div>

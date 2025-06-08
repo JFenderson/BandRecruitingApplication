@@ -37,7 +37,7 @@ namespace server.Data
             modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new RecruiterConfiguration());
             modelBuilder.ApplyConfiguration(new BandConfiguration());
-            modelBuilder.ApplyConfiguration(new VideoConfiguration());
+            modelBuilder.ApplyConfiguration(new VideoConfiguration()); 
             modelBuilder.ApplyConfiguration(new RatingConfiguration());
             modelBuilder.ApplyConfiguration(new CommentConfiguration());
             modelBuilder.ApplyConfiguration(new ScholarshipOfferConfiguration());
