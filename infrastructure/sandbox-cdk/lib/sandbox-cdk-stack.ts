@@ -1,16 +1,27 @@
-import * as cdk from 'aws-cdk-lib';
+import { App, Environment, Stack, StackProps } from 'aws-cdk-lib';
+import { VpcStack } from '../lib/vpc-stack';
+import { CognitoStack } from '../lib/cognito-stack';
+import { S3CloudFrontStack } from '../lib/s3-cloudfront-stack';
+import { RdsStack } from '../lib/rds-stack';
+import { EcsStack } from '../lib/ecs-stack';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-export class SandboxCdkStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+
+export class SandboxCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+const app = new App();
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'SandboxCdkQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+const env: Environment = {
+  account: process.env.CDK_DEFAULT_ACCOUNT,
+  region: process.env.CDK_DEFAULT_REGION || 'us-east-1',
+};
+
+const vpcStack = new VpcStack(app, 'VpcStack', { env });
+new CognitoStack(app, 'CognitoStack', { env });
+new S3CloudFrontStack(app, 'S3CloudFrontStack', { env });
+new RdsStack(app, 'RdsStack', { env, vpc: vpcStack.vpc });
+new EcsStack(app, 'EcsStack', { env, vpc: vpcStack.vpc });
   }
 }
