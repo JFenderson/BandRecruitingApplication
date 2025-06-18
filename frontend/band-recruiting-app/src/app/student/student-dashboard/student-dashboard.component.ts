@@ -25,7 +25,7 @@ import { TokenService } from '../../core/services/token.service';
     InterestListComponent,
     CommentListComponent
   ],
-
+templateUrl: './student-dashboard.component.html'
 })
 
 export class StudentDashboardComponent implements OnInit {
