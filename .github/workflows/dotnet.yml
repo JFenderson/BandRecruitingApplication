@@ -1,31 +1,77 @@
-name: .NET CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: ⬇️ Checkout Code
+      uses: actions/checkout@v3
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    # 🔧 Set up .NET for Backend
+    - name: 🔧 Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.x'
+        dotnet-version: '8.0.x'
 
-    - name: Restore
-      run: dotnet restore
+    - name: 📦 Restore Backend Dependencies
+      run: dotnet restore ./backend/BandRecruitingApp.API
 
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+    - name: 🛠️ Build Backend
+      run: dotnet build ./backend/BandRecruitingApp.API --configuration Release
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: 🧪 Run Backend Tests
+      run: dotnet test ./backend/BandRecruitingApp.API --no-build --verbosity normal
 
-      
+    # 🌐 Set up Node.js for Angular Frontend
+    - name: 🌐 Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
+    - name: 📦 Install Frontend Dependencies
+      run: |
+        cd frontend/band-recruiting-app
+        npm ci
+
+    - name: 🏗️ Build Angular App
+      run: |
+        cd frontend/band-recruiting-app
+        npm run build -- --configuration production
+
+    # ☁️ Deploy Frontend to S3
+    - name: 🚀 Deploy Angular to S3
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        SOURCE_DIR: frontend/band-recruiting-app/dist/band-recruiting-app/
+
+    # 🧱 CDK Deploy
+    - name: 🏗️ Install AWS CDK
+      run: npm install -g aws-cdk
+
+    - name: 🛠️ Install CDK Dependencies
+      run: |
+        cd infrastructure/sandbox-cdk
+        npm ci
+
+    - name: 🚀 Deploy CDK Stack
+      run: |
+        cd infrastructure/sandbox-cdk
+        cdk deploy --require-approval never
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
