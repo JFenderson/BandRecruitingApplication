@@ -1,0 +1,133 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-build-test:
+    name: Build & Test .NET Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/server.sln
+
+      - name: Build Solution
+        run: dotnet build backend/server.sln --configuration Release --no-restore
+
+      - name: Run Tests & Collect Coverage
+        run: |
+          dotnet test backend/Tests/Integration/Integration.csproj \
+            --configuration Release \
+            --no-restore \
+            --collect:"XPlat Code Coverage"
+
+      - name: Publish Coverage Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'HtmlInline;Cobertura'
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coveragereport
+
+  frontend-build-test:
+    name: Build & Test Angular Frontend
+    runs-on: ubuntu-latest
+    needs: backend-build-test
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: frontend/band-recruiting-app
+
+      - name: Lint
+        run: npm run lint --if-present
+        working-directory: frontend/band-recruiting-app
+
+      - name: Run Tests
+        run: npm run test -- --watch=false --no-progress --browsers=ChromeHeadless
+        working-directory: frontend/band-recruiting-app
+
+      - name: Build Production Bundle
+        run: npm run build -- --configuration production
+        working-directory: frontend/band-recruiting-app
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: angular-dist
+          path: frontend/band-recruiting-app/dist
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure (AWS CDK)
+    runs-on: ubuntu-latest
+    needs: [backend-build-test, frontend-build-test]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js for CDK
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install CDK Dependencies
+        run: |
+          cd infrastructure/sandbox-cdk
+          npm ci
+
+      - name: Deploy CDK Stack
+        run: |
+          cd infrastructure/sandbox-cdk
+          cdk deploy --require-approval never
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+  deploy-azure-webapp:
+    name: Deploy ASP.NET Core to Azure Web App
+    runs-on: windows-latest
+    needs: [backend-build-test]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'band-recruiting-application-api'
+          slot-name: 'Production'
+          package: backend/bin/Release/net8.0/publish
