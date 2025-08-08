@@ -17,7 +17,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { RecruiterLayoutComponent } from './layouts/recruiter-layout/recruiter-layout.component';
 import { StudentLayoutComponent } from './layouts/student-layout/student-layout.component';
-import { AdminUserProfileComponent } from './admin/user/user.component';
+import { AdminUserProfileComponent } from './admin/admin-user-profile/admin-user-profile.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

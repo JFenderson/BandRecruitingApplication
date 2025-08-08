@@ -12,7 +12,14 @@ import { StudentFormComponent } from './student-form/student-form.component';
   imports: [CommonModule, RouterModule, ReactiveFormsModule, RecruiterFormComponent, StudentFormComponent],
 })
 export class UserCreateComponent {
+  onSubmit() {
+    throw new Error('Method not implemented.');
+  }
+  createUser() {
+    throw new Error('Method not implemented.');
+  }
   userType: 'Student' | 'Recruiter' = 'Student';
+  userForm: any;
 
   onUserTypeChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value;

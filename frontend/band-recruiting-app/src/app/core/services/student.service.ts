@@ -26,16 +26,16 @@ export class StudentService {
     return this.api.get<StudentDTO>(`Student/${id}`);
   }
 
-  updateStudent(id: string, data: any) {
-    return this.api.put<UpdateStudentDTO>(`Student/${id}`, data);
-  }
+updateStudent(id: string, data: UpdateStudentDTO): Observable<StudentDTO> {
+   return this.api.put<StudentDTO>(`Student/${id}`, data);
+ }
 
   deleteStudent(id: string) {
     return this.api.delete<any>(`Student/${id}`);
   }
 
   createStudent(data: any) {
-    return this.api.post<UserDTO>('Student', data);
+    return this.api.post<StudentDTO>('Student', data);
   }
 
   getByGradYear(year: number) {

@@ -25,7 +25,7 @@ export interface UserDTO {
 
     // Calculated fields
     averageRating?: number;
-    offerCount: number;
+    offerCount?: number;
 
     offersMade?: OfferDTO[];
     comments?: Comment[];

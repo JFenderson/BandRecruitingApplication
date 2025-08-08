@@ -1,137 +1,84 @@
+// src/app/student/student-profile/student-profile.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { StudentService } from '../../core/services/student.service';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { StudentDTO } from '../../core/models/student.model';
-import { ToastrService } from 'ngx-toastr';
-
+import { ActivatedRoute }    from '@angular/router';
+import { CommonModule }      from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { StudentService }    from '../../core/services/student.service';
+import { StudentDTO }        from '../../core/models/student.model';
 
 @Component({
   selector: 'app-student-profile',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './student-profile.component.html',
-  styleUrls: ['./student-profile.component.scss'],
-   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  styleUrls: ['./student-profile.component.scss']
 })
 export class StudentProfileComponent implements OnInit {
-  studentForm!: FormGroup;
+  getProfileLink(student: any) {
+    throw new Error('Method not implemented.');
+  }
+  student(student: any) {
+    throw new Error('Method not implemented.');
+  }
+  studentId!: string;               // <-- now a string
   originalStudent!: StudentDTO;
-  editMode: { [key: string]: boolean } = {};
-  studentId!: string;
+  studentForm!: FormGroup;
   showEditModal = false;
-  previewImageUrl: string | null = null;
-  readonly editableFields: (keyof StudentDTO)[] = [
-  'firstName', 'lastName', 'email', 'phone', 'instrument', 'highSchool', 'videoUrl'];
+  previewImageUrl?: string;
+  editableFields = ['firstName','lastName','email','phone','instrument','highSchool'];
 
   constructor(
-    private fb: FormBuilder,
-    private studentService: StudentService,
     private route: ActivatedRoute,
-      private toast: ToastrService
+    private studentService: StudentService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
-    this.studentId = this.route.snapshot.paramMap.get('id')!;
-    this.studentService.getStudentById(this.studentId).subscribe(student => {
-      console.log(student);
-      this.originalStudent = student;
-      this.studentForm = this.fb.group({
-        firstName: [student.firstName],
-        lastName: [student.lastName],
-        email: [student.email],
-        phone: [student.phone],
-        instrument: [student.instrument],
-        highSchool: [student.highSchool],
-        videoUrl: [student.videoUrl]
+    this.studentId = this.route.snapshot.paramMap.get('id')!;  // no Number(...)
+    this.studentService.getStudentById(this.studentId)
+      .subscribe(student => {
+        this.originalStudent = student;
+        this.studentForm = this.fb.group({
+          firstName:  [student.firstName, Validators.required],
+          lastName:   [student.lastName,  Validators.required],
+          email:      [student.email,     [Validators.required, Validators.email]],
+          phone:      [student.phone,     Validators.required],
+          instrument: [student.instrument,Validators.required],
+          highSchool: [student.highSchool,Validators.required]
+        });
       });
-    });
   }
 
-  toggleEdit(field: string): void {
-    this.editMode[field] = !this.editMode[field];
+  openEditModal(): void { this.showEditModal = true; }
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.previewImageUrl = undefined;
   }
 
-openEditModal(): void {
-  this.showEditModal = true;
-  this.previewImageUrl = this.originalStudent.profilePicture ?? null;
-
-  this.studentForm.setValue({
-    firstName: this.originalStudent.firstName,
-    lastName: this.originalStudent.lastName,
-    email: this.originalStudent.email,
-    phone: this.originalStudent.phone,
-    instrument: this.originalStudent.instrument,
-    highSchool: this.originalStudent.highSchool,
-    videoUrl: this.originalStudent.videoUrl
-  });
-}
-
-closeEditModal(): void {
-  this.showEditModal = false;
-  this.studentForm.reset();
-}
-
-onImageSelected(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.previewImageUrl = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-saveChanges(): void {
-  const changes: any = {};
-  for (const key of this.editableFields) {
-    const current = this.studentForm.get(key)?.value;
-    const original = this.originalStudent[key];
-    if (current !== original) {
-      changes[key] = current;
+  onImageSelected(evt: Event): void {
+    const file = (evt.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => this.previewImageUrl = reader.result as string;
+      reader.readAsDataURL(file);
     }
   }
 
-  if (this.previewImageUrl && this.previewImageUrl !== this.originalStudent.profilePicture) {
-    changes['profilePicture'] = this.previewImageUrl;
-  }
-
-  if (Object.keys(changes).length === 0) {
-    this.toast.info('No changes to save');
-    return;
-  }
-
-  this.studentService.updateStudent(this.studentId, changes).subscribe(() => {
-    Object.assign(this.originalStudent, changes);
-    this.toast.success('Profile updated');
+  saveChanges(): void {
+    if (this.studentForm.invalid) {
+      this.studentForm.markAllAsTouched();
+      return;
+    }
+    const data = { ...this.studentForm.value } as any;
+    if (this.previewImageUrl) data.profilePicture = this.previewImageUrl;
+ this.studentService.updateStudent(this.studentId, data)
+  .subscribe(updated => {
+    // `updated` is now a StudentDTO, so `profilePicture` & `studentId` are present
+    this.originalStudent = updated;
     this.closeEditModal();
   });
-}
-
-//   saveChanges(): void {
-//   if (!this.studentForm) return;
-
-//   const changes: any = {};
-
-//   Object.keys(this.studentForm.controls).forEach(key => {
-//     const current = this.studentForm.get(key)?.value;
-//     const original = this.originalStudent[key as keyof StudentDTO];
-
-//     if (current !== original) {
-//       changes[key] = current;
-//     }
-//   });
-
-//   if (Object.keys(changes).length > 0) {
-//     this.studentService.updateStudent(this.studentId, changes).subscribe(() => {
-//       this.toast.success('Changes saved successfully');
-//       Object.assign(this.originalStudent, changes);
-//       this.editMode = {};
-//     });
-//   } else {
-//     this.toast.info('No changes to save');
-//   }
-// }
-
+  }
 }
