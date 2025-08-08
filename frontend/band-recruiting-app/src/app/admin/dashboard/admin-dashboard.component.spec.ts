@@ -3,7 +3,7 @@ import { AdminDashboardComponent }   from './admin-dashboard.component';
 import { UserService }              from '../../core/services/user.service';
 import { DashboardService }         from '../../core/services/dashboard.service';
 import { of }                       from 'rxjs';
-import { HttpClientTestingModule }  from '@angular/common/http/testing';
+import { provideHttpClientTesting }  from '@angular/common/http/testing';
 import { HttpClient } from '@angular/common/http';
 
 describe('AdminDashboardComponent', () => {
@@ -30,9 +30,9 @@ describe('AdminDashboardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AdminDashboardComponent,      // standalone component
-        HttpClient      // for any HttpClient usages
       ],
       providers: [
+        provideHttpClientTesting(),
         { provide: UserService,      useValue: userServiceSpy },
         { provide: DashboardService, useValue: dashboardSpy }
       ]
