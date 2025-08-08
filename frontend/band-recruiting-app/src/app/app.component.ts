@@ -9,4 +9,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'band-recruting-app';
+
+}
