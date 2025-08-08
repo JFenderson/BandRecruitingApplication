@@ -29,9 +29,11 @@ jobs:
       - name: Run Tests & Collect Coverage
         working-directory: ./backend/Tests/Integration
         run: |
+          dotnet restore Integration.csproj
+          dotnet build Integration.csproj --configuration Release
           dotnet test Integration.csproj \
             --configuration Release \
-            --no-restore \
+            --no-build \
             --collect:"XPlat Code Coverage"
 
       - name: Publish Coverage Report
