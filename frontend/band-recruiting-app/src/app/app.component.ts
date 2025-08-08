@@ -10,6 +10,6 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'band-recruting-app';
+  title = 'band-recruiting-app';
 
 }
