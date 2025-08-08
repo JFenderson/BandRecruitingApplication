@@ -4,6 +4,7 @@ import { UserService }              from '../../core/services/user.service';
 import { DashboardService }         from '../../core/services/dashboard.service';
 import { of }                       from 'rxjs';
 import { HttpClientTestingModule }  from '@angular/common/http/testing';
+import { HttpClient } from '@angular/common/http';
 
 describe('AdminDashboardComponent', () => {
   let fixture: ComponentFixture<AdminDashboardComponent>;
@@ -29,7 +30,7 @@ describe('AdminDashboardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AdminDashboardComponent,      // standalone component
-        HttpClientTestingModule      // for any HttpClient usages
+        HttpClient      // for any HttpClient usages
       ],
       providers: [
         { provide: UserService,      useValue: userServiceSpy },

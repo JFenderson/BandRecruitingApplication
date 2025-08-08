@@ -33,7 +33,7 @@ describe('LoginComponent', () => {
   });
 
   it('should call AuthService.login on submit', () => {
-    component.loginForm.setValue({ username: 'u', password: 'p' });
+    component.loginForm.setValue({ email: 'u', password: 'p' });
     component.onSubmit();
     expect(authSpy.login).toHaveBeenCalledWith({ email: 'u', password: 'p' });
   });

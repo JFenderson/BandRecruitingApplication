@@ -52,7 +52,8 @@ describe('StudentFormComponent', () => {
       email:      'a@b.com',
       phone:      '123',
       instrument: 'Guitar',
-      highSchool: 'HS'
+      highSchool: 'HS',
+      password: 'password111'
     };
     component.form.setValue(formValue);
 

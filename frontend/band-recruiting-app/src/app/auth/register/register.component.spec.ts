@@ -33,7 +33,15 @@ describe('RegisterComponent', () => {
   });
 
   it('should call AuthService.register on submit', () => {
-    component.registerForm.setValue({ email: 'u', password: 'p' });
+    component.registerForm.setValue({ 
+      email: 'u', 
+      password: 'p', 
+      firstName:  'A',
+      lastName:   'B',
+      phone:      '123',
+      instrument: 'Guitar',
+      highSchool: 'HS',
+     });
     component.onSubmit();
     expect(authSpy.register).toHaveBeenCalledWith({ email: 'u', password: 'p' });
   });
