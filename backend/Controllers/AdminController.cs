@@ -95,5 +95,27 @@ namespace server.Controllers
             var summary = await _dashboardService.GetDashboardSummaryAsync();
             return Ok(summary);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users/{id}")]
+        public async Task<ActionResult<UserDTO>> GetUser(string id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null) return NotFound();
+
+            return Ok(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("users/{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO dto)
+        {
+            var success = await _userService.UpdateUserByAdminAsync(id, dto);
+            if (!success) return NotFound();
+
+            return NoContent();
+        }
+
+
     }
 }

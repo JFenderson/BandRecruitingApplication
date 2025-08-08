@@ -17,6 +17,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { RecruiterLayoutComponent } from './layouts/recruiter-layout/recruiter-layout.component';
 import { StudentLayoutComponent } from './layouts/student-layout/student-layout.component';
+import { AdminUserProfileComponent } from './admin/user/user.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -37,7 +38,9 @@ export const routes: Routes = [
       { path: '', component: AdminDashboardComponent },
       { path: 'all-users', component: UserListComponent },
       { path: 'create-user', component: UserCreateComponent },
-      { path: 'admin-profile', component: UserCreateComponent }
+      { path: 'admin-profile', component: UserCreateComponent },
+      { path: 'users/:id', component: AdminUserProfileComponent }
+
     ]
   },
   {

@@ -1,0 +1,53 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="grid grid-cols-2 gap-4">
+
+    <div>
+      <label>Email</label>
+      <input formControlName="email" type="email" class="form-input" />
+    </div>
+
+    <div>
+      <label>Password</label>
+      <input formControlName="password" type="password" class="form-input" />
+    </div>
+
+    <div>
+      <label>First Name</label>
+      <input formControlName="firstName" class="form-input" />
+    </div>
+
+    <div>
+      <label>Last Name</label>
+      <input formControlName="lastName" class="form-input" />
+    </div>
+
+    <div>
+      <label>Phone</label>
+      <input formControlName="phone" class="form-input" />
+    </div>
+
+    <!-- Student Fields -->
+    <div *ngIf="user?.userType === 'Student'">
+      <label>Instrument</label>
+      <input formControlName="instrument" class="form-input" />
+    </div>
+
+    <div *ngIf="user?.userType === 'Student'">
+      <label>High School</label>
+      <input formControlName="highSchool" class="form-input" />
+    </div>
+
+    <div *ngIf="user?.userType === 'Student'">
+      <label>Graduation Year</label>
+      <input formControlName="graduationYear" type="number" class="form-input" />
+    </div>
+
+    <!-- Recruiter Fields -->
+    <div *ngIf="user?.userType === 'Recruiter'">
+      <label>Band ID</label>
+      <input formControlName="bandId" class="form-input" />
+    </div>
+  </div>
+
+  <button type="submit" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Update</button>
+</form>

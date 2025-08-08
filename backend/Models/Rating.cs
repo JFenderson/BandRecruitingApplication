@@ -12,7 +12,7 @@
         public Video Video { get; set; }
         public string RecruiterId { get; set; }  // Foreign Key
         public ApplicationUser Recruiter { get; set; }
-        public string StudentId { get; internal set; }
+        public string StudentId { get; set; }
         public ApplicationUser Student { get; set; }
 
     }

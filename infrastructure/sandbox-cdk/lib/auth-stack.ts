@@ -10,6 +10,8 @@ import {
   CfnUserPoolGroup,
   OAuthScope
 } from 'aws-cdk-lib/aws-cognito';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+
 
 export class AuthStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -33,7 +35,8 @@ export class AuthStack extends Stack {
         requireUppercase: true,
         requireSymbols: true,
       },
-      accountRecovery: 'EMAIL_ONLY',
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+
     });
 
     // Hosted UI domain
@@ -50,11 +53,7 @@ export class AuthStack extends Stack {
       clientId: 'GOOGLE_CLIENT_ID',
       clientSecret: 'GOOGLE_CLIENT_SECRET',
       scopes: ['openid', 'email', 'profile'],
-      attributeMapping: {
-        email: 'email',
-        givenName: 'given_name',
-        familyName: 'family_name',
-      },
+
     });
 
     // Apple IdP
@@ -65,11 +64,6 @@ export class AuthStack extends Stack {
       keyId: 'APPLE_KEY_ID',
       privateKey: 'APPLE_PRIVATE_KEY', // use Secrets Manager in production
       scopes: ['name', 'email'],
-      attributeMapping: {
-        email: 'email',
-        givenName: 'given_name',
-        familyName: 'family_name',
-      },
     });
 
     // User Pool Client with refresh token support

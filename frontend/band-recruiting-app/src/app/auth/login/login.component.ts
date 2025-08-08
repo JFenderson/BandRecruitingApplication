@@ -43,12 +43,20 @@ onSubmit(): void {
   this.authService.login(this.loginForm.value).subscribe({
     next: (res) => {
 
+      console.log("Token",res);
       this.tokenService.setToken(res.token);
       this.tokenService.setRefreshToken(res.refreshToken);
-
      const decoded = jwtDecode<any>(res.token);
-const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      console.log('[DEBUG] Decoded Token:', decoded);
 
+      const role = decoded["role"] || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      
+
+          if (!role) {
+        console.warn('[WARNING] Role not found in token, routing to fallback');
+        this.router.navigate(['/unauthorized']);
+        return;
+      }
 
       if (role === 'Admin') {
         this.router.navigate(['/admin-dashboard']);
