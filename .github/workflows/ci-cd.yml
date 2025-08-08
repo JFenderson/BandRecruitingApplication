@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,23 +7,83 @@ on:
     branches: [main]
 
 jobs:
-  build_and_test:
+  backend-build-test:
+    name: Build & Test .NET Backend
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        working-directory: ./backend
+        run: dotnet restore server.sln
+
+      - name: Build Solution
+        working-directory: ./backend
+        run: dotnet build server.sln --configuration Release --no-restore
+
+      - name: Run Tests & Collect Coverage
+        working-directory: ./backend/Tests/Integration
+        run: |
+          dotnet restore Integration.csproj
+          dotnet build Integration.csproj --configuration Release
+          dotnet test Integration.csproj \
+            --configuration Release \
+            --no-build \
+            --collect:"XPlat Code Coverage"
+
+      - name: Publish Coverage Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'HtmlInline;Cobertura'
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coveragereport
+
+  frontend-build-test:
+    name: Build & Test Angular Frontend
+    runs-on: ubuntu-latest
+    needs: backend-build-test
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
-          cache: npm
+          node-version: '18.x'
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
+        working-directory: frontend/band-recruiting-app
 
-      - name: Run lint
+      - name: Lint
         run: npm run lint --if-present
+        working-directory: frontend/band-recruiting-app
 
-      - name: Run tests
-        run: npm test -- --watch=false --no-progress --browsers=ChromeHeadless
+      - name: Run Tests
+        run: npm run test -- --watch=false --no-progress --browsers=ChromeHeadless
+        working-directory: frontend/band-recruiting-app
+
+      - name: Build Production Bundle
+        run: npm run build -- --configuration production
+        working-directory: frontend/band-recruiting-app
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: frontend/band-recruiting-app/dist
+
+
+
+
