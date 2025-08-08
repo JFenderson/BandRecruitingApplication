@@ -19,14 +19,17 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore backend/server.sln
+        working-directory: ./backend
+        run: dotnet restore server.sln
 
       - name: Build Solution
-        run: dotnet build backend/server.sln --configuration Release --no-restore
+        working-directory: ./backend
+        run: dotnet build server.sln --configuration Release --no-restore
 
       - name: Run Tests & Collect Coverage
+        working-directory: ./backend/Tests/Integration
         run: |
-          dotnet test backend/Tests/Integration/Integration.csproj \
+          dotnet test Integration.csproj \
             --configuration Release \
             --no-restore \
             --collect:"XPlat Code Coverage"
@@ -125,9 +128,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Publish
+        working-directory: ./backend
+        run: dotnet publish server.sln --configuration Release --output ./publish
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'band-recruiting-application-api'
           slot-name: 'Production'
-          package: backend/bin/Release/net8.0/publish
+          package: backend/publish
