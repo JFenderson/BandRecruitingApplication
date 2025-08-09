@@ -1,30 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule }        from '@angular/forms';
-import { LoginComponent }             from './login.component';
-import { HttpClientTestingModule, provideHttpClientTesting }    from '@angular/common/http/testing';
-import { RouterTestingModule }        from '@angular/router/testing';
-import { AuthService }                from '../../core/services/auth.service';
-import { of }                         from 'rxjs';
+import { ReactiveFormsModule } from '@angular/forms';
+import { of } from 'rxjs';
+
+import { LoginComponent } from './login.component';
+import { AuthService } from '../../core/services/auth.service';
 
 describe('LoginComponent', () => {
-  let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let authSpy: jasmine.SpyObj<AuthService>;
+  let component: LoginComponent;
+  let authSpy: jasmine.SpyObj<any>;
 
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj('AuthService', ['login']);
-    authSpy.login.and.returnValue(of({ token: 'xyz' }));
+    authSpy.login.and.returnValue(of({ token: 't' }));
 
     await TestBed.configureTestingModule({
-      imports: [
-        LoginComponent,
-        ReactiveFormsModule,
-        RouterTestingModule.withRoutes([])
-      ],
-      providers: [
-        provideHttpClientTesting,
-        { provide: AuthService, useValue: authSpy }
-      ]
+      imports: [LoginComponent, ReactiveFormsModule],
+      providers: [{ provide: AuthService, useValue: authSpy }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -33,8 +25,12 @@ describe('LoginComponent', () => {
   });
 
   it('should call AuthService.login on submit', () => {
-    component.loginForm.setValue({ email: 'u', password: 'p' });
+    component.loginForm.setValue({
+      email: 'u@example.com',   // valid
+      password: 'password123'   // non-empty
+    });
+
     component.onSubmit();
-    expect(authSpy.login).toHaveBeenCalledWith({ email: 'u', password: 'p' });
+    expect(authSpy.login).toHaveBeenCalledWith({ email: 'u@example.com', password: 'password123' });
   });
 });
