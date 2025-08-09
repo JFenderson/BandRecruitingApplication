@@ -1,13 +1,22 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './admin-form.component.html'
+  templateUrl: './admin-form.component.html',
 })
-export class AdminFormComponent {
-  @Input({ required: true }) group!: FormGroup;
+export class AdminFormComponent implements OnInit {
+  @Input() group?: FormGroup;
+  form!: FormGroup;
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.form = this.group ?? this.fb.group({
+      // keep empty for now, or add admin-specific fields later
+    });
+  }
 }

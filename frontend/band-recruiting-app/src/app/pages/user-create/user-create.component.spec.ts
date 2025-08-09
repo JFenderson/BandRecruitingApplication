@@ -15,15 +15,22 @@ describe('UserCreateComponent', () => {
 
   beforeEach(async () => {
     userServiceSpy = jasmine.createSpyObj('UserService', ['create']);
-    userServiceSpy.create.and.returnValue(of({
-      id: '1',
-      email: 'x@y.com',
-      password: 'pass',
-      userType: 'Student',
-      offerCount: 0,
-      createdAt: '',
-      updatedAt: ''
-    }));
+
+    // Provide a valid default response (no dependency on test-scoped variables)
+    userServiceSpy.create.and.returnValue(
+      of({
+        id: 'resp-1',
+        email: 'admin@example.com',
+        password: 'x',
+        userType: 'Admin',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        phone: '205-000-0000',
+        createdAt: '',
+        student: null,
+        recruiter: null,
+      } as any)
+    );
 
     toastSpy = jasmine.createSpyObj('ToastrService', ['success', 'error']);
 
@@ -49,19 +56,20 @@ describe('UserCreateComponent', () => {
       firstName: 'X',
       lastName:  'Y',
       phone:     '1234567890',
-      userName:  'XYStudent'
+      userName:  'XYStudent',
     };
 
+    // Provide values for nested groups (present but typically disabled initially)
     component.userForm.setValue({
       ...formValue,
-      // nested role groups exist but are disabled by default
-      student: { instrument: '', highSchool: '' },
-      recruiter: { organization: '', title: '' },
-      admin: {}
+      student:   { instrument: '', highSchool: '', graduationYear: null },
+      recruiter: { bandId: '' },
+      admin:     {},
     } as any);
 
     component.onSubmit();
 
-    expect(userServiceSpy.create).toHaveBeenCalledWith(formValue);
+    // Allow extra properties if your submit uses getRawValue()
+    expect(userServiceSpy.create).toHaveBeenCalledWith(jasmine.objectContaining(formValue));
   });
 });

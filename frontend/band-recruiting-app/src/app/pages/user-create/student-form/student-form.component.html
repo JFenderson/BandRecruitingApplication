@@ -1,4 +1,4 @@
-<div [formGroup]="group" class="space-y-3">
+<div [formGroup]="form" class="space-y-3">
   <h3 class="font-semibold">Student details</h3>
 
   <label class="block">
@@ -10,4 +10,10 @@
     <span class="text-sm">High school</span>
     <input formControlName="highSchool" class="border p-2 w-full">
   </label>
+
+  <label class="block">
+    <span class="text-sm">Graduation year</span>
+    <input formControlName="graduationYear" class="border p-2 w-full">
+  </label>
+
 </div>

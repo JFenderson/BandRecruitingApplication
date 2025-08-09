@@ -1,6 +1,6 @@
 import { Component, OnInit }            from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { CommonModule }                 from '@angular/common';
 import { UserService }                  from '../../core/services/user.service';
 import { UserDTO, UpdateUserDTO }       from '../../core/models/user.model';
@@ -39,17 +39,21 @@ export class AdminUserProfileComponent implements OnInit {
   }
 
   private buildForm(u: UserDTO) {
-    this.form = this.fb.group({
-      email:          [u.email],
-      password:       [''],           // leave blank on load
-      firstName:      [u.firstName],
-      lastName:       [u.lastName],
-      phone:          [u.phone],
-      instrument:     [u.instrument],
-      highSchool:     [u.highSchool],
-      graduationYear: [u.graduationYear],
-      bandId:         [u.bandId],
-    });
+this.form = this.fb.group({
+  email:           [u.email, [Validators.required, Validators.email]],
+  password:        [''],
+  firstName:       [u.firstName, Validators.required],
+  lastName:        [u.lastName, Validators.required],
+  phone:           [u.phone],
+
+  // Student fields (nested)
+  instrument:      [u.student?.instrument ?? ''],
+  highSchool:      [u.student?.highSchool ?? ''],
+  graduationYear:  [u.student?.graduationYear ?? null],
+
+  // Recruiter field (nested)
+  bandId:          [u.recruiter?.bandId ?? ''],
+});
   }
 
   onSubmit(): void {

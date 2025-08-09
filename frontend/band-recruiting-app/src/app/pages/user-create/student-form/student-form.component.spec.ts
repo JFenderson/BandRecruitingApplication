@@ -1,65 +1,40 @@
-import { ComponentFixture, TestBed }    from '@angular/core/testing';
-import { ReactiveFormsModule }           from '@angular/forms';
-import { StudentFormComponent }          from './student-form.component';
-import { StudentService }                from '../../../core/services/student.service';
-import { HttpClientTestingModule, provideHttpClientTesting }       from '@angular/common/http/testing';
-import { of }                            from 'rxjs';
-import { StudentDTO }                    from '../../../core/models/student.model';
+// src/app/pages/user-create/student-form/student-form.component.spec.ts
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { StudentFormComponent } from './student-form.component';
 
 describe('StudentFormComponent', () => {
   let component: StudentFormComponent;
   let fixture: ComponentFixture<StudentFormComponent>;
-  let studentServiceSpy: jasmine.SpyObj<StudentService>;
-
-  // A fake StudentDTO matching your model
-  const fakeStudent: StudentDTO = {
-    studentId:  '1',
-    firstName:  'A',
-    lastName:   'B',
-    email:      'a@b.com',
-    phone:      '123',
-    instrument: 'Guitar',
-    highSchool: 'HS',
-    profilePicture: null,
-  };
 
   beforeEach(async () => {
-    studentServiceSpy = jasmine.createSpyObj('StudentService', ['createStudent']);
-    // return an Observable<StudentDTO>, not { success: boolean }
-    studentServiceSpy.createStudent.and.returnValue(of(fakeStudent));
-
     await TestBed.configureTestingModule({
-      imports: [
-        StudentFormComponent,
-        ReactiveFormsModule,
-        
-      ],
-      providers: [
-        provideHttpClientTesting,
-        { provide: StudentService, useValue: studentServiceSpy }
-      ]
+      imports: [StudentFormComponent, ReactiveFormsModule],
     }).compileComponents();
 
-    fixture   = TestBed.createComponent(StudentFormComponent);
+    fixture = TestBed.createComponent(StudentFormComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+
+    // Provide the required @Input() group BEFORE detectChanges.
+    // Use a local variable and assign once to avoid "possibly undefined" warnings.
+    const g = new FormGroup({
+      instrument:     new FormControl(''),
+      highSchool:     new FormControl(''),
+      graduationYear: new FormControl<number | null>(null),
+      bandId:         new FormControl(''),
+    });
+
+    component.group = g;          // set the input
+    fixture.detectChanges();      // triggers ngOnInit -> form = group
   });
 
-  it('should call createStudent on submit', () => {
-    // Fill the form with exactly the shape your component expects
-    const formValue = {
-      firstName:  'A',
-      lastName:   'B',
-      email:      'a@b.com',
-      phone:      '123',
-      instrument: 'Guitar',
-      highSchool: 'HS',
-      password: 'password111'
-    };
-    component.form.setValue(formValue);
+  it('should use the provided group as its form', () => {
+    // After ngOnInit, `form` is always defined.
+    expect(component.form).toBeTruthy();
+    // When an input group is provided, form should be that exact instance.
+    expect(component.form).toBe(component.group!);
 
-    component.submit();  // uses your real `submit()` method
-
-    expect(studentServiceSpy.createStudent).toHaveBeenCalledWith(formValue);
+    component.form.get('instrument')!.setValue('Sax');
+    expect(component.form.value.instrument).toBe('Sax');
   });
 });

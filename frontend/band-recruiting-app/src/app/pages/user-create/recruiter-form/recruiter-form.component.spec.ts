@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed }      from '@angular/core/testing';
 import { RecruiterFormComponent }         from './recruiter-form.component';
 import { HttpClientTestingModule }        from '@angular/common/http/testing';
-import { ReactiveFormsModule }            from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 
 describe('RecruiterFormComponent', () => {
   let fixture: ComponentFixture<RecruiterFormComponent>;
@@ -18,6 +19,9 @@ describe('RecruiterFormComponent', () => {
 
     fixture   = TestBed.createComponent(RecruiterFormComponent);
     component = fixture.componentInstance;
+
+    component.group = new FormGroup({ bandId: new FormControl('') });
+    
     fixture.detectChanges();
   });
 

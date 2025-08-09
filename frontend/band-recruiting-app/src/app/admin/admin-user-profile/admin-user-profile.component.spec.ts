@@ -14,15 +14,18 @@ describe('AdminUserProfileComponent', () => {
   let component: AdminUserProfileComponent;
   let userServiceSpy: jasmine.SpyObj<UserService>;
 
-  const fakeUser: UserDTO = {
-    id:          '123',
-    email:       'admin@example.com',
-    password:    'secret',
-    userType:    'Admin',
-    offerCount:  0,
-    createdAt:   '2025-01-01T00:00:00Z'
-    // (all other optional props may be omitted)
-  };
+const fakeUser: UserDTO = {
+  id: '1',
+  email: 'admin@example.com',
+  password: 'x',
+  userType: 'Admin',
+  firstName: 'Ada',
+  lastName: 'Lovelace',
+  phone: '205-000-0000',
+  createdAt: '',
+  student: null,
+  recruiter: null
+};
 
   beforeEach(async () => {
     // spy on the real method name, getById()

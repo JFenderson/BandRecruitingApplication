@@ -1,11 +1,12 @@
 
 
-<div [formGroup]="group" class="space-y-3">
+<div [formGroup]="form" class="space-y-3">
   <h3 class="font-semibold">Recruiter details</h3>
 
-  <select formControlName="bandId" class="border p-2 w-full">
+   <select formControlName="bandId" class="border p-2 w-full">
     <option value="">-- Select Band --</option>
     <option *ngFor="let band of bands" [value]="band.bandId">{{ band.name }}</option>
   </select>
+
 
 </div>
