@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
-import { UserDTO, CreateUserDTO, UpdateUserDTO } from '../models/user.model';
+import { UserDTO, CreateUserPayload, UpdateUserDTO } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +19,8 @@ export class UserService {
     return this.api.get<UserDTO>(`users/${id}`);
   }
 
-  create(user: CreateUserDTO): Observable<UserDTO> {
-    return this.api.post<UserDTO>('users', user);
+  create(payload: CreateUserPayload): Observable<UserDTO> {
+    return this.api.post<UserDTO>('users', payload);
   }
 
   update(id: string, user: UpdateUserDTO): Observable<UserDTO> {

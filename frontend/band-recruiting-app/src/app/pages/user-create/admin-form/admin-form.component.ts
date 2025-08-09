@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-student-form',
+  selector: 'app-admin-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './student-form.component.html'
+  templateUrl: './admin-form.component.html'
 })
-export class StudentFormComponent {
+export class AdminFormComponent {
   @Input({ required: true }) group!: FormGroup;
 }

@@ -1,9 +1,65 @@
-<div class="space-y-4 max-w-xl">
-  <select (change)="onUserTypeChange($event)" class="border p-2 w-full">
-    <option value="Student">Student</option>
-    <option value="Recruiter">Recruiter</option>
-  </select>
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="space-y-4 max-w-xl">
+  <label class="block">
+    <span class="text-sm">Role</span>
+    <select
+      [ngModel]="userForm.value.userType"
+      (ngModelChange)="onUserTypeChange($event)"
+      class="border p-2 w-full"
+    >
+      <option *ngFor="let r of allowedRoles" [value]="r">{{ r }}</option>
+    </select>
+  </label>
 
-  <app-student-form *ngIf="userType === 'Student'"></app-student-form>
-  <app-recruiter-form *ngIf="userType === 'Recruiter'"></app-recruiter-form>
-</div>
+  <!-- Base fields -->
+  <div class="grid grid-cols-2 gap-3">
+    <label class="block col-span-2">
+      <span class="text-sm">Email</span>
+      <input formControlName="email" type="email" class="border p-2 w-full">
+    </label>
+
+    <label class="block col-span-2">
+      <span class="text-sm">Password</span>
+      <input formControlName="password" type="password" class="border p-2 w-full">
+    </label>
+
+    <label class="block">
+      <span class="text-sm">First name</span>
+      <input formControlName="firstName" class="border p-2 w-full">
+    </label>
+
+    <label class="block">
+      <span class="text-sm">Last name</span>
+      <input formControlName="lastName" class="border p-2 w-full">
+    </label>
+
+    <label class="block">
+      <span class="text-sm">Phone</span>
+      <input formControlName="phone" class="border p-2 w-full">
+    </label>
+
+    <label class="block">
+      <span class="text-sm">Username</span>
+      <input formControlName="userName" class="border p-2 w-full">
+    </label>
+  </div>
+
+  <!-- Role-specific fields -->
+  <app-student-form
+    *ngIf="userForm.value.userType === 'Student'"
+    [group]="userForm.get('student')!"
+  ></app-student-form>
+
+  <app-recruiter-form
+    *ngIf="userForm.value.userType === 'Recruiter'"
+    [group]="userForm.get('recruiter')!"
+  ></app-recruiter-form>
+
+  <app-admin-form
+    *ngIf="userForm.value.userType === 'Admin'"
+    [group]="userForm.get('admin')!"
+  ></app-admin-form>
+
+  <button type="submit" class="px-4 py-2 border rounded" [disabled]="userForm.invalid">
+    Create User
+  </button>
+</form>
