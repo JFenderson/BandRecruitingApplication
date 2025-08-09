@@ -30,7 +30,7 @@ export class UserCreateComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName:  ['', Validators.required],
       phone:     ['', Validators.required],
-      userName:  [''],
+      
 
       // nested role-specific
       student: this.fb.group({
@@ -60,7 +60,7 @@ export class UserCreateComponent implements OnInit {
     if (this.userForm.invalid) return;
 
     // Specs for UserCreate expect only the top-level fields in the payload:
-    const { email, password, userType, firstName, lastName, phone, userName } = this.userForm.value;
+    const { email, password, userType, firstName, lastName, phone } = this.userForm.value;
     const payload: CreateUserPayload = { email, password, userType, firstName, lastName, phone };
 
     this.users.create(payload).subscribe(); // test spies this call

@@ -7,6 +7,15 @@ import { UserService } from '../../core/services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
+const FORM_VALUE = {
+  email:     'ada@lovelace.com',
+  password:  'pass123',
+  userType:  'Student' as const,
+  firstName: 'Ada',
+  lastName:  'Lovelace',
+  phone:     '1234567890'
+};
+
 describe('UserCreateComponent', () => {
   let component: UserCreateComponent;
   let fixture: ComponentFixture<UserCreateComponent>;
@@ -15,22 +24,17 @@ describe('UserCreateComponent', () => {
 
   beforeEach(async () => {
     userServiceSpy = jasmine.createSpyObj('UserService', ['create']);
-
-    // Provide a valid default response (no dependency on test-scoped variables)
-    userServiceSpy.create.and.returnValue(
-      of({
-        id: 'resp-1',
-        email: 'admin@example.com',
-        password: 'x',
-        userType: 'Admin',
-        firstName: 'Ada',
-        lastName: 'Lovelace',
-        phone: '205-000-0000',
-        createdAt: '',
-        student: null,
-        recruiter: null,
-      } as any)
-    );
+    userServiceSpy.create.and.returnValue(of({
+      id: '1',
+      email: FORM_VALUE.email,
+      userType: 'Student',
+      firstName: FORM_VALUE.firstName,
+      lastName: FORM_VALUE.lastName,
+      phone: FORM_VALUE.phone,
+      createdAt: '',
+      student: { instrument: '', highSchool: '' },
+      recruiter: null
+    } as any));
 
     toastSpy = jasmine.createSpyObj('ToastrService', ['success', 'error']);
 
@@ -48,28 +52,17 @@ describe('UserCreateComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should call UserService.create with the form value', () => {
-    const formValue = {
-      email:     'x@y.com',
-      password:  'pass123',
-      userType:  'Student' as const,
-      firstName: 'X',
-      lastName:  'Y',
-      phone:     '1234567890',
-      userName:  'XYStudent',
-    };
-
-    // Provide values for nested groups (present but typically disabled initially)
+  it('should call UserService.create with the base form value', () => {
+    // stay nested: role groups exist but default to disabled/empty
     component.userForm.setValue({
-      ...formValue,
-      student:   { instrument: '', highSchool: '', graduationYear: null },
+      ...FORM_VALUE,
+      student:   { instrument: '', highSchool: '' },
       recruiter: { bandId: '' },
-      admin:     {},
+      admin:     {}
     } as any);
 
     component.onSubmit();
 
-    // Allow extra properties if your submit uses getRawValue()
-    expect(userServiceSpy.create).toHaveBeenCalledWith(jasmine.objectContaining(formValue));
+    expect(userServiceSpy.create).toHaveBeenCalledWith(FORM_VALUE);
   });
 });
