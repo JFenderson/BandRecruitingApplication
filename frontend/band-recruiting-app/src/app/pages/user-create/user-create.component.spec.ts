@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule }        from '@angular/forms';
 import { UserCreateComponent }        from './user-create.component';
 import { UserService }                from '../../core/services/user.service';
-import { HttpClientTestingModule }    from '@angular/common/http/testing';
+import { HttpClientTestingModule, provideHttpClientTesting }    from '@angular/common/http/testing';
 import { of }                         from 'rxjs';
 
 describe('UserCreateComponent', () => {
@@ -28,9 +28,10 @@ describe('UserCreateComponent', () => {
       imports: [
         UserCreateComponent,    // standalone component
         ReactiveFormsModule,
-        HttpClientTestingModule
+        
       ],
       providers: [
+        provideHttpClientTesting,
         { provide: UserService, useValue: userServiceSpy }
       ]
     }).compileComponents();

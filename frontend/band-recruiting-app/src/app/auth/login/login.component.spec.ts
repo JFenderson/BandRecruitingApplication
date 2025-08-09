@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule }        from '@angular/forms';
 import { LoginComponent }             from './login.component';
-import { HttpClientTestingModule }    from '@angular/common/http/testing';
+import { HttpClientTestingModule, provideHttpClientTesting }    from '@angular/common/http/testing';
 import { RouterTestingModule }        from '@angular/router/testing';
 import { AuthService }                from '../../core/services/auth.service';
 import { of }                         from 'rxjs';
@@ -19,10 +19,10 @@ describe('LoginComponent', () => {
       imports: [
         LoginComponent,
         ReactiveFormsModule,
-        HttpClientTestingModule,
         RouterTestingModule.withRoutes([])
       ],
       providers: [
+        provideHttpClientTesting,
         { provide: AuthService, useValue: authSpy }
       ]
     }).compileComponents();
