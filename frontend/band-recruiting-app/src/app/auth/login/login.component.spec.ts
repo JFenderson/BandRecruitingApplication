@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -16,7 +17,16 @@ describe('LoginComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule],
-      providers: [{ provide: AuthService, useValue: authSpy }]
+      providers: [
+        { provide: AuthService, useValue: authSpy },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: convertToParamMap({}) },
+            queryParamMap: of(convertToParamMap({}))
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -25,11 +35,7 @@ describe('LoginComponent', () => {
   });
 
   it('should call AuthService.login on submit', () => {
-    component.loginForm.setValue({
-      email: 'u@example.com',   // valid
-      password: 'password123'   // non-empty
-    });
-
+    component.loginForm.setValue({ email: 'u@example.com', password: 'password123' });
     component.onSubmit();
     expect(authSpy.login).toHaveBeenCalledWith({ email: 'u@example.com', password: 'password123' });
   });

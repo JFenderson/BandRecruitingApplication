@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 import { StudentProfileComponent } from './student-profile.component';
 import { StudentService } from '../../core/services/student.service';
@@ -26,12 +27,21 @@ describe('StudentProfileComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [StudentProfileComponent],
-      providers: [{ provide: StudentService, useValue: studentServiceSpy }]
+      providers: [
+        { provide: StudentService, useValue: studentServiceSpy },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            // cover both 'id' and 'studentId' in case the component uses either
+            snapshot: { paramMap: convertToParamMap({ id: '7', studentId: '7' }) },
+            paramMap: of(convertToParamMap({ id: '7', studentId: '7' }))
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(StudentProfileComponent);
     component = fixture.componentInstance;
-    // if component reads ID from route, stub it there (omitted here for brevity)
     fixture.detectChanges();
   });
 

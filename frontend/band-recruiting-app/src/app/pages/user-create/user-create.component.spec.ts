@@ -44,7 +44,7 @@ describe('UserCreateComponent', () => {
   it('should call UserService.create with the base form value', () => {
     component.userForm.setValue({
       ...BASE_FORM_VALUE,
-      student:  { instrument: '', highSchool: '' },
+      student:  { instrument: '', highSchool: '', graduationYear: 2026},
       recruiter:{ bandId: '' },
       admin:    {}
     } as any);
