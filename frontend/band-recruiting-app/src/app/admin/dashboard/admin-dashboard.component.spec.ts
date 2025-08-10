@@ -8,7 +8,8 @@ import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../core/services/user.service';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { UserDTO } from '../../core/models/user.model';
-
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 describe('AdminDashboardComponent', () => {
   let fixture: ComponentFixture<AdminDashboardComponent>;

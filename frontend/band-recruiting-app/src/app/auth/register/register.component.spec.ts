@@ -16,7 +16,9 @@ describe('RegisterComponent', () => {
   let authSpy: jasmine.SpyObj<AuthService>;
   let httpSpy: jasmine.SpyObj<HttpClient>;
   let instrumentSpy: jasmine.SpyObj<InstrumentService>;
-
+let routerSpy = jasmine.createSpyObj('Router', [
+  'navigate', 'navigateByUrl', 'createUrlTree', 'serializeUrl'
+]);
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj('AuthService', ['register']);
     authSpy.register.and.returnValue(of({ token: 'fake.jwt.token' }));
@@ -25,13 +27,17 @@ describe('RegisterComponent', () => {
     httpSpy.post.and.returnValue(of({}));
     httpSpy.get.and.returnValue(of([])); // bands list used in ngOnInit
 
+
+const routerEvents$ = new Subject<any>();
+(routerSpy as any).events = routerEvents$.asObservable();
+routerSpy.createUrlTree.and.returnValue({} as any);
+routerSpy.serializeUrl.and.returnValue('/login');
+
     instrumentSpy = jasmine.createSpyObj('InstrumentService', ['getAllInstruments']);
  instrumentSpy.getAllInstruments.and.returnValue(
   of([{ id: 1, name: 'Piano' } as Instrument]) // id as number
 );
 
-    const routerEvents$ = new Subject<any>();
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl'], { events: routerEvents$.asObservable() });
 
     const routeStub = {
       snapshot: {
