@@ -17,19 +17,14 @@ import { StudentDTO }        from '../../core/models/student.model';
   styleUrls: ['./student-profile.component.scss']
 })
 export class StudentProfileComponent implements OnInit {
-  getProfileLink(student: any) {
-    throw new Error('Method not implemented.');
-  }
-  student(student: any) {
-    throw new Error('Method not implemented.');
-  }
+
   studentId!: string;               // <-- now a string
   originalStudent!: StudentDTO;
   studentForm!: FormGroup;
   showEditModal = false;
   previewImageUrl?: string;
   editableFields = ['firstName','lastName','email','phone','instrument','highSchool'];
-
+student!: StudentDTO;
   constructor(
     private route: ActivatedRoute,
     private studentService: StudentService,
@@ -41,6 +36,7 @@ export class StudentProfileComponent implements OnInit {
     this.studentService.getStudentById(this.studentId)
       .subscribe(student => {
         this.originalStudent = student;
+        this.student = student;
         this.studentForm = this.fb.group({
           firstName:  [student.firstName, Validators.required],
           lastName:   [student.lastName,  Validators.required],

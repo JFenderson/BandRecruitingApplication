@@ -45,8 +45,12 @@ describe('StudentProfileComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should load student on init', () => {
-    expect(studentServiceSpy.getStudentById).toHaveBeenCalled();
-    expect(component.student).toEqual(fakeStudent);
-  });
+it('should load student on init', () => {
+  expect(studentServiceSpy.getStudentById).toHaveBeenCalledWith('7');
+  // 👇 if it's a signal, call it
+  expect(typeof (component as any).student === 'function'
+    ? (component as any).student()
+    : (component as any).student
+  ).toEqual(fakeStudent);
+});
 });

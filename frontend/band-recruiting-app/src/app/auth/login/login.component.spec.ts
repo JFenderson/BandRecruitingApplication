@@ -11,9 +11,19 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let authSpy: jasmine.SpyObj<any>;
 
+const fakeJwt =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + // header
+  btoa(JSON.stringify({
+    sub: '1',
+    email: 'u@example.com',
+    role: 'Student',
+    exp: Math.floor(Date.now()/1000) + 3600
+  })) +
+  '.sig';
+
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj('AuthService', ['login']);
-    authSpy.login.and.returnValue(of({ token: 't' }));
+  authSpy.login.and.returnValue(of({ token: fakeJwt }));
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule],
