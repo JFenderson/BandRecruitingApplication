@@ -84,13 +84,12 @@ jobs:
         run: |
           if [ ! -f src/environments/environment.ts ]; then
             mkdir -p src/environments
-            cat > src/environments/environment.ts << 'EOF'
-            export const environment = {
-              production: false,
-              apiBaseUrl: 'http://localhost:5001'
-            };
-            EOF
-          fi
+            printf "%s\n" \
+              "export const environment = {" \
+              "  production: false," \
+              "  apiBaseUrl: 'http://localhost:5001'" \
+              "};" > src/environments/environment.ts
+                  fi
 
       - name: Build (development)
         working-directory: frontend/band-recruiting-app
