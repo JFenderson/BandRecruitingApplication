@@ -1,15 +1,19 @@
-name: CI/CD Pipeline
+name: CI (Dev default, optional Prod)
 
 on:
   push:
-    branches: [main]
+    branches: ['**']          # run on all branches by default (dev flow)
   pull_request:
-    branches: [main]
+  workflow_dispatch:          # lets you run it manually as needed
+
 
 jobs:
   backend-build-test:
-    name: Build & Test .NET Backend
+    name: Backend • Build & Test (Development)
     runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
       - uses: actions/checkout@v3
 
@@ -18,21 +22,21 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
+      - name: Restore
         working-directory: ./backend
         run: dotnet restore server.sln
 
-      - name: Build Solution
+      - name: Build (Debug)
         working-directory: ./backend
-        run: dotnet build server.sln --configuration Release --no-restore
+        run: dotnet build server.sln --configuration Debug --no-restore
 
-      - name: Run Tests & Collect Coverage
+      - name: Test (Debug) + Coverage
         working-directory: ./backend/Tests/Integration
         run: |
           dotnet restore Integration.csproj
-          dotnet build Integration.csproj --configuration Release
+          dotnet build Integration.csproj --configuration Debug
           dotnet test Integration.csproj \
-            --configuration Release \
+            --configuration Debug \
             --no-build \
             --collect:"XPlat Code Coverage"
 
@@ -49,8 +53,8 @@ jobs:
           name: coverage-report
           path: coveragereport
 
-  frontend-build-test:
-    name: Build & Test Angular Frontend
+  frontend-build-test-dev:
+    name: Frontend • Lint, Test, Build (development)
     runs-on: ubuntu-latest
     needs: backend-build-test
     steps:
@@ -62,28 +66,78 @@ jobs:
           node-version: 20.x
           cache: npm
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install
         working-directory: frontend/band-recruiting-app
+        run: npm ci
 
       - name: Lint
+        working-directory: frontend/band-recruiting-app
         run: npm run lint --if-present
-        working-directory: frontend/band-recruiting-app
 
-      - name: Run Tests
+      - name: Test (Headless)
+        working-directory: frontend/band-recruiting-app
         run: npm run test -- --watch=false --no-progress --browsers=ChromeHeadless
-        working-directory: frontend/band-recruiting-app
 
-      - name: Build Production Bundle
+      # Safety net: if environment.ts is missing in CI, create a minimal dev one
+      - name: Ensure dev environment.ts
+        working-directory: frontend/band-recruiting-app
+        run: |
+          if [ ! -f src/environments/environment.ts ]; then
+            mkdir -p src/environments
+            cat > src/environments/environment.ts << 'EOF'
+            export const environment = {
+              production: false,
+              apiBaseUrl: 'http://localhost:5001'
+            };
+            EOF
+          fi
+
+      - name: Build (development)
+        working-directory: frontend/band-recruiting-app
+        run: npm run build -- --configuration development
+
+      - name: Upload Dev Dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dev-dist
+          path: frontend/band-recruiting-app/dist
+
+  # Optional PROD build (runs on tags like v1.2.3 or manual dispatch)
+  frontend-build-prod:
+    name: Frontend • Build (production) [optional]
+    runs-on: ubuntu-latest
+    needs: frontend-build-test-dev
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install
+        working-directory: frontend/band-recruiting-app
+        run: npm ci
+
+      - name: Create environment.prod.ts
+        working-directory: frontend/band-recruiting-app
+        run: |
+          mkdir -p src/environments
+          cat > src/environments/environment.prod.ts << 'EOF'
+          export const environment = {
+            production: true,
+            apiBaseUrl: '${{ secrets.FRONTEND_API_BASE_URL }}'
+          };
+          EOF
+
+      - name: Build (production)
+        working-directory: frontend/band-recruiting-app
         run: npm run build -- --configuration production
-        working-directory: frontend/band-recruiting-app
 
-      - name: Upload Frontend Artifact
+      - name: Upload Prod Dist
         uses: actions/upload-artifact@v4
         with:
           name: angular-dist
           path: frontend/band-recruiting-app/dist
-
-
-
-
