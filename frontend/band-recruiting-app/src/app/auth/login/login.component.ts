@@ -18,14 +18,14 @@ import { CommonModule } from "@angular/common";
 
 export class LoginComponent {
   loginForm: FormGroup;
-  
+
   constructor(
     private authService: AuthService,
     private tokenService: TokenService,
     private router: Router,
     private fb: FormBuilder
   ) {
-    
+
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -33,47 +33,35 @@ export class LoginComponent {
   }
 
 
-onSubmit(): void {
+  onSubmit(): void {
 
-  if (this.loginForm.invalid) {
-    return;
-  }
-
-
-  this.authService.login(this.loginForm.value).subscribe({
-    next: (res) => {
-
-      console.log("Token",res);
-      this.tokenService.setToken(res.token);
-      this.tokenService.setRefreshToken(res.refreshToken);
-     const decoded = jwtDecode<any>(res.token);
-      console.log('[DEBUG] Decoded Token:', decoded);
-
-      const role = decoded["role"] || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-      
-
-          if (!role) {
-        console.warn('[WARNING] Role not found in token, routing to fallback');
-        this.router.navigate(['/unauthorized']);
-        return;
-      }
-
-      if (role === 'Admin') {
-        this.router.navigate(['/admin-dashboard']);
-        console.log('[ROUTING] Navigating to Admin Dashboard');
-      } else if (role === 'Recruiter') {
-        this.router.navigate(['/recruiter-dashboard']);
-        console.log('[ROUTING] Navigating to Recruiter Dashboard');
-      } else {
-        this.router.navigate(['/student-dashboard']);
-        console.log('[ROUTING] Navigating to Student Dashboard');
-      }
-    },
-    error: (err) => {
-      console.error('[DEBUG] Login failed:', err);
+    if (this.loginForm.invalid) {
+      return;
     }
-  });
-}
+
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (res) => {
+
+        console.log("Token", res);
+        this.tokenService.setToken(res.token);
+        this.tokenService.setRefreshToken(res.refreshToken);
+
+        const roles = this.tokenService.getRoles(); // normalized
+        const routeByRole = new Map<string, string>([
+          ['Admin', '/admin-dashboard'],
+          ['Recruiter', '/recruiter-dashboard'],
+          ['Student', '/student-dashboard'],
+        ]);
+
+        const target = roles.map(r => routeByRole.get(r)).find(Boolean) ?? '/unauthorized';
+        this.router.navigateByUrl(target);
+      },
+      error: (err) => {
+        console.error('[DEBUG] Login failed:', err);
+      }
+    });
+  }
 
 
 }

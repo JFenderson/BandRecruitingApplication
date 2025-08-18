@@ -63,6 +63,10 @@ export class UserCreateComponent implements OnInit {
     const { email, password, userType, firstName, lastName, phone } = this.userForm.value;
     const payload: CreateUserPayload = { email, password, userType, firstName, lastName, phone };
 
-    this.users.create(payload).subscribe(); // test spies this call
+    // this.users.create(payload).subscribe(); // test spies this call
+    this.users.create(payload).subscribe({
+  next: created => { /* toast + navigate */ },
+  error: err => console.error(err)
+});
   }
 }

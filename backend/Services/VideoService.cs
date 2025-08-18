@@ -72,7 +72,7 @@ namespace server.Services
             {
                 Title = request.Title,
                 Description = request.Description,
-                StudentId = Guid.Parse(studentId),
+                StudentId = studentId,
                 VideoUrl = $"https://{_bucketName}.s3.amazonaws.com/{key}",
                 CreatedAt = DateTime.UtcNow
             };

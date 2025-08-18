@@ -1,21 +1,21 @@
+// core/guards/role.guard.ts
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router';
 import { TokenService } from '../services/token.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoleGuard implements CanActivate {
   constructor(private tokenService: TokenService, private router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    const expectedRoles = route.data['roles'] as string[];
-    const userRole = this.tokenService.getRole();
- console.log('[DEBUG] RoleGuard - Expected:', expectedRoles, 'Actual:', userRole);
- 
-    if (userRole && expectedRoles.includes(userRole)) {
-      return true;
-    }
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    const expectedRole = route.data['expectedRole'] as string | undefined;
+    const allowed: string[] = route.data['roles'] as string[] ?? (expectedRole ? [expectedRole] : []);
 
-    this.router.navigate(['/unauthorized']); // fallback route
-    return false;
+    // if no roles specified for the route, allow through
+    if (!allowed.length) return true;
+
+    const userRoles = this.tokenService.getRoles();
+    const allowedHit = userRoles.some(r => allowed.includes(r));
+    return allowedHit ? true : this.router.parseUrl('/unauthorized');
   }
 }

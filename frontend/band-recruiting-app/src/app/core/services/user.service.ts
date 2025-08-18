@@ -20,12 +20,13 @@ export class UserService {
   }
 
   create(payload: CreateUserPayload): Observable<UserDTO> {
-    return this.api.post<UserDTO>('users', payload);
+    return this.api.post<UserDTO>('Admin/create-user', payload);
   }
 
-  update(id: string, user: UpdateUserDTO): Observable<UserDTO> {
-    return this.api.put<UserDTO>(`users/${id}`, user);
-  }
+
+  update(id: string, user: UpdateUserDTO) {
+  return this.api.put<UserDTO>(`Admin/users/${id}`, user); // include Admin
+}
 
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`users/${id}`);

@@ -49,21 +49,18 @@
         </select>
       </div>
 
-      <!-- Student: Instrument -->
-      <div *ngIf="roleValue === 'Student'" class="mb-4">
-<label for="instrument">Instrument</label>
-<select
-  id="instrument"
-  [(ngModel)]="form.instrument"
-  name="instrument"
-  class="w-full border px-4 py-2 rounded"
-  required
->
-  <option *ngFor="let instrument of instrumentOptions" [value]="instrument">
-    {{ instrument }}
-  </option>
-</select>
-
+<!-- Show only for Students if you conditionally render by role -->
+<div *ngIf="registerForm.get('role')?.value === 'Student'">
+  <label for="instrument">Instrument</label>
+  <select id="instrument" formControlName="instrument">
+    <option value="" disabled>Select an instrument</option>
+    <option *ngFor="let i of instruments" [value]="i.id || i.name">
+      {{ i.name }}
+    </option>
+  </select>
+  <div *ngIf="registerForm.get('instrument')?.touched && registerForm.get('instrument')?.invalid">
+    Please select an instrument.
+  </div>
 </div>
 
       <!-- Recruiter: Band -->

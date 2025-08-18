@@ -19,7 +19,7 @@ import { INSTRUMENT_OPTIONS } from '../../constants/insturments';
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   bands: { id: string; name: string }[] = [];
-instruments: Instrument[] = [];
+ instruments: { id?: string; name: string }[] = [];
 instrumentOptions: any;
 form: any;
 
@@ -44,14 +44,22 @@ form: any;
       password: ['', Validators.required],
       confirmPassword: ['', Validators.required],
       role: ['', Validators.required],
-      instrument: [''],
+      instrument: ['', Validators.required], 
       bandId: ['']
     });
 
-    this.instrumentService.getAllInstruments().subscribe({
-  next: (list: Instrument[]) => this.instruments = list,
-  error: err => console.error('Failed to load instruments', err)
-});
+      this.instrumentService.getAllInstruments().subscribe({
+      next: (list: Instrument[]) => {
+        // normalize to {name} if your model differs
+        this.instruments = list?.length
+          ? list.map(i => ({ id: (i as any).id, name: (i as any).name ?? (i as any).instrumentName ?? String(i) }))
+          : INSTRUMENT_OPTIONS.map(name => ({ name })); // fallback if empty
+      },
+      error: () => {
+        // fallback to constants if API fails
+        this.instruments = INSTRUMENT_OPTIONS.map(name => ({ name }));
+      }
+    });
 
     this.loadBands();
   }

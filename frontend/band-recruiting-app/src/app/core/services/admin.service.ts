@@ -40,6 +40,7 @@ export class AdminUserService {
     return this.http.get<UserDTO>(`${this.baseUrl}/${userId}`);
   }
 
+  
   updateUser(userId: string, dto: UpdateUserDTO) {
     return this.http.put(`${this.baseUrl}/${userId}`, dto);
   }

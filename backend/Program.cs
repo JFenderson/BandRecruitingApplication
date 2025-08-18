@@ -22,19 +22,15 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", policy =>
+    options.AddPolicy("CorsPolicy", builder =>
     {
-        policy.AllowAnyHeader()
-              .AllowAnyMethod();
-
-        if (allowedOrigins.Length > 0)
-        {
-
-            policy.WithOrigins(allowedOrigins)
-                  .AllowCredentials();
-        }
+        builder.WithOrigins("http://localhost:4200")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
     });
 });
+
 
 // Add services to the container.
 //builder.Services.AddControllers();
@@ -145,13 +141,13 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
-app.UseCors("CorsPolicy");
 
 app.UseStaticFiles();
 
 //app.UseMiddleware<JsonExceptionMiddleware>();
 
 app.UseRouting();
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

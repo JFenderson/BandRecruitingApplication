@@ -26,18 +26,11 @@ namespace server.Services
                 throw new Exception("A user with this email already exists.");
             }
 
-            // Check if the username already exists
-            var existingUserByUsername = await _userManager.FindByNameAsync(createStudentDTO.UserName);
-            if (existingUserByUsername != null)
-            {
-                throw new Exception("A user with this username already exists.");
-            }
 
             // Proceed with creating the student
             var student = new ApplicationUser
             {
                 UserType = "Student",
-                UserName = createStudentDTO.UserName,
                 Email = createStudentDTO.Email,
                 FirstName = createStudentDTO.FirstName,
                 LastName = createStudentDTO.LastName,

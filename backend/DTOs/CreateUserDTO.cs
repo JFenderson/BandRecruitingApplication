@@ -17,7 +17,7 @@
         // Recruiter
         public Guid? BandId { get; set; }
 
-        public string UserName { get; set; }
+       
 
 
     }

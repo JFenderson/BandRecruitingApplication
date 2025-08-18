@@ -8,7 +8,6 @@ import { StudentProfileComponent } from './student/student-profile/student-profi
 import { RecruiterDashboardComponent } from './recruiter/recruiter-dashboard/recruiter-dashboard.component';
 import { StudentDashboardComponent } from './student/student-dashboard/student-dashboard.component';
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
-import { RoleGuard } from './core/guards/role.guard';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { UserCreateComponent } from './pages/user-create/user-create.component';
@@ -18,14 +17,11 @@ import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.compon
 import { RecruiterLayoutComponent } from './layouts/recruiter-layout/recruiter-layout.component';
 import { StudentLayoutComponent } from './layouts/student-layout/student-layout.component';
 import { AdminUserProfileComponent } from './admin/admin-user-profile/admin-user-profile.component';
+import { RoleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-     {
-    path: 'login',
-    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
-  },
   { path: 'register', component: RegisterComponent },
     { path: 'student-profile/:id', component: StudentProfileComponent },
   { path: 'recruiter-profile/:id', component: RecruiterProfileComponent },

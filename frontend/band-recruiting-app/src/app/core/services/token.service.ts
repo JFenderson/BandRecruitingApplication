@@ -2,100 +2,106 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
-interface JwtPayload {
-  sub: string;
-  nameid: string;
-  name: string;
-  UserType: string;
-  role: string | string[];
-  exp: number;
-}
+type AnyPayload = Record<string, unknown>;
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
-  private tokenKey = 'access_token';
-  private refreshTokenKey = 'refresh_token';
-  private roleKey = 'role'; // optional if using only JWT
+private tokenKey = 'access_token';
+private refreshTokenKey = 'refresh_token';
 
-  constructor(private router: Router) {}
+constructor(private router: Router) {}
 
-  // Store token in localStorage
-  setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
-  }
+setToken(token: string): void {
+localStorage.setItem(this.tokenKey, token);
+}
 
-  // Clear token
-  clearToken(): void {
-    localStorage.removeItem(this.tokenKey);
-  }
-
-  // Get token
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  // Decode token
-  decodeToken(): JwtPayload | null {
+  decodeToken(): any | null {
     const token = this.getToken();
     if (!token) return null;
 
     try {
-      return jwtDecode<JwtPayload>(token);
-    } catch (error) {
-      console.error('Failed to decode JWT', error);
+      return jwtDecode(token);
+    } catch (err) {
+      console.error('Invalid token', err);
       return null;
     }
   }
 
-  // Extract role (first if array)
-getRole(): string | null {
-  const decoded = this.decodeToken();
-  const role = (
-    (decoded as any)['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
-    (decoded as any)['role'] ??
-    (decoded as any)['UserType'] ??
-    null
-  );
-
-  // console.log('[TokenService] Resolved role:', role);
-  return role;
+clearToken(): void {
+localStorage.removeItem(this.tokenKey);
 }
 
-  isAdmin(): boolean {
-    return this.getRole() === 'Admin';
-  }
-
-  isRecruiter(): boolean {
-    return this.getRole() === 'Recruiter';
-  }
-
-  isStudent(): boolean {
-    return this.getRole() === 'Student';
-  }
-
-  getUserType(): string | null {
-    return this.decodeToken()?.UserType ?? null;
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.getToken();
-  }
-
-  logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
-  }
-
 setRefreshToken(token: string): void {
-  localStorage.setItem(this.refreshTokenKey, token);
+localStorage.setItem(this.refreshTokenKey, token);
 }
 
 getRefreshToken(): string | null {
-  return localStorage.getItem(this.refreshTokenKey);
+return localStorage.getItem(this.refreshTokenKey);
 }
 
 clearAllTokens(): void {
-  localStorage.removeItem(this.tokenKey);
-  localStorage.removeItem(this.refreshTokenKey);
+localStorage.removeItem(this.tokenKey);
+localStorage.removeItem(this.refreshTokenKey);
+}
+
+private decode(): AnyPayload | null {
+const t = this.getToken();
+if (!t) return null;
+try {
+return jwtDecode<AnyPayload>(t);
+} catch {
+return null;
+}
+}
+
+private rolesFrom(payload: AnyPayload | null): string[] {
+if (!payload) return [];
+const candidates = [
+payload['role'],
+payload['roles'],
+payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/roles']
+];
+
+
+const flat: string[] = [];
+for (const c of candidates) {
+  if (typeof c === 'string' && c.trim()) flat.push(c);
+  if (Array.isArray(c)) for (const v of c) if (typeof v === 'string') flat.push(v);
+}
+return [...new Set(flat)];
+}
+
+getUserType(): string | null {
+const p = this.decode();
+const ut = p?.['UserType'];
+return typeof ut === 'string' ? ut : null;
+}
+
+getRoles(): string[] {
+return this.rolesFrom(this.decode());
+}
+
+isAdmin(): boolean {
+return this.getRoles().includes('Admin');
+}
+isRecruiter(): boolean {
+return this.getRoles().includes('Recruiter');
+}
+isStudent(): boolean {
+return this.getRoles().includes('Student');
+}
+
+isLoggedIn(): boolean {
+return !!this.getToken();
+}
+
+logout(): void {
+localStorage.clear();
+this.router.navigate(['/login']);
 }
 }
