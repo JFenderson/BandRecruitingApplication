@@ -73,7 +73,7 @@ routerSpy.serializeUrl.and.returnValue('/login');
       email: 'john@example.com',
       phone: '1234567890',     // required in the form
       role: 'Student',         // required in the form
-      instrument: '',          // optional
+      instrument: 'saxophone',          // optional
       bandId: '',              // optional
       password: 'password123',
       confirmPassword: 'password123'
