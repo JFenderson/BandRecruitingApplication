@@ -18,13 +18,14 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 52428800; // Example: 50MB file limit
 });
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                     ?? new[] { "http://localhost:4200", "https://localhost:4200" };
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        builder.WithOrigins(allowedOrigins)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
@@ -75,8 +76,17 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireStudentRole", policy => policy.RequireRole("Student"));
 });
 
-builder.Services.AddAWSService<IAmazonS3>();
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+var storageProvider = builder.Configuration["Storage:Provider"] ?? "Local";
+if (storageProvider.Equals("S3", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddAWSService<IAmazonS3>();
+    builder.Services.AddScoped<IVideoStorageProvider, S3VideoStorageProvider>();
+}
+else
+{
+    builder.Services.AddScoped<IVideoStorageProvider, LocalVideoStorageProvider>();
+}
+
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStudentService, StudentService>();

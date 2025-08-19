@@ -25,7 +25,6 @@ export class UserCreateComponent implements OnInit {
     this.userForm = this.fb.group({
       // common fields expected by specs
       email:     ['', [Validators.required, Validators.email]],
-      password:  ['', Validators.required],
       userType:  ['Student', Validators.required],
       firstName: ['', Validators.required],
       lastName:  ['', Validators.required],
@@ -61,7 +60,7 @@ export class UserCreateComponent implements OnInit {
 
     // Specs for UserCreate expect only the top-level fields in the payload:
     const { email, password, userType, firstName, lastName, phone } = this.userForm.value;
-    const payload: CreateUserPayload = { email, password, userType, firstName, lastName, phone };
+    const payload: CreateUserPayload = { email, userType, firstName, lastName, phone };
 
     // this.users.create(payload).subscribe(); // test spies this call
     this.users.create(payload).subscribe({

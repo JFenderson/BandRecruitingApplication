@@ -10,7 +10,7 @@ namespace server.Services
         Task<UserDTO> GetStudentByIdAsync(string id);
         Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync();
         Task<bool> DeleteStudentAsync(string id);
-
+        Task<bool> SoftDeleteAsync(string id, CancellationToken ct = default);
         Task<IEnumerable<ApplicationUser>> GetStudentsByGradYearAsync(int gradYear);
         // Other methods as needed for student-related logic
         Task<IEnumerable<ApplicationUser>> GetStudentsByInstrumentAsync(string studentId, string instrument);

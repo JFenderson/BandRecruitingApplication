@@ -10,31 +10,31 @@ export class VideoService {
   constructor(private api: ApiService) {}
 
   getAllVideos() {
-    return this.api.get<VideoDTO[]>('api/Video');
+    return this.api.get<VideoDTO[]>('videos');
   }
 
   getVideoById(id: number) {
-    return this.api.get<VideoDTO>(`api/Video/${id}`);
+    return this.api.get<VideoDTO>(`videos/${id}`);
   }
 
   uploadVideo(formData: FormData) {
-    return this.api.post<AddVideoDTO>('api/Video/upload', formData);
+    return this.api.post<AddVideoDTO>('videos/upload', formData);
   }
 
   updateVideo(id: number, formData: FormData) {
-    return this.api.put<any>(`api/Video/${id}`, formData);
+    return this.api.put<any>(`videos/${id}`, formData);
   }
 
   deleteVideo(id: number) {
-    return this.api.delete<any>(`api/Video/${id}`);
+    return this.api.delete<any>(`videos/${id}`);
   }
 
   getVideoRatings(id: string) {
-    return this.api.get<RatingDTO[]>(`api/Video/${id}/ratings`);
+    return this.api.get<RatingDTO[]>(`videos/${id}/ratings`);
   }
 
   getVideoComments(id: string) {
-    return this.api.get<CommentDTO[]>(`api/Video/${id}/comments`);
+    return this.api.get<CommentDTO[]>(`videos/${id}/comments`);
   }
 
     getByStudent(studentId: string): Observable<VideoDTO[]> {

@@ -13,7 +13,6 @@ describe('UserListComponent', () => {
   const fakeUsers: UserDTO[] = [{
     id: '1',
     email: 'a@a.com',
-    password: 'p',
     userType: 'Student',
     firstName: 'F',
     lastName: 'L',

@@ -6,7 +6,6 @@ namespace server.DTOs
     {
         public string Id { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
 
         public string UserType { get; set; } // "Student", "Recruiter"
         public string FirstName { get; set; }
@@ -15,7 +14,7 @@ namespace server.DTOs
 
 
         // Student fields
-        public string Instrument { get; set; }
+        public string? Instrument { get; set; }
         public string? HighSchool { get; set; }
         public int? GraduationYear { get; set; }
         public string ProfilePicture { get; set; }
@@ -29,7 +28,6 @@ namespace server.DTOs
         // Calculated fields
         public decimal? AverageRating { get; set; }
         public int OfferCount { get; set; }
-
 
         public List<Offer> OffersMade { get; set; }
         public List<Comment> Comments { get; set; }

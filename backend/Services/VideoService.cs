@@ -1,6 +1,4 @@
-﻿using Amazon.S3;
-using Amazon.S3.Transfer;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
 using server.DTOs;
@@ -9,35 +7,52 @@ namespace server.Services
 {
     public class VideoService : Service<Video>, IVideoService
     {
-        private readonly IAmazonS3 _s3Client;
-        private readonly string _bucketName;
+        private readonly IVideoStorageProvider _storage;
+        private readonly ApplicationDbContext _ctx;
 
-        public VideoService(ApplicationDbContext context, IAmazonS3 s3Client, IConfiguration configuration) : base(context)
+        public VideoService(ApplicationDbContext context, IVideoStorageProvider storage) : base(context)
         {
-            _s3Client = s3Client;
-            _bucketName = configuration["band-recruiting-videos"];
+            _ctx = context;
+            _storage = storage;
+        }
+
+        public async Task<Video> GetVideoByIdAsync(string videoId)
+        {
+            var video = await _context.Videos.FirstOrDefaultAsync(r => r.VideoId == videoId);
+            if (video == null) throw new KeyNotFoundException($"Video with ID {videoId} not found.");
+            return video;
+        }
+
+        public async Task<Video> UploadForStudentAsync(string studentId, CreateVideoDTO dto, CancellationToken ct = default)
+        {
+            var studentExists = await _ctx.Users.AnyAsync(u => u.Id == studentId, ct);
+            if (!studentExists) throw new KeyNotFoundException("Student not found");
+
+            var (url, key) = await _storage.UploadAsync(dto.File, studentId, ct);
+
+            var entity = new Video
+            {
+                StudentId = studentId,
+                Title = dto.Title,
+                Description = dto.Description,
+                VideoUrl = url,
+                VideoId = key,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _ctx.Videos.Add(entity);
+            await _ctx.SaveChangesAsync(ct);
+            return entity;
         }
 
         public async Task<IEnumerable<Rating>> GetVideoRatingsAsync(string videoId)
-        {
-            return await _context.Ratings
-                .Where(r => r.VideoId == videoId)
-                .ToListAsync();
-        }
+            => await _context.Ratings.Where(r => r.VideoId == videoId).ToListAsync();
 
         public async Task<IEnumerable<Comment>> GetVideoCommentsAsync(string videoId)
-        {
-            return await _context.Comments
-                .Where(c => c.VideoId == videoId)
-                .ToListAsync();
-        }
+            => await _context.Comments.Where(c => c.VideoId == videoId).ToListAsync();
 
         public async Task<double> GetAverageRatingAsync(string videoId)
-        {
-            return await _context.Ratings
-                .Where(r => r.VideoId == videoId)
-                .AverageAsync(r => r.Score);
-        }
+            => await _context.Ratings.Where(r => r.VideoId == videoId).AverageAsync(r => r.Score);
 
         public async Task AddAsync(Video video)
         {
@@ -45,39 +60,28 @@ namespace server.Services
             await _context.SaveChangesAsync();
         }
 
+        // Legacy local save; safe to keep if used elsewhere
         public async Task<string> SaveVideoAsync(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                throw new ArgumentException("No file provided.");
-
+            if (file == null || file.Length == 0) throw new ArgumentException("No file provided.");
             var filePath = Path.Combine("wwwroot/videos", file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // Return the relative path to the video
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
             return $"/videos/{file.FileName}";
         }
 
+        // Re-implement to use the storage provider instead of raw S3
         public async Task<UploadedVideoResult> UploadVideoAsync(CreateVideoDTO request, string studentId)
         {
-            var key = $"{Guid.NewGuid()}_{request.File.FileName}";
-
-            using var stream = request.File.OpenReadStream();
-            await new TransferUtility(_s3Client).UploadAsync(stream, _bucketName, key);
-
+            var (url, key) = await _storage.UploadAsync(request.File, studentId);
             return new UploadedVideoResult
             {
                 Title = request.Title,
                 Description = request.Description,
                 StudentId = studentId,
-                VideoUrl = $"https://{_bucketName}.s3.amazonaws.com/{key}",
+                VideoUrl = url,
                 CreatedAt = DateTime.UtcNow
             };
         }
-
-
     }
 }

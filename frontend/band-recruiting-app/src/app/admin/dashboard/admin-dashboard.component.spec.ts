@@ -42,7 +42,6 @@ const mockUsers: UserDTO[] = [
     email: 'a@b.com',
     userType: 'Student',
     phone: '1234567890',
-    password: '',                 // OK to be empty for tests
     createdAt: ''         // or new Date().toISOString() if your model uses string
   }
 ];

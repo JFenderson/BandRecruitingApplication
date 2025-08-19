@@ -23,15 +23,15 @@ export class StudentService {
   }
 
   getStudentById(id: string) {
-    return this.api.get<StudentDTO>(`Student/${id}`);
+    return this.api.get<StudentDTO>(`students/${id}`);
   }
 
 updateStudent(id: string, data: UpdateStudentDTO): Observable<StudentDTO> {
-   return this.api.put<StudentDTO>(`Student/${id}`, data);
+   return this.api.put<StudentDTO>(`students/${id}`, data);
  }
 
   deleteStudent(id: string) {
-    return this.api.delete<any>(`Student/${id}`);
+    return this.api.delete<any>(`students/${id}`);
   }
 
   createStudent(data: any) {
@@ -39,11 +39,11 @@ updateStudent(id: string, data: UpdateStudentDTO): Observable<StudentDTO> {
   }
 
   getByGradYear(year: number) {
-    return this.api.get<StudentDTO[]>(`Student/gradYear/${year}`);
+    return this.api.get<StudentDTO[]>(`students/gradYear/${year}`);
   }
 
   getByInstrument(instrument: string) {
-    return this.api.get<StudentDTO[]>(`Student/instrument/${instrument}`);
+    return this.api.get<StudentDTO[]>(`students/instrument/${instrument}`);
   }
 
     getAllInstruments(): Observable<StudentDTO[]> {
@@ -51,26 +51,26 @@ updateStudent(id: string, data: UpdateStudentDTO): Observable<StudentDTO> {
     }
 
   getStudentVideos(id: string) {
-    return this.api.get<VideoDTO[]>(`Student/${id}/videos`);
+    return this.api.get<VideoDTO[]>(`students/${id}/videos`);
   }
 
   getStudentRatings(id: string) {
-    return this.api.get<RatingDTO[]>(`Student/${id}/ratings`);
+    return this.api.get<RatingDTO[]>(`students/${id}/ratings`);
   }
 
   getStudentComments(id: string) {
-    return this.api.get<CommentDTO[]>(`Student/${id}/comments`);
+    return this.api.get<CommentDTO[]>(`students/${id}/comments`);
   }
 
   getStudentOffers(id: string) {
-    return this.api.get<OfferDTO[]>(`Student/${id}/offers`);
+    return this.api.get<OfferDTO[]>(`students/${id}/offers`);
   }
 
   expressInterest(studentId: string, bandId: string) {
-    return this.api.post<StudentDTO>(`Student/${studentId}/interests`, { bandId });
+    return this.api.post<StudentDTO>(`students/${studentId}/interests`, { bandId });
   }
 
   getInterests(studentId: string) {
-    return this.api.get<StudentDTO[]>(`Student/${studentId}/interests`);
+    return this.api.get<StudentDTO[]>(`students/${studentId}/interests`);
   }
 }

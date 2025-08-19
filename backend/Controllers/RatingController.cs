@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models;
 using server.DTOs;
 using server.Services;
-using System.Security.Claims;
 
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/ratings")]
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
@@ -25,7 +23,7 @@ namespace server.Controllers
         //}
 
         [HttpPost("student/{studentId}/rate")]
-        public async Task<IActionResult> RateStudent(string studentId,string recruiterId, [FromBody] CreateRatingDTO ratingDTO)
+        public async Task<IActionResult> RateStudent(string studentId, string recruiterId, [FromBody] CreateRatingDTO ratingDTO)
         {
             if (!ModelState.IsValid)
             {

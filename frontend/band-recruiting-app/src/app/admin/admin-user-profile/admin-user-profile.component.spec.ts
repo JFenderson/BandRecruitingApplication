@@ -17,7 +17,6 @@ describe('AdminUserProfileComponent', () => {
 const fakeUser: UserDTO = {
   id: '1',
   email: 'admin@example.com',
-  password: 'x',
   userType: 'Admin',
   firstName: 'Ada',
   lastName: 'Lovelace',

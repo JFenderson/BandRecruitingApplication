@@ -1,228 +1,149 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// backend/Controllers/StudentsController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using server.DTOs;
 using server.Services;
-
+using System.Security.Claims;
 
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class StudentController : ControllerBase
+    [Route("api/students")]
+    public class StudentsController : ControllerBase
     {
         private readonly IStudentService _studentService;
         private readonly IVideoService _videoService;
 
-
-        public StudentController(IStudentService studentService, IVideoService videoService)
+        public StudentsController(IStudentService studentService, IVideoService videoService)
         {
             _studentService = studentService;
             _videoService = videoService;
         }
 
+        // GET /api/students
         [Authorize(Roles = "Recruiter,Admin")]
-        [HttpGet("students")]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllStudents()
-        {
-            var students = await _studentService.GetAllStudentsAsync();
-            return Ok(students);
-        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAll()
+            => Ok(await _studentService.GetAllStudentsAsync());
 
-        [Authorize(Roles = "Recruiter,Admin")]
+        // GET /api/students/{id}
+        [Authorize(Roles = "Student,Recruiter,Admin")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationUser>> GetStudentById(string id)
+        public async Task<ActionResult<UserDTO>> GetById(string id)
         {
-            try
-            {
-                var student = await _studentService.GetStudentByIdAsync(id);
-                return Ok(student);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
+            var dto = await _studentService.GetStudentByIdAsync(id);
+            return dto is null ? NotFound() : Ok(dto);
         }
 
-        [Authorize(Roles = "Recruiter,Admin")]
-        [HttpGet("-profile/{id}")]
-        public async Task<ActionResult<ApplicationUser>> GetStudentProfileById(string id)
-        {
-            try
-            {
-                var student = await _studentService.GetStudentByIdAsync(id);
-                return Ok(student);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-        }
-
+        // POST /api/students
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> CreateStudent([FromBody] CreateUserDTO createStudentDTO)
+        public async Task<ActionResult<ApplicationUser>> Create([FromBody] CreateUserDTO dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var student = await _studentService.CreateStudentAsync(createStudentDTO);
-                return CreatedAtAction(nameof(GetStudentById), new { id = student.Id }, student);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+            var user = await _studentService.CreateStudentAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 
-        // PUT: api/Student/5
-        [Authorize(Roles = "Recruiter,Student")]
+        // PUT /api/students/{id}
+        // Only the owner (Student) or an Admin can edit
+        [Authorize(Roles = "Student,Admin")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<ApplicationUser>> UpdateStudent(string id, [FromBody] UpdateUserDTO updateUserDTO)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateUserDTO dto)
         {
-            if (!ModelState.IsValid)
+            if (User.IsInRole("Student"))
             {
-                return BadRequest(ModelState);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId != id) return Forbid();
             }
 
-            try
-            {
-                var updatedStudent = await _studentService.UpdateStudentAsync(id, updateUserDTO);
-                return Ok(updatedStudent);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
+            var updated = await _studentService.UpdateStudentAsync(id, dto);
+            return updated is null ? NotFound() : NoContent();
         }
 
-        // DELETE: api/Student/5
+        // DELETE /api/students/{id}
+        // If you want soft-delete, add IsDeleted to ApplicationUser and flip it here.
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteStudent(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var result = await _studentService.DeleteStudentAsync(id);
-            if (!result)
-            {
-                return NotFound(new { Message = "Student not found." });
-            }
+            var ok = await _studentService.SoftDeleteAsync(id);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
+        // POST /api/students/{studentId}/videos
         [Authorize(Roles = "Student")]
-        [HttpPost("/{studentId}/videos")]
-        public async Task<ActionResult<VideoDTO>> CreateVideo(string studentId, [FromForm] CreateVideoDTO createVideoDTO)
+        [HttpPost("{studentId}/videos")]
+        public async Task<ActionResult<VideoDTO>> CreateVideo(string studentId, [FromForm] CreateVideoDTO body)
         {
-            // Check if the student exists
+            // owner check
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != studentId) return Forbid();
+
+            // confirm student exists
             var student = await _studentService.GetStudentByIdAsync(studentId);
-            if (student == null || student.Id != "Student")
-            {
-                return NotFound("Student not found.");
-            }
+            if (student is null) return NotFound("Student not found.");
 
-            // Handle file upload
-            string videoUrl = null;
-            if (createVideoDTO.File != null)
-            {
-                // This is where you'd implement the actual file storage logic
-                // For example, saving to a local directory, cloud storage, etc.
-                // Assume SaveVideoAsync returns the URL of the uploaded video
-                videoUrl = await _videoService.SaveVideoAsync(createVideoDTO.File);
-            }
-
+            // upload & persist
+            var uploaded = await _videoService.UploadVideoAsync(body, studentId); // see VideoService patch below
             var video = new Video
             {
-                Title = createVideoDTO.Title,
-                Description = createVideoDTO.Description,
-                VideoUrl = videoUrl,
-                CreatedAt = DateTime.UtcNow,
-                StudentId = studentId,
+                Title = uploaded.Title,
+                Description = uploaded.Description,
+                VideoUrl = uploaded.VideoUrl,
+                StudentId = uploaded.StudentId,
+                CreatedAt = uploaded.CreatedAt
             };
-
             await _videoService.AddAsync(video);
 
             return CreatedAtAction(nameof(GetStudentVideos), new { id = video.VideoId }, new VideoDTO(video));
         }
 
-
-
-        // GET: api/Student/gradYear/2024
-        [Authorize(Roles = "Recruiter")]
-        [HttpGet("gradYear/{gradYear}")]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetStudentsByGradYear(int gradYear)
-        {
-            var students = await _studentService.GetStudentsByGradYearAsync(gradYear);
-            return Ok(students);
-        }
-
-        // GET: api/Student/instrument/Trumpet
-        [Authorize(Roles = "Recruiter")]
-        [HttpGet("instrument/{instrument}")]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetStudentsByInstrument(string studentId, string instrument)
-        {
-            var students = await _studentService.GetStudentsByInstrumentAsync(studentId, instrument);
-            return Ok(students);
-        }
-
-        // GET: api/Student/5/videos
-        [Authorize(Roles = "Recruiter")]
+        // GET /api/students/{id}/videos
+        [Authorize(Roles = "Recruiter,Admin,Student")]
         [HttpGet("{id}/videos")]
-        public async Task<ActionResult<IEnumerable<Video>>> GetStudentVideos(string id)
+        public async Task<ActionResult<IEnumerable<VideoDTO>>> GetStudentVideos(string id)
         {
             var videos = await _studentService.GetStudentVideosAsync(id);
-            return Ok(videos);
+            return Ok(videos.Select(v => new VideoDTO(v)));
         }
 
-        // GET: api/Student/5/ratings
+        // GET /api/students/{id}/ratings
+        [Authorize(Roles = "Recruiter,Admin,Student")]
         [HttpGet("{id}/ratings")]
         public async Task<ActionResult<IEnumerable<Rating>>> GetStudentRatings(string id)
-        {
-            var ratings = await _studentService.GetStudentRatingsAsync(id.ToString());
-            return Ok(ratings);
-        }
+            => Ok(await _studentService.GetStudentRatingsAsync(id));
 
-        // GET: api/Student/5/comments
+        // GET /api/students/{id}/comments
+        [Authorize(Roles = "Recruiter,Admin,Student")]
         [HttpGet("{id}/comments")]
         public async Task<ActionResult<IEnumerable<Comment>>> GetStudentComments(string id)
-        {
-            var comments = await _studentService.GetStudentCommentsAsync(id.ToString());
-            return Ok(comments);
-        }
+            => Ok(await _studentService.GetStudentCommentsAsync(id));
 
-        // GET: api/Student/5/offers
-        [Authorize(Roles = "Recruiter")]
+        // GET /api/students/{id}/offers
+        [Authorize(Roles = "Recruiter,Admin,Student")]
         [HttpGet("{id}/offers")]
-        public async Task<ActionResult<IEnumerable<Offer>>> GetStudentScholarshipOffers(string id)
-        {
-            var offers = await _studentService.GetStudentScholarshipOffersAsync(id.ToString());
-            return Ok(offers);
-        }
+        public async Task<ActionResult<IEnumerable<Offer>>> GetStudentOffers(string id)
+            => Ok(await _studentService.GetStudentScholarshipOffersAsync(id));
 
-
+        // POST /api/students/{studentId}/interests
+        [Authorize(Roles = "Student")]
         [HttpPost("{studentId}/interests")]
-        public async Task<ActionResult<Interest>> AddInterest([FromBody] CreateInterestDTO createInterestDTO)
+        public async Task<ActionResult<InterestDTO>> AddInterest(string studentId, [FromBody] CreateInterestDTO dto)
         {
-            try
-            {
-                var interest = await _studentService.AddInterestAsync(createInterestDTO);
-                return Ok(interest);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != studentId) return Forbid();
+
+            dto.StudentId = studentId;
+            var interest = await _studentService.AddInterestAsync(dto);
+            return Ok(interest);
         }
 
+        // GET /api/students/{studentId}/interests
+        [Authorize(Roles = "Student,Recruiter,Admin")]
         [HttpGet("{studentId}/interests")]
-        public async Task<ActionResult<IEnumerable<InterestDTO>>> GetStudentInterests(string studentId)
-        {
-            var interests = await _studentService.GetStudentInterestsAsync(studentId);
-            return Ok(interests);
-        }
-
+        public async Task<ActionResult<IEnumerable<InterestDTO>>> GetInterests(string studentId)
+            => Ok(await _studentService.GetStudentInterestsAsync(studentId));
     }
 }

@@ -10,7 +10,6 @@ export type UserRole = 'Student' | 'Recruiter' | 'Admin';
 export interface UserDTO {
     id: string;
     email: string;
-    password: string;
     userType: UserRole;
 
     firstName: string;
@@ -50,7 +49,7 @@ export interface UserDTO {
 }
 
 export type CreateUserPayload =
-  Pick<UserDTO, 'email' | 'password' | 'userType' | 'firstName' | 'lastName' | 'phone' > &
+  Pick<UserDTO, 'email' | 'userType' | 'firstName' | 'lastName' | 'phone' > &
   Partial<{
     student: { instrument?: string; highSchool?: string; graduationYear?: number; };
     recruiter: { bandId?: string; };
@@ -74,7 +73,6 @@ export type CreateUserPayload =
 
 export interface UpdateUserDTO {
     email?: string;
-    password?: string;
     firstName?: string;
     lastName?: string;
     instrument?: string;

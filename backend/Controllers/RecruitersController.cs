@@ -7,7 +7,7 @@ using server.Services;
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/recruiters")]
     public class RecruiterController : ControllerBase
     {
         private readonly IRecruiterService _recruiterService;

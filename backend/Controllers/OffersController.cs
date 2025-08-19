@@ -7,7 +7,7 @@ using server.Services;
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/offers")]
     public class OfferController : ControllerBase
     {
         private readonly IOfferService _offerService;

@@ -5,7 +5,7 @@ using server.Data;
 
 namespace server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/comments")]
     [ApiController]
     public class CommentsController : ControllerBase
     {

@@ -88,13 +88,7 @@ namespace server.Services
             if (!string.IsNullOrEmpty(dto.Phone))
                 user.PhoneNumber = dto.Phone;
 
-            if (!string.IsNullOrEmpty(dto.Password))
-            {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, dto.Password);
-                if (!result.Succeeded)
-                    return false;
-            }
+
 
             // If Student
             if (user.UserType == "Student")

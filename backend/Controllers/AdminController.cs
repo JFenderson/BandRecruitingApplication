@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using server.DTOs;
 using server.Services;
 using server.Services.Interfaces;
@@ -9,7 +10,7 @@ namespace server.Controllers
 {
     [Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/admin")]
     public class AdminController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -69,6 +70,17 @@ namespace server.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [HttpDelete("users/{id}")]
+        public async Task<IActionResult> SoftDeleteUser(string id)
+        {
+            var user = await _userManager.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            user.IsDeleted = true;
+            await _userManager.UpdateAsync(user);
+            return NoContent();
         }
 
         [HttpPost("assign-role")]

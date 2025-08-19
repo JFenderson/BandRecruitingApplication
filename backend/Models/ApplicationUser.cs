@@ -17,6 +17,9 @@ public class ApplicationUser : IdentityUser
     public int? GraduationYear { get; set; }
     public decimal? AverageRating { get; set; }
 
+    public bool IsDeleted { get; set; }
+
+    public void MarkAsDeleted() => IsDeleted = true;
 
     // Recruiter-specific
     public Guid? BandId { get; set; }

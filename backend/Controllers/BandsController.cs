@@ -7,7 +7,7 @@ using server.Services;
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/bands")]
     public class BandsController : ControllerBase
     {
         private readonly IBandService _bandService;

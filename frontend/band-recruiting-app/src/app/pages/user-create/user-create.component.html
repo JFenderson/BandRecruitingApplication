@@ -30,12 +30,6 @@
     <input formControlName="phone" class="border p-2 w-full">
   </label>
 
-
-  <label class="block">
-    <span class="text-sm">Password</span>
-    <input type="password" formControlName="password" class="border p-2 w-full">
-  </label>
-
   <!-- Role-specific sections -->
   <app-student-form   *ngIf="userType === 'Student'"   [group]="studentGroup"></app-student-form>
   <app-recruiter-form *ngIf="userType === 'Recruiter'" [group]="recruiterGroup"></app-recruiter-form>

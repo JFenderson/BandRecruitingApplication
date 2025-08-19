@@ -13,7 +13,6 @@ namespace server.Data
 
         //public DbSet<Student> Students { get; set; } = default!;
         //public DbSet<Recruiter> Recruiters { get; set; } = default!;
-        public DbSet<ApplicationUser> Users { get; set; } = default!;
         public DbSet<Video> Videos { get; set; } = default!;
         public DbSet<Band> Bands { get; set; } = default!;
         public DbSet<Comment> Comments { get; set; } = default!;
@@ -33,11 +32,13 @@ namespace server.Data
                 .HasForeignKey(r => r.Id)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<ApplicationUser>()
+        .HasQueryFilter(u => !u.IsDeleted);
 
             modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new RecruiterConfiguration());
             modelBuilder.ApplyConfiguration(new BandConfiguration());
-            modelBuilder.ApplyConfiguration(new VideoConfiguration()); 
+            modelBuilder.ApplyConfiguration(new VideoConfiguration());
             modelBuilder.ApplyConfiguration(new RatingConfiguration());
             modelBuilder.ApplyConfiguration(new CommentConfiguration());
             modelBuilder.ApplyConfiguration(new ScholarshipOfferConfiguration());

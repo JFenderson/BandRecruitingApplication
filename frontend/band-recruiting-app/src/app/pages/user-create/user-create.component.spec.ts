@@ -14,7 +14,6 @@ describe('UserCreateComponent', () => {
 
   const BASE_FORM_VALUE = {
     email:     'x@y.com',
-    password:  'pass123',
     userType:  'Student' as const,
     firstName: 'X',
     lastName:  'Y',

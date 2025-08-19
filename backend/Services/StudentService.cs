@@ -57,7 +57,7 @@ namespace server.Services
 
         public async Task<ApplicationUser> UpdateStudentAsync(string id, UpdateUserDTO updateUserDTO)
         {
-            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == id);
 
             if (student == null)
             {
@@ -93,7 +93,7 @@ namespace server.Services
                 student.ProfilePicture = updateUserDTO.ProfilePicture;
             }
 
-            _context.Users.Update(student);
+            await _userManager.UpdateAsync(student);
             await _context.SaveChangesAsync();
 
             Console.WriteLine($"Updated student: {student.Id}, {student.FirstName} {student.LastName}");
@@ -120,14 +120,21 @@ namespace server.Services
                 ? student.RatingsReceived.Average(r => r.Score)
                 : 0;
 
-            // Create the UserDTO object
-            var studentDto = new UserDTO
+            return new UserDTO
             {
-                AverageRating = (decimal)averageRating,  // Assign average rating
-                OfferCount = await GetStudentOfferCountAsync(student.Id)  // Fetch offer count
+                Id = student.Id,
+                Email = student.Email,
+                UserType = student.UserType,
+                FirstName = student.FirstName!,
+                LastName = student.LastName!,
+                Phone = student.Phone!,
+                Instrument = student.Instrument,
+                HighSchool = student.HighSchool,
+                GraduationYear = student.GraduationYear,
+                ProfilePicture = student.ProfilePicture!,
+                AverageRating = (decimal)averageRating,
+                OfferCount = await GetStudentOfferCountAsync(student.Id)
             };
-
-            return studentDto;
         }
 
 
@@ -141,6 +148,7 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync()
         {
             return await _context.Users
+                .Where(s => s.UserType == "Student") // and not deleted due to filter
                 .Include(s => s.Videos)
                 .Include(s => s.ScholarshipOffers)
                 .ToArrayAsync();
@@ -155,10 +163,21 @@ namespace server.Services
                 return false;
             }
 
+
             _context.Users.Remove(student);
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<bool> SoftDeleteAsync(string id, CancellationToken ct = default)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return false;
+
+            user.MarkAsDeleted();
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
         }
 
 
