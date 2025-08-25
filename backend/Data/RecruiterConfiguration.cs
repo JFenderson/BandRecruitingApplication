@@ -11,7 +11,6 @@ namespace server.Data
 
             builder.Property(r => r.FirstName).IsRequired().HasMaxLength(50);
             builder.Property(r => r.LastName).IsRequired().HasMaxLength(50);
-            builder.Property(r => r.Email).IsRequired().HasMaxLength(50);
 
 
 

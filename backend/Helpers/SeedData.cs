@@ -11,6 +11,8 @@ namespace server.Helpers
 {
     public static class SeedData
     {
+
+
         public static async Task Initialize(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -23,7 +25,7 @@ namespace server.Helpers
             await SeedBandsAndRecruiters(context, userManager);
             await CreateDefaultAdmin(userManager);
             await CreateStudents(userManager, 20, context);
-            //await CreateRecruiters(userManager, 20, context);
+            await CreateRecruiters(userManager, 20, context);
             await CreateOffers(context, 20);
         }
 
@@ -92,6 +94,8 @@ namespace server.Helpers
         {
             var faker = new Faker();
             var rndNum = new Random();
+            var email = faker.Internet.Email();
+
             var instruments = new string[]
                   {
                         "Trumpet",
@@ -114,8 +118,8 @@ namespace server.Helpers
                 var student = new ApplicationUser
                 {
                     UserType = "Student",
-                    UserName = faker.Internet.UserName($"StudentNum{i}"),
-                    Email = faker.Internet.Email(),
+                    UserName = email,
+                    Email = email,
                     FirstName = faker.Person.FirstName,
                     LastName = faker.Person.LastName,
                     Phone = faker.Phone.PhoneNumber(),
@@ -132,7 +136,7 @@ namespace server.Helpers
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(student, "Student");
-                    Console.WriteLine($"Created student: {student.UserName}");
+                    Console.WriteLine($"Created student: {student.Email}");
 
                     var bandIds = await context.Bands.Select(b => b.BandId).ToListAsync();
                     if (!bandIds.Any()) continue;
@@ -170,14 +174,14 @@ namespace server.Helpers
             for (int i = 0; i < numRecruiters; i++)
             {
                 var randomBandId = faker.PickRandom(bandIds);
-
+                var recruiterEmail = $"recruiter{i}@hbcu.edu";
                 var recruiter = new ApplicationUser
                 {
                     UserType = "Recruiter",
-                    UserName = faker.Internet.UserName($"recruiterNum{i}"),
-                    Email = faker.Internet.Email(),
-                    FirstName = faker.Person.FirstName,
-                    LastName = faker.Person.LastName,
+                    Email = recruiterEmail,
+                    UserName = recruiterEmail,
+                    FirstName = $"Recruiter{i}",
+                    LastName = "HBCU",
                     Phone = faker.Phone.PhoneNumber(),
                     BandId = randomBandId,
                     CreatedAt = DateTime.UtcNow,
@@ -189,7 +193,7 @@ namespace server.Helpers
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(recruiter, "Recruiter");
-                    Console.WriteLine($"Created recruiter: {recruiter.UserName}, assigned to BandId: {recruiter.BandId}");
+                    Console.WriteLine($"Created recruiter: {recruiter.Email}, assigned to BandId: {recruiter.BandId}");
                 }
                 else
                 {

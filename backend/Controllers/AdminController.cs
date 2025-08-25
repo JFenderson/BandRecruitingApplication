@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server.Constants;
 using server.DTOs;
 using server.Services;
 using server.Services.Interfaces;
@@ -38,10 +39,20 @@ namespace server.Controllers
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO model)
         {
+
             var user = new ApplicationUser
             {
                 UserName = model.Email,
-                UserType = model.UserType
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.Phone,
+                UserType = model.UserType,
+                CreatedAt = DateTime.UtcNow,
+                Instrument = model.UserType == Roles.Student ? model.Instrument : null,
+                HighSchool = model.UserType == Roles.Student ? model.HighSchool : null,
+                GraduationYear = model.UserType == Roles.Student ? model.GraduationYear : null,
+                BandId = model.UserType == Roles.Recruiter ? model.BandId : null
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

@@ -164,28 +164,27 @@ namespace server.Controllers
 
         private async Task<string> GenerateJwtToken(ApplicationUser user, IList<string> roles)
         {
-            var claims = new List<Claim>
-            {
-               new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName ?? user.Email ?? ""),
-                new Claim("UserType", user.UserType?.ToString() ?? "")
-            };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var jwt = _configuration.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+    {
+        new(JwtRegisteredClaimNames.Sub, user.Id),
+        new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new(ClaimTypes.NameIdentifier, user.Id),
+        new(ClaimTypes.Name, user.UserName ?? user.Email ?? user.Id)
+    };
+            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwt["AccessTokenLifetimeMinutes"] ?? "15")),
                 signingCredentials: creds
             );
 

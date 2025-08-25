@@ -49,6 +49,7 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetRecruitersAsync()
         {
             return await _context.Users
+                .Where(c => c.UserType == "Recruiter")
                 .ToArrayAsync();
         }
 

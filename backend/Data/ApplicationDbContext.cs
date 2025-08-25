@@ -27,10 +27,10 @@ namespace server.Data
             modelBuilder.ApplyConfiguration(new UserConfiguration());
 
             modelBuilder.Entity<ApplicationUser>()
-                .HasOne(r => r.Band)
-                .WithMany(b => b.Recruiters)
-                .HasForeignKey(r => r.Id)
-                .OnDelete(DeleteBehavior.Restrict);
+.HasOne(r => r.Band)
+.WithMany(b => b.Recruiters)
+.HasForeignKey(r => r.BandId) // correct FK
+.OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ApplicationUser>()
         .HasQueryFilter(u => !u.IsDeleted);

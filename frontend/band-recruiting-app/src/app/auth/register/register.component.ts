@@ -81,7 +81,6 @@ form: any;
       return;
     }
  const formData = this.registerForm.value;
- formData.userName = formData.email;
 
     this.authService.register(formData).subscribe({
       next: () => {
