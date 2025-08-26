@@ -24,10 +24,10 @@ namespace server.Controllers
             return Ok(offers.Select(o => new Offer()));
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OfferDTO>> GetOffer(int id)
+        [HttpGet("{offerId}")]
+        public async Task<ActionResult<OfferDTO>> GetOffer(int offerId)
         {
-            var offer = await _offerService.GetByIdAsync(id);
+            var offer = await _offerService.GetByIdAsync(offerId);
             if (offer == null)
                 return NotFound();
 

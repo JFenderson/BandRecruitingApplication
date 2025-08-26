@@ -24,10 +24,10 @@ namespace server.Controllers
             return Ok(bands);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BandDTO>> GetBand(Guid id)
+        [HttpGet("{bandId}")]
+        public async Task<ActionResult<BandDTO>> GetBand(Guid bandId)
         {
-            var band = await _bandService.GetBandByIdAsync(id);
+            var band = await _bandService.GetBandByIdAsync(bandId);
             if (band == null)
             {
                 return NotFound();
@@ -44,10 +44,10 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "Recruiter,Admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBand(Guid id, [FromBody] UpdateBandDTO bandDto)
+        [HttpPut("{bandId}")]
+        public async Task<IActionResult> UpdateBand(Guid bandId, [FromBody] UpdateBandDTO bandDto)
         {
-            if (id != bandDto.BandId)
+            if (bandId != bandDto.BandId)
             {
                 return BadRequest("Mismatched BandId");
             }
@@ -62,10 +62,10 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBand(Guid id)
+        [HttpDelete("{bandId}")]
+        public async Task<IActionResult> DeleteBand(Guid bandId)
         {
-            var success = await _bandService.DeleteBandAsync(id);
+            var success = await _bandService.DeleteBandAsync(bandId);
             if (!success)
             {
                 return NotFound();
@@ -75,12 +75,12 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "Recruiter,Admin")]
-        [HttpGet("{id}/interestedStudents")]
-        public async Task<ActionResult<Band>> GetBandInterestedStudents(Guid id)
+        [HttpGet("{bandId}/interestedStudents")]
+        public async Task<ActionResult<Band>> GetBandInterestedStudents(Guid bandId)
         {
             try
             {
-                var interestedStudents = await _bandService.GetInterestedStudentsAsync(id);
+                var interestedStudents = await _bandService.GetInterestedStudentsAsync(bandId);
                 if (interestedStudents == null)
                 {
                     return NotFound();

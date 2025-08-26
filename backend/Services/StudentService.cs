@@ -102,13 +102,13 @@ namespace server.Services
             return student;
         }
 
-        public async Task<UserDTO> GetStudentByIdAsync(string id)
+        public async Task<UserDTO> GetStudentByIdAsync(string studentId)
         {
             var student = await _context.Users
                 .Include(s => s.Videos)  // Fetch related videos
                 .Include(s => s.ScholarshipOffers)  // Fetch related scholarship offers
                 .Include(s => s.RatingsReceived)  // Fetch related ratings
-                .FirstOrDefaultAsync(s => s.Id == id);  // Find student by ID
+                .FirstOrDefaultAsync(s => s.Id == studentId);  // Find student by ID
 
             if (student == null)
             {
@@ -154,9 +154,9 @@ namespace server.Services
                 .ToArrayAsync();
         }
 
-        public async Task<bool> DeleteStudentAsync(string id)
+        public async Task<bool> DeleteStudentAsync(string studentId)
         {
-            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == id.ToString());
+            var student = await _context.Users.FirstOrDefaultAsync(s => s.Id == studentId.ToString());
 
             if (student == null)
             {
@@ -170,9 +170,9 @@ namespace server.Services
             return true;
         }
 
-        public async Task<bool> SoftDeleteAsync(string id, CancellationToken ct = default)
+        public async Task<bool> SoftDeleteAsync(string studentId, CancellationToken ct = default)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(studentId);
             if (user == null) return false;
 
             user.MarkAsDeleted();

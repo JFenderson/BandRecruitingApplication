@@ -24,10 +24,10 @@ namespace server.Controllers
         }
 
         // GET: api/Comments/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(int id)
+        [HttpGet("{commentId}")]
+        public async Task<ActionResult<Comment>> GetComment(int commentId)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _context.Comments.FindAsync(commentId);
 
             if (comment == null)
             {
@@ -49,10 +49,10 @@ namespace server.Controllers
 
         // PUT: api/Comments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(string id, Comment comment)
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> PutComment(string commentId, Comment comment)
         {
-            if (id != comment.CommentId)
+            if (commentId != comment.CommentId)
             {
                 return BadRequest();
             }
@@ -65,7 +65,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CommentExists(id))
+                if (!CommentExists(commentId))
                 {
                     return NotFound();
                 }
@@ -101,10 +101,10 @@ namespace server.Controllers
         }
 
         // DELETE: api/Comments/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComment(int id)
+        [HttpDelete("{commentId}")]
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _context.Comments.FindAsync(commentId);
             if (comment == null)
             {
                 return NotFound();
@@ -119,9 +119,9 @@ namespace server.Controllers
 
 
 
-        private bool CommentExists(string id)
+        private bool CommentExists(string commentId)
         {
-            return _context.Comments.Any(e => e.CommentId == id);
+            return _context.Comments.Any(e => e.CommentId == commentId);
         }
     }
 }

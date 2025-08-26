@@ -83,10 +83,10 @@ namespace server.Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpDelete("users/{id}")]
-        public async Task<IActionResult> SoftDeleteUser(string id)
+        [HttpDelete("users/{userId}")]
+        public async Task<IActionResult> SoftDeleteUser(string userId)
         {
-            var user = await _userManager.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _userManager.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound();
 
             user.IsDeleted = true;
@@ -120,17 +120,17 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("users/{id}")]
-        public async Task<ActionResult<UserDTO>> GetUser(string id)
+        [HttpGet("users/{userId}")]
+        public async Task<ActionResult<UserDTO>> GetUser(string userId)
         {
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAsync(userId);
             if (user == null) return NotFound();
 
             return Ok(user);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("users/{id}")]
+        [HttpPut("users/{userId}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO dto)
         {
             var success = await _userService.UpdateUserByAdminAsync(id, dto);

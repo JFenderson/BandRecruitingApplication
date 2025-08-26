@@ -20,12 +20,12 @@ namespace server.Controllers
         public async Task<ActionResult<IEnumerable<VideoDTO>>> GetAll()
             => Ok((await _videoService.GetAllAsync()).Select(v => new VideoDTO(v)));
 
-        // GET /api/videos/{id}
+        // GET /api/videos/{videoId}
         [Authorize(Roles = "Recruiter,Admin,Student")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VideoDTO>> GetById(string id)
+        [HttpGet("{videoId}")]
+        public async Task<ActionResult<VideoDTO>> GetById(string videoId)
         {
-            var video = await _videoService.GetVideoByIdAsync(id);
+            var video = await _videoService.GetVideoByIdAsync(videoId);
             return video is null ? NotFound() : Ok(new VideoDTO(video));
         }
     }

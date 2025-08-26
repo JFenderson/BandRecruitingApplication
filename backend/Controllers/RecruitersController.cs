@@ -40,14 +40,14 @@ namespace server.Controllers
             return Ok(recruiters);
         }
 
-        // GET: api/recruiter/{id}
+        // GET: api/recruiter/{recruiterId}
         [Authorize(Roles = "Recruiter,Admin")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationUser>> GetRecruiterById(string id)
+        [HttpGet("{recruiterId}")]
+        public async Task<ActionResult<ApplicationUser>> GetRecruiterById(string recruiterId)
         {
             try
             {
-                var recruiter = await _recruiterService.GetRecruiterByIdAsync(id);
+                var recruiter = await _recruiterService.GetRecruiterByIdAsync(recruiterId);
                 return Ok(recruiter);
             }
             catch (Exception ex)
@@ -58,13 +58,13 @@ namespace server.Controllers
 
         }
 
-        // GET: api/recruiter/band/{id}
-        [HttpGet("band/{id}")]
-        public async Task<ActionResult<Band>> GetRecruitersByBand(Guid id)
+        // GET: api/recruiter/band/{recruiterId}
+        [HttpGet("band/{recruiterId}")]
+        public async Task<ActionResult<Band>> GetRecruitersByBand(Guid bandId)
         {
             try
             {
-                var recruiter = await _recruiterService.GetRecruitersByBandAsync(id);
+                var recruiter = await _recruiterService.GetRecruitersByBandAsync(bandId);
                 return Ok(recruiter);
             }
             catch (Exception ex)
@@ -98,10 +98,10 @@ namespace server.Controllers
             }
         }
 
-        // PUT: api/recruiter/{id}
+        // PUT: api/recruiter/{recruiterId}
         [Authorize(Roles = "Recruiter,Admin")]
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ApplicationUser>> UpdateRecruiter(string id, [FromBody] UpdateUserDTO updateUserDTO)
+        [HttpPut("{recruiterId}")]
+        public async Task<ActionResult<ApplicationUser>> UpdateRecruiter(string recruiterId, [FromBody] UpdateUserDTO updateUserDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -110,7 +110,7 @@ namespace server.Controllers
 
             try
             {
-                var updatedRecruiter = await _recruiterService.UpdateRecruiterAsync(id, updateUserDTO);
+                var updatedRecruiter = await _recruiterService.UpdateRecruiterAsync(recruiterId, updateUserDTO);
                 return Ok(updatedRecruiter);
             }
             catch (Exception ex)
@@ -119,16 +119,16 @@ namespace server.Controllers
             }
         }
 
-        // DELETE: api/recruiter/{id}
+        // DELETE: api/recruiter/{recruiterId}
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRecruiter(string id)
+        [HttpDelete("{recruiterId}")]
+        public async Task<IActionResult> DeleteRecruiter(string recruiterId)
         {
-            var recruiter = await _recruiterService.GetRecruiterByIdAsync(id);
+            var recruiter = await _recruiterService.GetRecruiterByIdAsync(recruiterId);
             if (recruiter == null)
                 return NotFound();
 
-            await _recruiterService.DeleteRecruiterAsync(id);
+            await _recruiterService.DeleteRecruiterAsync(recruiterId);
 
             return NoContent();
         }
@@ -162,20 +162,20 @@ namespace server.Controllers
             return Ok(comment);
         }
 
-        [HttpGet("{id}/comments")]
-        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetRecruiterComments(string id)
+        [HttpGet("{recruiterId}/comments")]
+        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetRecruiterComments(string recruiterId)
         {
-            var comments = await _recruiterService.GetRecruiterCommentsAsync(id);
+            var comments = await _recruiterService.GetRecruiterCommentsAsync(recruiterId);
             return Ok(comments.Select(c => new CommentDTO(c)));
         }
         #endregion
 
         #region Rating
 
-        [HttpGet("{id}/ratings")]
-        public async Task<ActionResult<IEnumerable<RatingDTO>>> GetRecruiterRatings(string id)
+        [HttpGet("{recruiterId}/ratings")]
+        public async Task<ActionResult<IEnumerable<RatingDTO>>> GetRecruiterRatings(string recruiterId)
         {
-            var ratings = await _recruiterService.GetRecruiterRatingsAsync(id);
+            var ratings = await _recruiterService.GetRecruiterRatingsAsync(recruiterId);
             return Ok(ratings);
         }
 
@@ -211,10 +211,10 @@ namespace server.Controllers
         }
 
 
-        [HttpGet("{id}/offers")]
-        public async Task<ActionResult<IEnumerable<OfferDTO>>> GetRecruiterOffers(string id)
+        [HttpGet("{recruiterId}/offers")]
+        public async Task<ActionResult<IEnumerable<OfferDTO>>> GetRecruiterOffers(string recruiterId)
         {
-            var offers = await _offerService.GetOffersByRecruiterAsync(id);
+            var offers = await _offerService.GetOffersByRecruiterAsync(recruiterId);
             return Ok(offers);
         }
 

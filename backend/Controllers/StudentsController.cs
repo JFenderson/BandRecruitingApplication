@@ -27,12 +27,12 @@ namespace server.Controllers
         public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAll()
             => Ok(await _studentService.GetAllStudentsAsync());
 
-        // GET /api/students/{id}
+        // GET /api/students/{studentId}
         [Authorize(Roles = "Student,Recruiter,Admin")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> GetById(string id)
+        [HttpGet("{studentId}")]
+        public async Task<ActionResult<UserDTO>> GetById(string studentId)
         {
-            var dto = await _studentService.GetStudentByIdAsync(id);
+            var dto = await _studentService.GetStudentByIdAsync(studentId);
             return dto is null ? NotFound() : Ok(dto);
         }
 
@@ -45,10 +45,10 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 
-        // PUT /api/students/{id}
+        // PUT /api/students/{studentId}
         // Only the owner (Student) or an Admin can edit
         [Authorize(Roles = "Student,Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("{studentId}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateUserDTO dto)
         {
             if (User.IsInRole("Student"))
@@ -61,13 +61,13 @@ namespace server.Controllers
             return updated is null ? NotFound() : NoContent();
         }
 
-        // DELETE /api/students/{id}
+        // DELETE /api/students/{studentId}
         // If you want soft-delete, add IsDeleted to ApplicationUser and flip it here.
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        [HttpDelete("{studentId}")]
+        public async Task<IActionResult> Delete(string studentId)
         {
-            var ok = await _studentService.SoftDeleteAsync(id);
+            var ok = await _studentService.SoftDeleteAsync(studentId);
             if (!ok) return NotFound();
             return NoContent();
         }
@@ -100,32 +100,32 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetStudentVideos), new { id = video.VideoId }, new VideoDTO(video));
         }
 
-        // GET /api/students/{id}/videos
+        // GET /api/students/{studentId}/videos
         [Authorize(Roles = "Recruiter,Admin,Student")]
-        [HttpGet("{id}/videos")]
-        public async Task<ActionResult<IEnumerable<VideoDTO>>> GetStudentVideos(string id)
+        [HttpGet("{studentId}/videos")]
+        public async Task<ActionResult<IEnumerable<VideoDTO>>> GetStudentVideos(string studentId)
         {
-            var videos = await _studentService.GetStudentVideosAsync(id);
+            var videos = await _studentService.GetStudentVideosAsync(studentId);
             return Ok(videos.Select(v => new VideoDTO(v)));
         }
 
-        // GET /api/students/{id}/ratings
+        // GET /api/students/{studentId}/ratings
         [Authorize(Roles = "Recruiter,Admin,Student")]
-        [HttpGet("{id}/ratings")]
-        public async Task<ActionResult<IEnumerable<Rating>>> GetStudentRatings(string id)
-            => Ok(await _studentService.GetStudentRatingsAsync(id));
+        [HttpGet("{studentId}/ratings")]
+        public async Task<ActionResult<IEnumerable<Rating>>> GetStudentRatings(string studentId)
+            => Ok(await _studentService.GetStudentRatingsAsync(studentId));
 
-        // GET /api/students/{id}/comments
+        // GET /api/students/{studentId}/comments
         [Authorize(Roles = "Recruiter,Admin,Student")]
-        [HttpGet("{id}/comments")]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetStudentComments(string id)
-            => Ok(await _studentService.GetStudentCommentsAsync(id));
+        [HttpGet("{studentId}/comments")]
+        public async Task<ActionResult<IEnumerable<Comment>>> GetStudentComments(string studentId)
+            => Ok(await _studentService.GetStudentCommentsAsync(studentId));
 
-        // GET /api/students/{id}/offers
+        // GET /api/students/{studentId}/offers
         [Authorize(Roles = "Recruiter,Admin,Student")]
-        [HttpGet("{id}/offers")]
-        public async Task<ActionResult<IEnumerable<Offer>>> GetStudentOffers(string id)
-            => Ok(await _studentService.GetStudentScholarshipOffersAsync(id));
+        [HttpGet("{studentId}/offers")]
+        public async Task<ActionResult<IEnumerable<Offer>>> GetStudentOffers(string studentId)
+            => Ok(await _studentService.GetStudentScholarshipOffersAsync(studentId));
 
         // POST /api/students/{studentId}/interests
         [Authorize(Roles = "Student")]
