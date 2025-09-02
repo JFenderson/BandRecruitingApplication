@@ -20,6 +20,7 @@ import { OfferService } from '../../core/services/offer.service';
 import { VideoService } from '../../core/services/video.service';
 import { RouterModule } from '@angular/router';
 import { InterestService } from '../../core/services/interest.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-student-dashboard',
@@ -49,6 +50,8 @@ export class StudentDashboardComponent implements OnInit {
   showVideoUploadModal = false;
   videoUploadForm!: FormGroup;
   selectedVideoFile: File | null = null;
+pageSize = 5;
+currentPage = 1;
 
   constructor(
     private tokenService: TokenService,
@@ -102,6 +105,7 @@ export class StudentDashboardComponent implements OnInit {
       // Load offers
       this.offerService.getOffersByStudent(this.currentUser.id).subscribe(offers => {
         this.offers = offers;
+        console.log(offers)
       });
 
       // Load interests (mock data for now)
@@ -202,4 +206,26 @@ export class StudentDashboardComponent implements OnInit {
     // Mock rating - in real app, this would come from the video data
     return Math.random() * 2 + 3; // Random rating between 3-5
   }
+
+get paginatedOffers(): OfferDTO[] {
+  const start = (this.currentPage - 1) * this.pageSize;
+  return this.offers.slice(start, start + this.pageSize);
+}
+
+totalPages(): number {
+  return Math.ceil(this.offers.length / this.pageSize);
+}
+
+nextPage(): void {
+  if (this.currentPage < this.totalPages()) {
+    this.currentPage++;
+  }
+}
+
+prevPage(): void {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+  }
+}
+
 }

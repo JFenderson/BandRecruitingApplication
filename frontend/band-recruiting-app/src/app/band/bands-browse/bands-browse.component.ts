@@ -20,19 +20,19 @@ export class BandsBrowseComponent implements OnInit {
   allBands: BandDTO[] = [];
   filteredBands: BandDTO[] = [];
   paginatedBands: BandDTO[] = [];
-  
+
   searchForm!: FormGroup;
   availableStates: string[] = [];
   interestedBandIds: string[] = [];
-  
+
   viewMode: 'grid' | 'list' = 'grid';
   currentPage = 1;
   pageSize = 12;
   totalPages = 1;
 
-    showConfirm = false;
+  showConfirm = false;
   bandToConfirm: BandDTO | null = null;
-isCurrentlyInterested = false;
+  isCurrentlyInterested = false;
   showToast = false;
   toastMessage = '';
 
@@ -42,7 +42,7 @@ isCurrentlyInterested = false;
     private tokenService: TokenService,
     private fb: FormBuilder,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initSearchForm();
@@ -77,17 +77,23 @@ isCurrentlyInterested = false;
 
   loadUserInterests(): void {
     const currentUser = this.tokenService.decodeToken();
-    if (currentUser?.nameid) {
+          console.log("user interest",currentUser);
+
+    if (currentUser?.sub) {
       // Load user's band interests
-      // this.studentService.getInterests(currentUser.nameid).subscribe(interests => {
-      //   this.interestedBandIds = interests.map(i => i.bandId);
-      // });
+      this.studentService.getStudentInterests(currentUser.sub).subscribe({
+        next: (interests) => {
+          this.interestedBandIds = interests.map(i => i.bandId);
+          console.log(interests);
+        },
+        error: (err) => console.error('Error loading interests', err)
+      });
     }
   }
 
-    openInterestConfirm(band: BandDTO): void {
+  openInterestConfirm(band: BandDTO): void {
     this.bandToConfirm = band;
-    this.isCurrentlyInterested = this.isInterested(band); 
+    this.isCurrentlyInterested = this.isInterested(band);
     this.showConfirm = true;
   }
 
@@ -96,21 +102,21 @@ isCurrentlyInterested = false;
     this.bandToConfirm = null;
   }
 
-extractAvailableStates(): void {
-  const states = [...new Set(this.allBands
-    .map(band => band.state)
-    .filter((state): state is string => typeof state === 'string')
-  )];
+  extractAvailableStates(): void {
+    const states = [...new Set(this.allBands
+      .map(band => band.state)
+      .filter((state): state is string => typeof state === 'string')
+    )];
 
-  this.availableStates = states.sort();
-}
+    this.availableStates = states.sort();
+  }
 
 
   applyFilters(): void {
     const formValue = this.searchForm.value;
-    
+
     this.filteredBands = this.allBands.filter(band => {
-      const matchesSearch = !formValue.searchTerm || 
+      const matchesSearch = !formValue.searchTerm ||
         band.name?.toLowerCase().includes(formValue.searchTerm.toLowerCase()) ||
         band.schoolName?.toLowerCase().includes(formValue.searchTerm.toLowerCase()) ||
         band.city?.toLowerCase().includes(formValue.searchTerm.toLowerCase()) ||
@@ -130,7 +136,7 @@ extractAvailableStates(): void {
 
   applySort(): void {
     const sortBy = this.searchForm.get('sortBy')?.value;
-    
+
     this.filteredBands.sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -182,44 +188,44 @@ extractAvailableStates(): void {
   }
 
   toggleInterest(band: BandDTO): void {
-  const currentUser = this.tokenService.decodeToken();
-  if (!currentUser?.nameid) return;
+    const currentUser = this.tokenService.decodeToken();
+    if (!currentUser?.nameid) return;
 
-  const studentId = currentUser.nameid;
-  const bandId = band.bandId;
-  const isCurrentlyInterested = this.isInterested(band); // Your own logic to check local interest
+    const studentId = currentUser.nameid;
+    const bandId = band.bandId;
+    const isCurrentlyInterested = this.isInterested(band); // Your own logic to check local interest
 
-  const dto: UpdateInterestDTO = {
-    bandId,
-    isInterested: !isCurrentlyInterested
-  };
+    const dto: UpdateInterestDTO = {
+      bandId,
+      isInterested: !isCurrentlyInterested
+    };
 
-  this.studentService.updateInterest(studentId, dto).subscribe({
-    next: () => {
-      if (dto.isInterested) {
-        this.interestedBandIds.push(bandId);
-        console.log('Interest expressed.');
-      } else {
-        this.interestedBandIds = this.interestedBandIds.filter(id => id !== bandId);
-        console.log('Interest removed.');
+    this.studentService.updateInterest(studentId, dto).subscribe({
+      next: () => {
+        if (dto.isInterested) {
+          this.interestedBandIds.push(bandId);
+          console.log('Interest expressed.');
+        } else {
+          this.interestedBandIds = this.interestedBandIds.filter(id => id !== bandId);
+          console.log('Interest removed.');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error updating interest:', error);
+        // Optional: show toast or rollback UI state
       }
-    },
-    error: (error: any) => {
-      console.error('Error updating interest:', error);
-      // Optional: show toast or rollback UI state
-    }
-  });
-}
+    });
+  }
 
 
   isInterested(band: BandDTO): boolean {
     return this.interestedBandIds.includes(band.bandId);
   }
 
-confirmExpressInterest(): void {
+  confirmExpressInterest(): void {
     if (!this.bandToConfirm) return;
     const token = this.tokenService.decodeToken();
-    const studentId = token?.sub; 
+    const studentId = token?.sub;
     if (!studentId) {
       console.log("studentId", token)
       console.error('Missing studentId from token');
@@ -227,18 +233,18 @@ confirmExpressInterest(): void {
       return;
     }
 
-       const bandId = this.bandToConfirm.bandId;
-       const bandName = this.bandToConfirm.name;
+    const bandId = this.bandToConfirm.bandId;
+    const bandName = this.bandToConfirm.name;
     const willBeInterested = !this.isCurrentlyInterested;
-console.log(bandId);
-console.log(bandName);
+    console.log(bandId);
+    console.log(bandName);
     // Recommended idempotent API
     const dto: UpdateInterestDTO = { bandId, isInterested: willBeInterested };
-    this.studentService.updateInterest(studentId, {bandId , isInterested: true}).subscribe({
-      
-      next: () => this.onInterestSuccess(bandName?? 'this band', bandId, willBeInterested ),
+    this.studentService.updateInterest(studentId, dto).subscribe({
+
+      next: () => this.onInterestSuccess(bandName ?? 'this band', bandId, willBeInterested),
       error: (err: any) => this.onInterestError(err)
-      
+
     });
     // --- If you still only have addInterest (temporary) ---
     // this.studentService.addInterest(studentId, bandId).subscribe({
@@ -247,17 +253,17 @@ console.log(bandName);
     // });
   }
 
- private onInterestSuccess(bandName: string, bandId: string, nowInterested: boolean): void {
-  if (!this.bandToConfirm) return;
+  private onInterestSuccess(bandName: string, bandId: string, nowInterested: boolean): void {
+    if (!this.bandToConfirm) return;
     this.closeInterestConfirm();
 
     // keep local UI in sync if you store interest ids locally
     if (nowInterested) {
-      console.log("bandconfirm",bandName)
+      console.log("bandconfirm", bandName)
       this.interestedBandIds = [...this.interestedBandIds, bandId];
       this.toastMessage = `You've expressed interest in ${bandName}!`;
     } else {
-      this.interestedBandIds = this.interestedBandIds.filter(id => id !== this.bandToConfirm!.bandId);
+      this.interestedBandIds = this.interestedBandIds.filter(id => id !== bandId);
       this.toastMessage = `You've withdrawn interest from ${bandName}.`;
     }
 
@@ -277,7 +283,7 @@ console.log(bandName);
     setTimeout(() => (this.showToast = false), 2000);
   }
 
-    private toast(message: string): void {
+  private toast(message: string): void {
     this.toastMessage = message;
     this.showToast = true;
     setTimeout(() => (this.showToast = false), 2000);

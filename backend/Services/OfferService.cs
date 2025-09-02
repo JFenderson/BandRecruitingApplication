@@ -170,6 +170,7 @@ namespace server.Services
         {
             var offers = await _context.Offers
                 .Where(o => o.StudentId == studentId)
+                .Include(o => o.Band)
                 .Select(o => new OfferDTO
                 {
                     OfferId = o.OfferId,
@@ -177,6 +178,7 @@ namespace server.Services
                     RecruiterId = o.RecruiterId,
                     BandId = (Guid)o.BandId,
                     BandName = o.BandName,
+                    SchoolName = o.Band.SchoolName,
                     Amount = o.Amount,
                     Status = o.Status,
                     OfferDate = o.OfferDate,
