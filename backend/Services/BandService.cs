@@ -7,7 +7,7 @@ namespace server.Services
 {
     public class BandService : Service<Band>, IBandService
     {
-        private readonly ApplicationDbContext _context;
+        private new readonly ApplicationDbContext _context;
         public BandService(ApplicationDbContext context) : base(context)
         {
             _context = context;

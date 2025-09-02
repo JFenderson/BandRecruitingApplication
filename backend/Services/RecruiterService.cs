@@ -8,7 +8,7 @@ namespace server.Services
 {
     public class RecruiterService : Service<ApplicationUser>, IRecruiterService
     {
-        private readonly ApplicationDbContext _context;
+        private new readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public RecruiterService(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)

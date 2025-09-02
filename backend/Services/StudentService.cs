@@ -3,18 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
 using server.DTOs;
+using server.Exceptions;
 
 namespace server.Services
 {
     public class StudentService : Service<ApplicationUser>, IStudentService
     {
-        private readonly ApplicationDbContext _context;
+        private new readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<StudentService> _logger;
 
         public StudentService(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
+
         }
 
         public async Task<ApplicationUser> CreateStudentAsync(CreateUserDTO createStudentDTO)
@@ -104,37 +107,63 @@ namespace server.Services
 
         public async Task<UserDTO> GetStudentByIdAsync(string studentId)
         {
-            var student = await _context.Users
-                .Include(s => s.Videos)  // Fetch related videos
-                .Include(s => s.ScholarshipOffers)  // Fetch related scholarship offers
-                .Include(s => s.RatingsReceived)  // Fetch related ratings
-                .FirstOrDefaultAsync(s => s.Id == studentId);  // Find student by ID
-
-            if (student == null)
+            try
             {
-                throw new Exception("Student not found.");
+                _logger?.LogInformation("Retrieving student with ID: {StudentId}", studentId);
+
+                var student = await _context.Users
+                    .Include(s => s.Videos)
+                    .Include(s => s.ScholarshipOffers)
+                    .Include(s => s.RatingsReceived)
+                    .Include(s => s.Interests)
+                        .ThenInclude(i => i.Band)
+                    .FirstOrDefaultAsync(s => s.Id == studentId && s.UserType == "Student");
+
+                if (student == null)
+                {
+                    _logger?.LogWarning("Student not found with ID: {StudentId}", studentId);
+                    throw new NotFoundException($"Student with ID {studentId} not found");
+                }
+
+                _logger?.LogInformation("Successfully retrieved student: {StudentEmail}", student.Email);
+
+                // Calculate the average rating
+                var averageRating = student.RatingsReceived?.Any() == true
+                    ? student.RatingsReceived.Average(r => r.Score)
+                    : 0;
+
+                return new UserDTO
+                {
+                    Id = student.Id,
+                    Email = student.Email ?? string.Empty,
+                    UserType = student.UserType,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    Phone = student.Phone ?? string.Empty,
+                    Instrument = student.Instrument,
+                    HighSchool = student.HighSchool,
+                    GraduationYear = student.GraduationYear,
+                    ProfilePicture = student.ProfilePicture ?? string.Empty,
+                    BandId = student.BandId,
+                    Band = student.Band,
+                    AverageRating = (decimal)averageRating,
+                    OfferCount = student.ScholarshipOffers?.Count ?? 0,
+                    Interests = student.Interests?.Select(i => new InterestDTO
+                    {
+                        InterestId = i.InterestId,
+                        StudentId = i.StudentId,
+                        BandId = i.BandId ?? Guid.Empty,
+                        BandName = i.Band?.Name ?? string.Empty,
+                        SchoolName = i.Band?.SchoolName ?? string.Empty,
+                        InterestDate = i.InterestDate
+                    }).ToList() ?? new List<InterestDTO>()
+                };
             }
-
-            // Calculate the average rating
-            var averageRating = student.RatingsReceived.Any()
-                ? student.RatingsReceived.Average(r => r.Score)
-                : 0;
-
-            return new UserDTO
+            catch (Exception ex) when (!(ex is NotFoundException))
             {
-                Id = student.Id,
-                Email = student.Email,
-                UserType = student.UserType,
-                FirstName = student.FirstName!,
-                LastName = student.LastName!,
-                Phone = student.Phone!,
-                Instrument = student.Instrument,
-                HighSchool = student.HighSchool,
-                GraduationYear = student.GraduationYear,
-                ProfilePicture = student.ProfilePicture!,
-                AverageRating = (decimal)averageRating,
-                OfferCount = await GetStudentOfferCountAsync(student.Id)
-            };
+                _logger?.LogError(ex, "Error retrieving student with ID: {StudentId}", studentId);
+                throw;
+            }
         }
 
 
@@ -148,10 +177,14 @@ namespace server.Services
         public async Task<IEnumerable<ApplicationUser>> GetAllStudentsAsync()
         {
             return await _context.Users
-                .Where(s => s.UserType == "Student") // and not deleted due to filter
+                .Where(s => s.UserType == "Student")
                 .Include(s => s.Videos)
                 .Include(s => s.ScholarshipOffers)
-                .ToArrayAsync();
+                .Include(s => s.RatingsReceived)
+                .Include(s => s.Interests)
+                    .ThenInclude(i => i.Band)
+                .AsSplitQuery() // Important for multiple includes
+                .ToListAsync();
         }
 
         public async Task<bool> DeleteStudentAsync(string studentId)

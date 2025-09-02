@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using server.Data;
@@ -50,6 +51,7 @@ namespace server.Controllers
         // PUT: api/Comments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{commentId}")]
+        [Authorize(Roles = "Recruiter")]
         public async Task<IActionResult> PutComment(string commentId, Comment comment)
         {
             if (commentId != comment.CommentId)
@@ -81,6 +83,7 @@ namespace server.Controllers
         // POST: api/Comments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Recruiter")]
         public async Task<ActionResult<Comment>> PostComment(Comment comment)
         {
             _context.Comments.Add(comment);
@@ -90,6 +93,7 @@ namespace server.Controllers
         }
 
         [HttpPost("students/{studentId}/comments")]
+        [Authorize(Roles = "Recruiter")]
         public async Task<IActionResult> AddComment(string studentId, [FromBody] Comment comment)
         {
             // Logic to save the comment to the database
@@ -102,6 +106,7 @@ namespace server.Controllers
 
         // DELETE: api/Comments/5
         [HttpDelete("{commentId}")]
+        [Authorize(Roles = "Recruiter")]
         public async Task<IActionResult> DeleteComment(int commentId)
         {
             var comment = await _context.Comments.FindAsync(commentId);

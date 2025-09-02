@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using server.Constants;
 using server.DTOs;
@@ -26,10 +27,11 @@ namespace server.Controllers
             _configuration = configuration;
         }
         [AllowAnonymous]
+        [EnableRateLimiting("AuthPolicy")]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
-            var user = await _userManager.FindByNameAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
                 return BadRequest("Invalid login attempt.");
 

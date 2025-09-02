@@ -7,7 +7,7 @@ namespace server.Services
 {
     public class OfferService : Service<Offer>, IOfferService
     {
-        private readonly ApplicationDbContext _context;
+        private new readonly ApplicationDbContext _context;
 
 
         public OfferService(ApplicationDbContext context) : base(context)

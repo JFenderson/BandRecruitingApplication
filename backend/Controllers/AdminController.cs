@@ -131,9 +131,9 @@ namespace server.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("users/{userId}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO dto)
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserDTO dto)
         {
-            var success = await _userService.UpdateUserByAdminAsync(id, dto);
+            var success = await _userService.UpdateUserByAdminAsync(userId, dto);
             if (!success) return NotFound();
 
             return NoContent();

@@ -8,7 +8,7 @@ namespace server.Services
     public class VideoService : Service<Video>, IVideoService
     {
         private readonly IVideoStorageProvider _storage;
-        private readonly ApplicationDbContext _ctx;
+        private new readonly ApplicationDbContext _ctx;
 
         public VideoService(ApplicationDbContext context, IVideoStorageProvider storage) : base(context)
         {

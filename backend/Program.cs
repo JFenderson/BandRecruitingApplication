@@ -1,4 +1,3 @@
-using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 52428800; // Example: 50MB file limit
+    options.MultipartBodyLengthLimit = 52428800; // 50MB file limit
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
@@ -32,9 +31,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add basic memory cache (remove Redis for now)
+builder.Services.AddMemoryCache();
 
-// Add services to the container.
-//builder.Services.AddControllers();
+// Add controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -42,43 +42,44 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.IncludeFields = true;
     });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
-    // Default allowed username chars already include @ and .
-    // You can keep defaults:
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 })
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
 
-builder.Services
-    .AddAuthentication(options =>
+// JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwt = builder.Configuration.GetSection("Jwt");
+    var keyBytes = Encoding.UTF8.GetBytes(jwt["Key"]!);
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        var jwt = builder.Configuration.GetSection("Jwt");
-        var keyBytes = Encoding.UTF8.GetBytes(jwt["Key"]!); // 32+ bytes
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwt["Issuer"],
-            ValidateAudience = true,
-            ValidAudience = jwt["Audience"],
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromSeconds(30)
-        };
-    });
+        ValidateIssuer = true,
+        ValidIssuer = jwt["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwt["Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromSeconds(30)
+    };
+});
 
+// Authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
@@ -86,18 +87,19 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireStudentRole", policy => policy.RequireRole("Student"));
 });
 
+// Storage
 var storageProvider = builder.Configuration["Storage:Provider"] ?? "Local";
-if (storageProvider.Equals("S3", StringComparison.OrdinalIgnoreCase))
-{
-    builder.Services.AddAWSService<IAmazonS3>();
-    builder.Services.AddScoped<IVideoStorageProvider, S3VideoStorageProvider>();
-}
-else
-{
-    builder.Services.AddScoped<IVideoStorageProvider, LocalVideoStorageProvider>();
-}
+//if (storageProvider.Equals("S3", StringComparison.OrdinalIgnoreCase))
+//{
+//    builder.Services.AddAWSService<IAmazonS3>();
+//    builder.Services.AddScoped<IVideoStorageProvider, S3VideoStorageProvider>();
+//}
+//else
+//{
+builder.Services.AddScoped<IVideoStorageProvider, LocalVideoStorageProvider>();
+//}
 
-
+// Application Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IRecruiterService, RecruiterService>();
@@ -108,13 +110,12 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
-
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Band Recruiting API", Version = "v1" });
 
-    // Add JWT Authentication support to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme.",
@@ -126,23 +127,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
     {
-        new OpenApiSecurityScheme { Reference = new OpenApiReference
-            { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-        Array.Empty<string>()
-    }
+        {
+            new OpenApiSecurityScheme { Reference = new OpenApiReference
+                { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+            Array.Empty<string>()
+        }
+    });
 });
-});
-
-Console.WriteLine($"ENV={builder.Environment.EnvironmentName}");
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
-Console.WriteLine($"[JWT] byteLen={Encoding.UTF8.GetByteCount(jwtKey)} prefix={jwtKey[..Math.Min(jwtKey.Length, 6)]}");
-Console.WriteLine($"Issuer={builder.Configuration["Jwt:Issuer"]}  Audience={builder.Configuration["Jwt:Audience"]}");
-
 
 var app = builder.Build();
 
+// Database migration and seeding
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -150,26 +146,22 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     await SeedData.Initialize(scope.ServiceProvider, userManager);
 }
-// Configure the HTTP request pipeline.
+
+// Pipeline configuration
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
-
 app.UseStaticFiles();
-
-//app.UseMiddleware<JsonExceptionMiddleware>();
-
 app.UseRouting();
 app.UseCors("CorsPolicy");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+
+// Make Program class public for testing
+public partial class Program { }
