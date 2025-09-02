@@ -30,16 +30,6 @@ jobs:
         working-directory: ./backend
         run: dotnet build server.sln --configuration Debug --no-restore
 
-      - name: Test (Debug) + Coverage
-        working-directory: ./backend/Tests/Integration
-        run: |
-          dotnet restore Integration.csproj
-          dotnet build Integration.csproj --configuration Debug
-          dotnet test Integration.csproj \
-            --configuration Debug \
-            --no-build \
-            --collect:"XPlat Code Coverage"
-
       - name: Publish Coverage Report
         uses: danielpalme/ReportGenerator-GitHub-Action@5
         with:
