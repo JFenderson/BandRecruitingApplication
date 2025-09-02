@@ -1,50 +1,61 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
-import { ToastrService } from 'ngx-toastr';
-import { catchError, Observable, switchMap, throwError } from 'rxjs';
-import { HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { catchError, switchMap, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
+export const authInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<any>, 
+  next: HttpHandlerFn
+): Observable<HttpEvent<any>> => {
   const tokenService = inject(TokenService);
   const authService = inject(AuthService);
-  const toastr = inject(ToastrService);
-  const token = tokenService.getToken();
-  const isLoginOrRefresh = req.url.endsWith('/login') || req.url.endsWith('/refresh-token');
-
-  let cloned = req;
-  if (!isLoginOrRefresh && token) {
-    console.log('[DEBUG] Attaching token for:', req.url);
-    cloned = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`)
-    });
+  
+  // Skip token for auth endpoints
+  const isAuthEndpoint = req.url.includes('/login') || 
+                        req.url.includes('/register') || 
+                        req.url.includes('/refresh-token');
+  
+  let clonedRequest = req;
+  
+  // Add token to non-auth requests
+  if (!isAuthEndpoint) {
+    const token = tokenService.getToken();
+    if (token) {
+      clonedRequest = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }
   }
-  return next(cloned).pipe(
-    catchError(err => {
-      if (err.status === 401 && !req.url.endsWith('/login') && !req.url.endsWith('/refresh-token')) {
-        console.log('[DEBUG] Intercepting', req.url);
-        console.log('[DEBUG] Current Token', token);
+
+  return next(clonedRequest).pipe(
+    catchError(error => {
+      // Handle 401 errors (token expired)
+      if (error.status === 401 && !isAuthEndpoint && tokenService.getRefreshToken()) {
+        // Attempt to refresh token
         return authService.refreshToken().pipe(
           switchMap(() => {
+            // Retry the original request with new token
             const newToken = tokenService.getToken();
-            const retryReq = req.clone({
-              headers: req.headers.set('Authorization', `Bearer ${newToken}`)
+            const retryRequest = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${newToken}`
+              }
             });
-            return next(retryReq);
+            return next(retryRequest);
           }),
-          catchError(refreshErr => {
-            toastr.warning('Session expired. Please log in again.', 'Logged Out');
-            alert('Your session has expired. Please log in again.');
-            console.error('Refresh failed', refreshErr);
+          catchError(refreshError => {
+            // Refresh failed, logout user
             authService.logout();
-            return throwError(() => refreshErr);
+            return throwError(() => refreshError);
           })
         );
       }
-
-      return throwError(() => err);
+      
+      return throwError(() => error);
     })
   );
 };

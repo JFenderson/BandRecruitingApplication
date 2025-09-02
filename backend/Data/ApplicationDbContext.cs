@@ -35,6 +35,10 @@ namespace server.Data
             modelBuilder.Entity<ApplicationUser>()
         .HasQueryFilter(u => !u.IsDeleted);
 
+            // Interest PK
+            modelBuilder.Entity<Interest>()
+                .HasKey(i => i.InterestId);
+
             modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new RecruiterConfiguration());
             modelBuilder.ApplyConfiguration(new BandConfiguration());

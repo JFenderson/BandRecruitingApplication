@@ -1,15 +1,13 @@
-export interface CreateInterestDTO {
-  interestId: number;
-  studentId?: string;
+export interface UpdateInterestDTO {
   bandId: string;
+  isInterested: boolean;
 }
 
+
 export interface InterestDTO {
-  interestId: number;
-  studentId?: string;
-  studentName?: string;
+  studentId: string;
   bandId: string;
-  bandName?: string;
-  schoolName?: string;
-  interestDate: string;
+  isInterested: boolean;
+  createdAt: Date;
+  updatedAt?: Date;
 }

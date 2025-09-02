@@ -20,6 +20,43 @@ namespace server.Services
 
         }
 
+        public async Task<InterestDTO> UpdateInterestByStudent(string studentId, Guid bandId, bool isInterested, CancellationToken ct)
+        {
+            var interest = await _context.Interests
+    .SingleOrDefaultAsync(i => i.StudentId == studentId && i.BandId == bandId, ct);
+
+            if (interest is null)
+            {
+                interest = new Interest
+                {
+                    StudentId = studentId,
+                    BandId = bandId,
+                    IsInterested = isInterested,
+                    InterestDate = DateTime.UtcNow
+                };
+                _context.Interests.Add(interest);
+            }
+            else
+            {
+                interest.IsInterested = isInterested;
+                interest.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync(ct);
+
+            return new InterestDTO
+            {
+                InterestId = interest.InterestId,
+                StudentId = interest.StudentId,
+                BandId = interest.BandId,
+                BandName = interest.Band?.Name ?? string.Empty,
+                SchoolName = interest.Band?.SchoolName ?? string.Empty,
+                InterestDate = interest.InterestDate,
+                IsInterested = interest.IsInterested,
+                UpdatedAt = interest.UpdatedAt
+            };
+        }
+
         public async Task<ApplicationUser> CreateStudentAsync(CreateUserDTO createStudentDTO)
         {
             // Check if the email already exists
@@ -152,7 +189,7 @@ namespace server.Services
                     {
                         InterestId = i.InterestId,
                         StudentId = i.StudentId,
-                        BandId = i.BandId ?? Guid.Empty,
+                        BandId = i.BandId,
                         BandName = i.Band?.Name ?? string.Empty,
                         SchoolName = i.Band?.SchoolName ?? string.Empty,
                         InterestDate = i.InterestDate
@@ -258,6 +295,7 @@ namespace server.Services
             {
                 StudentId = createInterestDTO.StudentId,
                 BandId = createInterestDTO.BandId,
+                IsInterested = true,
                 InterestDate = DateTime.UtcNow
             };
 
@@ -269,8 +307,12 @@ namespace server.Services
             {
                 InterestId = interest.InterestId,
                 StudentId = interest.StudentId,
-                BandId = (Guid)interest.BandId,
-                InterestDate = interest.InterestDate
+                BandId = interest.BandId,
+                BandName = interest.Band?.Name ?? string.Empty,
+                SchoolName = interest.Band?.SchoolName ?? string.Empty,
+                InterestDate = interest.InterestDate,
+                IsInterested = interest.IsInterested,
+                UpdatedAt = interest.UpdatedAt
             };
 
         }
@@ -283,10 +325,12 @@ namespace server.Services
                 {
                     InterestId = i.InterestId,
                     StudentId = i.StudentId,
-                    BandId = (Guid)i.BandId,
+                    BandId = i.BandId,                // Guid
                     BandName = i.Band.Name,
                     SchoolName = i.Band.SchoolName,
-                    InterestDate = i.InterestDate
+                    InterestDate = i.InterestDate,
+                    IsInterested = i.IsInterested,
+                    UpdatedAt = i.UpdatedAt
                 })
                 .ToArrayAsync();
 

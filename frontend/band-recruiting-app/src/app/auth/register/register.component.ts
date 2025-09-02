@@ -1,14 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { InstrumentService } from '../../core/services/instrument.service';
-import { Instrument } from '../../core/models/instrument.model';
 import { CommonModule } from '@angular/common';
-import { INSTRUMENT_OPTIONS } from '../../constants/insturments';
+import { CreateUserDTO } from '../../core/models/user.model';
 
+// Custom validator for password matching
+function passwordMatchValidator(control: AbstractControl) {
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+  return password === confirmPassword ? null : { passwordMismatch: true };
+}
 
 @Component({
   selector: 'app-register',
@@ -18,21 +22,25 @@ import { INSTRUMENT_OPTIONS } from '../../constants/insturments';
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
-  bands: { id: string; name: string }[] = [];
- instruments: { id?: string; name: string }[] = [];
-instrumentOptions: any;
-form: any;
+  bands: { bandId: string; name: string }[] = [];
+  instruments: string[] = [  // Changed to simple string array
+    'Flute', 'Clarinet', 'Saxophone', 'Trumpet', 'Trombone', 
+    'French Horn', 'Tuba', 'Percussion', 'Snare Drum', 
+    'Tenor Drum', 'Bass Drum', 'Cymbals', 'Baritone', 
+    'Sousaphone', 'Color Guard', 'Dance', 'Drum Major'
+  ];
+  isLoading = false;
+  errorMessage = '';
 
   get roleValue() {
-    return this.registerForm.get('role')?.value;
+    return this.registerForm.get('userType')?.value;
   }
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private http: HttpClient,
-    private router: Router,
-    private instrumentService: InstrumentService 
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -41,31 +49,54 @@ form: any;
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
-      password: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
-      role: ['', Validators.required],
-      instrument: ['', Validators.required], 
+      userType: ['Student', Validators.required],
+      
+      // Conditional fields
+      instrument: [''],
+      highSchool: [''],
+      graduationYear: [''],
       bandId: ['']
-    });
+    }, { validators: passwordMatchValidator });
 
-      this.instrumentService.getAllInstruments().subscribe({
-      next: (list: Instrument[]) => {
-        // normalize to {name} if your model differs
-        this.instruments = list?.length
-          ? list.map(i => ({ id: (i as any).id, name: (i as any).name ?? (i as any).instrumentName ?? String(i) }))
-          : INSTRUMENT_OPTIONS.map(name => ({ name })); // fallback if empty
-      },
-      error: () => {
-        // fallback to constants if API fails
-        this.instruments = INSTRUMENT_OPTIONS.map(name => ({ name }));
-      }
+    // Add conditional validators based on user type
+    this.registerForm.get('userType')?.valueChanges.subscribe(userType => {
+      this.updateConditionalValidators(userType);
     });
 
     this.loadBands();
   }
 
+  private updateConditionalValidators(userType: string) {
+    const instrumentControl = this.registerForm.get('instrument');
+    const highSchoolControl = this.registerForm.get('highSchool');
+    const graduationYearControl = this.registerForm.get('graduationYear');
+    const bandIdControl = this.registerForm.get('bandId');
+
+    // Clear existing validators
+    instrumentControl?.clearValidators();
+    highSchoolControl?.clearValidators();
+    graduationYearControl?.clearValidators();
+    bandIdControl?.clearValidators();
+
+    if (userType === 'Student') {
+      instrumentControl?.setValidators(Validators.required);
+      highSchoolControl?.setValidators(Validators.required);
+      graduationYearControl?.setValidators(Validators.required);
+    } else if (userType === 'Recruiter') {
+      bandIdControl?.setValidators(Validators.required);
+    }
+
+    // Update validity
+    instrumentControl?.updateValueAndValidity();
+    highSchoolControl?.updateValueAndValidity();
+    graduationYearControl?.updateValueAndValidity();
+    bandIdControl?.updateValueAndValidity();
+  }
+
   loadBands() {
-    this.http.get<{ id: string; name: string }[]>(`${environment.apiUrl}/bands`)
+    this.http.get<any[]>(`${environment.apiUrl}/bands`)
       .subscribe({
         next: res => this.bands = res,
         error: err => console.error('Failed to load bands', err)
@@ -73,28 +104,47 @@ form: any;
   }
 
   onSubmit() {
-    if (this.registerForm.invalid) return;
-
-    const { password, confirmPassword } = this.registerForm.value;
-    if (password !== confirmPassword) {
-      alert('Passwords do not match.');
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
- const formData = this.registerForm.value;
 
-    this.authService.register(formData).subscribe({
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const formData = this.registerForm.value;
+    const payload: CreateUserDTO = {
+      email: formData.email,
+      password: formData.password,
+      userType: formData.userType,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      phone: formData.phone
+    };
+
+    // Add conditional fields
+    if (formData.userType === 'Student') {
+      payload.instrument = formData.instrument;
+      payload.highSchool = formData.highSchool;
+      payload.graduationYear = parseInt(formData.graduationYear);
+    } else if (formData.userType === 'Recruiter') {
+      payload.bandId = formData.bandId;
+    }
+
+    this.authService.register(payload).subscribe({
       next: () => {
-        const role = this.roleValue;
-        if (role === 'Student') {
-          this.router.navigate(['/student/profile']);
-        
-        } else if (role === 'Recruiter') {
-          this.router.navigate(['/recruiter/dashboard']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        this.router.navigate(['/login'], { 
+          queryParams: { message: 'Registration successful! Please log in.' }
+        });
       },
-      error: err => console.error(err)
+      error: err => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+        console.error('Registration failed:', err);
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
     });
   }
 }

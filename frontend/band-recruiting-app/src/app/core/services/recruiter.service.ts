@@ -1,39 +1,41 @@
 import { Injectable } from "@angular/core";
 import { ApiService } from "./api.service";
+import { UserDTO } from "../models/user.model";
+import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class RecruiterService {
   constructor(private api: ApiService) {}
 
-  getAllRecruiters() {
-    return this.api.get<any[]>('api/Recruiter');
+  getAllRecruiters(): Observable<UserDTO[]> {
+    return this.api.get<UserDTO[]>('recruiters');
   }
 
-  getRecruiterById(id: string) {
-    return this.api.get<any>(`api/Recruiter/${id}`);
+  getRecruiterById(id: string): Observable<UserDTO> {
+    return this.api.get<UserDTO>(`recruiters/${id}`);
   }
 
-  updateRecruiter(id: string, data: any) {
-    return this.api.put<any>(`api/Recruiter/${id}`, data);
+  updateRecruiter(id: string, data: any): Observable<UserDTO> {
+    return this.api.put<UserDTO>(`recruiters/${id}`, data);
   }
 
-  deleteRecruiter(id: string) {
-    return this.api.delete<any>(`api/Recruiter/${id}`);
+  deleteRecruiter(id: string): Observable<void> {
+    return this.api.delete<void>(`recruiters/${id}`);
   }
 
-  createRecruiter(data: any) {
-    return this.api.post<any>('api/Recruiter', data);
+  createRecruiter(data: any): Observable<UserDTO> {
+    return this.api.post<UserDTO>('recruiters', data);
   }
 
-  getRecruiterBand(id: string) {
-    return this.api.get<any>(`api/Recruiter/band/${id}`);
+  getRecruiterBand(id: string): Observable<any> {
+    return this.api.get<any>(`recruiters/band/${id}`);
   }
 
-  getRecruiterComments(id: string) {
-    return this.api.get<any[]>(`api/Recruiter/${id}/comments`);
+  getRecruiterComments(id: string): Observable<any[]> {
+    return this.api.get<any[]>(`recruiters/${id}/comments`);
   }
 
-  getRecruiterRatings(id: string) {
-    return this.api.get<any[]>(`api/Recruiter/${id}/ratings`);
+  getRecruiterRatings(id: string): Observable<any[]> {
+    return this.api.get<any[]>(`recruiters/${id}/ratings`);
   }
 }

@@ -8,39 +8,39 @@ export class OfferService {
   constructor(private api: ApiService) {}
 
   getAllOffers() {
-    return this.api.get<OfferDTO[]>('api/Offer');
+    return this.api.get<OfferDTO[]>('offers');
   }
 
   getOfferById(id: number) {
-    return this.api.get<OfferDTO>(`api/Offer/${id}`);
+    return this.api.get<OfferDTO>(`offers/${id}`);
   }
 
   getOffersByStudent(studentId: string) {
-    return this.api.get<OfferDTO[]>(`api/Offer/student/${studentId}`);
+    return this.api.get<OfferDTO[]>(`offers/student/${studentId}`);
   }
 
   getOffersByRecruiter(recruiterId: string) {
-    return this.api.get<OfferDTO[]>(`api/Offer/recruiter/${recruiterId}/offers`);
+    return this.api.get<OfferDTO[]>(`offers/recruiter/${recruiterId}/offers`);
   }
 
   createOffer(recruiterId: string, studentId: string, data: any) {
-    return this.api.post<CreateOfferDTO>(`api/Offer/recruiter/${recruiterId}/student/${studentId}/offers`, data);
+    return this.api.post<CreateOfferDTO>(`offers/recruiter/${recruiterId}/student/${studentId}/offers`, data);
   }
 
   updateOfferAmount(offerId: string, amount: number) {
-    return this.api.put<UpdateOfferDTO>(`api/Offer/${offerId}/offers?offerAmount=${amount}`, {});
+    return this.api.put<UpdateOfferDTO>(`offers/${offerId}/offers?offerAmount=${amount}`, {});
   }
 
   deleteOffer(offerId: string) {
-    return this.api.delete<any>(`api/Offer/${offerId}`);
+    return this.api.delete<any>(`offers/${offerId}`);
   }
 
   acceptOffer(offerId: string, studentId: string) {
-    return this.api.post<UpdateOfferDTO>(`api/Offer/${offerId}/student/${studentId}/accept`, {});
+    return this.api.post<UpdateOfferDTO>(`offers/${offerId}/student/${studentId}/accept`, {});
   }
 
   declineOffer(offerId: string, studentId: string) {
-    return this.api.post<UpdateOfferDTO>(`api/Offer/${offerId}/student/${studentId}/decline`, {});
+    return this.api.post<UpdateOfferDTO>(`offers/${offerId}/student/${studentId}/decline`, {});
   }
 
     getByStudent(studentId: string): Observable<OfferDTO[]> {

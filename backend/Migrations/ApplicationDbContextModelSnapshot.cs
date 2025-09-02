@@ -361,21 +361,30 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InterestId"));
 
-                    b.Property<Guid?>("BandId")
+                    b.Property<Guid>("BandId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("InterestDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsInterested")
+                        .HasColumnType("bit");
 
                     b.Property<string>("StudentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("InterestId");
 
                     b.HasIndex("BandId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentId", "BandId")
+                        .IsUnique();
 
                     b.ToTable("Interests");
                 });
@@ -585,12 +594,13 @@ namespace server.Migrations
                     b.HasOne("Models.Band", "Band")
                         .WithMany("InterestedStudents")
                         .HasForeignKey("BandId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ApplicationUser", "Student")
                         .WithMany("Interests")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Band");

@@ -2,106 +2,101 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
-type AnyPayload = Record<string, unknown>;
+interface JwtPayload {
+  sub: string;
+  email: string;
+  nameid: string;
+  role?: string | string[];
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string | string[];
+  exp: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
-private tokenKey = 'access_token';
-private refreshTokenKey = 'refresh_token';
+  private tokenKey = 'access_token';
+  private refreshTokenKey = 'refresh_token';
 
-constructor(private router: Router) {}
+  constructor(private router: Router) {}
 
-setToken(token: string): void {
-localStorage.setItem(this.tokenKey, token);
-}
+  setToken(token: string): void {
+    localStorage.setItem(this.tokenKey, token);
+  }
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  decodeToken(): any | null {
+  setRefreshToken(token: string): void {
+    localStorage.setItem(this.refreshTokenKey, token);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  clearAllTokens(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+  }
+
+  decodeToken(): JwtPayload | null {
     const token = this.getToken();
     if (!token) return null;
 
     try {
-      return jwtDecode(token);
+      return jwtDecode<JwtPayload>(token);
     } catch (err) {
       console.error('Invalid token', err);
       return null;
     }
   }
 
-clearToken(): void {
-localStorage.removeItem(this.tokenKey);
-}
+  getRoles(): string[] {
+    const payload = this.decodeToken();
+    if (!payload) return [];
 
-setRefreshToken(token: string): void {
-localStorage.setItem(this.refreshTokenKey, token);
-}
+    // Handle .NET role claims
+    const roleFromClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    const roleFromStandard = payload.role;
 
-getRefreshToken(): string | null {
-return localStorage.getItem(this.refreshTokenKey);
-}
+    const role = roleFromClaim || roleFromStandard;
 
-clearAllTokens(): void {
-localStorage.removeItem(this.tokenKey);
-localStorage.removeItem(this.refreshTokenKey);
-}
+    if (typeof role === 'string') return [role];
+    if (Array.isArray(role)) return role;
+    return [];
+  }
 
-private decode(): AnyPayload | null {
-const t = this.getToken();
-if (!t) return null;
-try {
-return jwtDecode<AnyPayload>(t);
-} catch {
-return null;
-}
-}
+  getUserId(): string | null {
+    const payload = this.decodeToken();
+    return payload?.nameid || payload?.sub || null;
+  }
 
-private rolesFrom(payload: AnyPayload | null): string[] {
-if (!payload) return [];
-const candidates = [
-payload['role'],
-payload['roles'],
-payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
-payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/roles']
-];
+  isAdmin(): boolean {
+    return this.getRoles().includes('Admin');
+  }
 
+  isRecruiter(): boolean {
+    return this.getRoles().includes('Recruiter');
+  }
 
-const flat: string[] = [];
-for (const c of candidates) {
-  if (typeof c === 'string' && c.trim()) flat.push(c);
-  if (Array.isArray(c)) for (const v of c) if (typeof v === 'string') flat.push(v);
-}
-return [...new Set(flat)];
-}
+  isStudent(): boolean {
+    return this.getRoles().includes('Student');
+  }
 
-getUserType(): string | null {
-const p = this.decode();
-const ut = p?.['UserType'];
-return typeof ut === 'string' ? ut : null;
-}
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
 
-getRoles(): string[] {
-return this.rolesFrom(this.decode());
-}
+    const payload = this.decodeToken();
+    if (!payload) return false;
 
-isAdmin(): boolean {
-return this.getRoles().includes('Admin');
-}
-isRecruiter(): boolean {
-return this.getRoles().includes('Recruiter');
-}
-isStudent(): boolean {
-return this.getRoles().includes('Student');
-}
+    // Check if token is expired
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp > now;
+  }
 
-isLoggedIn(): boolean {
-return !!this.getToken();
-}
-
-logout(): void {
-localStorage.clear();
-this.router.navigate(['/login']);
-}
+  logout(): void {
+    this.clearAllTokens();
+    this.router.navigate(['/login']);
+  }
 }

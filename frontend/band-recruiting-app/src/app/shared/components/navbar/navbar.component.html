@@ -1,6 +1,36 @@
-<nav>
-  <a *ngIf="isAdmin" routerLink="/admin-dashboard">Admin Dashboard</a>
-  <a *ngIf="isRecruiter" routerLink="/recruiter-dashboard">Recruiter Dashboard</a>
-  <a *ngIf="isStudent" routerLink="/student-dashboard">Student Dashboard</a>
-  <a (click)="logout()">Logout</a>
+<nav class="bg-blue-600 shadow-lg" *ngIf="isLoggedIn">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <h1 class="text-white text-xl font-bold">Band Recruiting</h1>
+        </div>
+        <div class="ml-10 flex items-baseline space-x-4">
+          <a *ngIf="isAdmin" routerLink="/admin-dashboard" 
+             class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+             routerLinkActive="bg-blue-800">
+            Dashboard
+          </a>
+          <a *ngIf="isRecruiter" routerLink="/recruiter-dashboard" 
+             class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+             routerLinkActive="bg-blue-800">
+            Dashboard
+          </a>
+          <a *ngIf="isStudent" routerLink="/student-dashboard" 
+             class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+             routerLinkActive="bg-blue-800">
+            Dashboard
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center">
+        <span class="text-white mr-4">Welcome, {{ userFirstName }}!</span>
+        <button 
+          (click)="logout()"
+          class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
 </nav>

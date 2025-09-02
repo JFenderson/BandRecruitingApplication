@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
-import { UserDTO, CreateUserPayload, UpdateUserDTO } from '../models/user.model';
+import { UserDTO, CreateUserDTO, UpdateUserDTO } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -10,25 +10,22 @@ export class UserService {
   constructor(private api: ApiService) {}
 
   getAll(): Observable<UserDTO[]> {
-    console.log("Calling API to get all users");
-    return this.api.get<UserDTO[]>('Admin/all-users');
+    return this.api.get<UserDTO[]>('admin/all-users');
   }
-  
 
   getById(id: string): Observable<UserDTO> {
-    return this.api.get<UserDTO>(`users/${id}`);
+    return this.api.get<UserDTO>(`admin/users/${id}`);
   }
 
-  create(payload: CreateUserPayload): Observable<UserDTO> {
-    return this.api.post<UserDTO>('Admin/create-user', payload);
+  create(payload: CreateUserDTO): Observable<UserDTO> {
+    return this.api.post<UserDTO>('admin/create-user', payload);
   }
 
-
-  update(id: string, user: UpdateUserDTO) {
-  return this.api.put<UserDTO>(`Admin/users/${id}`, user); // include Admin
-}
+  update(id: string, user: UpdateUserDTO): Observable<void> {
+    return this.api.put<void>(`admin/users/${id}`, user);
+  }
 
   delete(id: string): Observable<void> {
-    return this.api.delete<void>(`users/${id}`);
+    return this.api.delete<void>(`admin/delete-user/${id}`);
   }
 }

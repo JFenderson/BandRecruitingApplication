@@ -1,12 +1,9 @@
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AuthService } from "../../core/services/auth.service";
 import { Router, RouterModule } from "@angular/router";
-import { Component } from '@angular/core';
 import { TokenService } from "../../core/services/token.service";
-import { jwtDecode } from "jwt-decode";
 import { CommonModule } from "@angular/common";
-
-
 
 @Component({
   selector: 'app-login',
@@ -14,10 +11,10 @@ import { CommonModule } from "@angular/common";
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
 })
-
-
 export class LoginComponent {
   loginForm: FormGroup;
+  isLoading = false;
+  errorMessage = '';
 
   constructor(
     private authService: AuthService,
@@ -25,44 +22,46 @@ export class LoginComponent {
     private router: Router,
     private fb: FormBuilder
   ) {
-
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
 
-
   onSubmit(): void {
-
     if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
+    this.isLoading = true;
+    this.errorMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
-
-        console.log("Token", res);
         this.tokenService.setToken(res.token);
         this.tokenService.setRefreshToken(res.refreshToken);
 
-        const roles = this.tokenService.getRoles(); // normalized
-        const routeByRole = new Map<string, string>([
-          ['Admin', '/admin-dashboard'],
-          ['Recruiter', '/recruiter-dashboard'],
-          ['Student', '/student-dashboard'],
-        ]);
-
-        const target = roles.map(r => routeByRole.get(r)).find(Boolean) ?? '/unauthorized';
-        this.router.navigateByUrl(target);
+        // Navigate based on role
+        const roles = this.tokenService.getRoles();
+        if (roles.includes('Admin')) {
+          this.router.navigate(['/admin-dashboard']);
+        } else if (roles.includes('Recruiter')) {
+          this.router.navigate(['/recruiter-dashboard']);
+        } else if (roles.includes('Student')) {
+          this.router.navigate(['/student-dashboard']);
+        } else {
+          this.router.navigate(['/unauthorized']);
+        }
       },
       error: (err) => {
-        console.error('[DEBUG] Login failed:', err);
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
+        console.error('Login failed:', err);
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     });
   }
-
-
 }
-

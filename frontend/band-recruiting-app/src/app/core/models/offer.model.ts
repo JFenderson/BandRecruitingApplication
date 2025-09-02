@@ -1,6 +1,6 @@
 export interface OfferDTO {
     offerId: string;
-    studendId: string;
+    studentId: string;
     recruiterId: string;
     bandId: string;
     Amount: string;
@@ -10,7 +10,7 @@ export interface OfferDTO {
 
 export interface CreateOfferDTO {
     offerId: string;
-    studendId: string;
+    studentId: string;
     recruiterId: string;
     bandId: string;
     Amount: string;
@@ -20,7 +20,7 @@ export interface CreateOfferDTO {
 
 export interface UpdateOfferDTO {
     offerId: string;
-    studendId: string;
+    studentId: string;
     recruiterId: string;
     bandId: string;
     Amount: string;

@@ -30,7 +30,7 @@ public class ApplicationUser : IdentityUser
     public DateTime? RefreshTokenExpiryTime { get; set; }
 
     public ICollection<Video> Videos { get; set; }
-    public ICollection<Interest> Interests { get; set; }
+    public ICollection<Interest> Interests { get; set; } = new List<Interest>();
     public ICollection<Offer> ScholarshipOffers { get; set; }
     public ICollection<Rating> RatingsReceived { get; set; }
 

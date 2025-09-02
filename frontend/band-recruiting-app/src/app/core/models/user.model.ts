@@ -8,77 +8,60 @@ import { VideoDTO } from "./video.model";
 export type UserRole = 'Student' | 'Recruiter' | 'Admin';
 
 export interface UserDTO {
-    id: string;
-    email: string;
-    userType: UserRole;
+  id: string;
+  email: string;
+  userType: UserRole;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  profilePicture?: string;
+  createdAt: string;
 
-    firstName: string;
-    lastName: string;
-    phone: string;
+  // Student-specific fields (flat, not nested)
+  instrument?: string;
+  highSchool?: string;
+  graduationYear?: number;
 
-    // Student fields
-  
-    profilePicture?: string;
+  // Recruiter-specific fields
+  bandId?: string;
+  band?: BandDTO;
 
-    // Recruiter field
+  // Calculated fields
+  averageRating?: number;
+  offerCount?: number;
 
-    // Calculated fields
-    averageRating?: number;
-    offerCount?: number;
-
-  student?: {
-      instrument?: string;
-    highSchool?: string;
-    graduationYear?: number;
-    ratings?: RatingDTO[];
-    videos?: VideoDTO[];
-    interests?: InterestDTO[];
-
-  } | null;
-
-  recruiter?: {
-    bandId?: string;
-     offersMade?: OfferDTO[];
-    comments?: Comment[];
-    ratingsGiven?: RatingDTO[];
-    scholarshipOffers?: OfferDTO[];
-    commentsGiven?: CommentDTO[];
-  } | null;
-
-    createdAt: string;
+  // Related data (optional, for detailed views)
+  interests?: InterestDTO[];
+  scholarshipOffers?: OfferDTO[];
+  videos?: VideoDTO[];
+  ratingsReceived?: RatingDTO[];
+  commentsGiven?: CommentDTO[];
 }
 
-export type CreateUserPayload =
-  Pick<UserDTO, 'email' | 'userType' | 'firstName' | 'lastName' | 'phone' > &
-  Partial<{
-    student: { instrument?: string; highSchool?: string; graduationYear?: number; };
-    recruiter: { bandId?: string; };
-    admin: Record<string, never>;
-  }>;
+// Simplified create payload
+export interface CreateUserDTO {
+  email: string;
+  password: string;
+  userType: UserRole;
+  firstName: string;
+  lastName: string;
+  phone: string;
 
-// export interface CreateUserDTO {
-//     email: string;
-//     password: string;
-//     userType: 'Student' | 'Recruiter' | 'Admin';
-//     firstName: string;
-//     lastName: string;
-//     phone: string;
-//     instrument?: string;
-//     highSchool?: string;
-//     profilePicture?: string;
-//     graduationYear?: number;
-//     bandId?: string;
-//     userName: string;
-// }
+  // Optional role-specific fields
+  instrument?: string;
+  highSchool?: string;
+  graduationYear?: number;
+  bandId?: string;
+}
 
 export interface UpdateUserDTO {
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    instrument?: string;
-    phone?: string;
-    profilePicture?: string;
-    highSchool?: string;
-    graduationYear?: number;
-    bandId?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  profilePicture?: string;
+  instrument?: string;
+  highSchool?: string;
+  graduationYear?: number;
+  bandId?: string;
 }

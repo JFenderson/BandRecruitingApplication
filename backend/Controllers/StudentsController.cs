@@ -140,6 +140,14 @@ namespace server.Controllers
             return Ok(interest);
         }
 
+        [Authorize(Roles = "Student")]
+        [HttpPut("{studentId}/interests/{bandId}")]
+        public async Task<ActionResult<InterestDTO>> UpdateInterest(string studentId, Guid bandId, [FromBody] UpdateInterestDto dto, CancellationToken ct)
+        {
+            var result = await _studentService.UpdateInterestByStudent(studentId, bandId, dto.IsInterested, ct);
+            return Ok(result);
+        }
+
         // GET /api/students/{studentId}/interests
         [Authorize(Roles = "Student,Recruiter,Admin")]
         [HttpGet("{studentId}/interests")]

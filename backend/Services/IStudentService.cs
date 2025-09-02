@@ -22,5 +22,6 @@ namespace server.Services
 
         Task<InterestDTO> AddInterestAsync(CreateInterestDTO createInterestDTO);
         Task<IEnumerable<InterestDTO>> GetStudentInterestsAsync(string studentId);
+        Task<InterestDTO> UpdateInterestByStudent(string studentId, Guid bandId, bool isInterested, CancellationToken ct);
     }
 }

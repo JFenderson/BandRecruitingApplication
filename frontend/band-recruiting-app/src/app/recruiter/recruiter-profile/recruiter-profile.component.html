@@ -1,1 +1,141 @@
-<p>profile works!</p>
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Recruiter Profile Content -->
+    <div *ngIf="recruiter && !isLoading" class="space-y-6">
+      
+      <!-- Header -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h1 class="text-2xl font-bold text-gray-900">Recruiter Profile</h1>
+        </div>
+        <div class="px-6 py-4">
+          <div class="flex items-center space-x-4">
+            <div class="flex-shrink-0">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-xl font-semibold text-blue-600">
+                  {{ recruiter.firstName.charAt(0) }}{{ recruiter.lastName.charAt(0) }}
+                </span>
+              </div>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">
+                {{ recruiter.firstName }} {{ recruiter.lastName }}
+              </h2>
+              <p class="text-gray-600">{{ recruiter.email }}</p>
+              <p class="text-sm text-gray-500">{{ recruiter.userType }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Contact Information</h3>
+        </div>
+        <div class="px-6 py-4">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Email</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.email }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Phone</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.phone || 'Not provided' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Band Information -->
+      <div *ngIf="recruiter.band" class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Band Information</h3>
+        </div>
+        <div class="px-6 py-4">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Band Name</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.band.name }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">School</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.band.schoolName }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Location</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                {{ recruiter.band.city }}, {{ recruiter.band.state }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Conference</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.band.conference }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Division</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ recruiter.band.division }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Activity Statistics</h3>
+        </div>
+        <div class="px-6 py-4">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-3">
+            <div class="text-center">
+              <dt class="text-sm font-medium text-gray-500">Offers Made</dt>
+              <dd class="mt-1 text-2xl font-semibold text-blue-600">
+                {{ recruiter.offerCount || 0 }}
+              </dd>
+            </div>
+            <div class="text-center">
+              <dt class="text-sm font-medium text-gray-500">Students Rated</dt>
+              <dd class="mt-1 text-2xl font-semibold text-green-600">
+                0
+              </dd>
+            </div>
+            <div class="text-center">
+              <dt class="text-sm font-medium text-gray-500">Comments Given</dt>
+              <dd class="mt-1 text-2xl font-semibold text-purple-600">
+                0
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3">
+        <button 
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition"
+          (click)="loadRecruiter()"
+        >
+          Refresh Profile
+        </button>
+        <button 
+          class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition"
+          routerLink="/admin-dashboard"
+        >
+          Back to Dashboard
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

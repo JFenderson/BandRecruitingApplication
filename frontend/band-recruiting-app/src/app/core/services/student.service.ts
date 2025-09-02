@@ -1,76 +1,59 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { StudentDTO, UpdateStudentDTO } from '../models/student.model';
 import { ApiService } from './api.service';
-import { UserDTO } from '../models/user.model';
-import { OfferDTO } from '../models/offer.model';
+import { UserDTO, UpdateUserDTO } from '../models/user.model';
 import { VideoDTO } from '../models/video.model';
 import { RatingDTO } from '../models/rating.model';
 import { CommentDTO } from '../models/comment.model';
+import { OfferDTO } from '../models/offer.model';
+import { InterestDTO, UpdateInterestDTO } from '../models/interest.model';
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
-  getById(studentId: string) {
-    throw new Error('Method not implemented.');
-  }
-  update(studentId: string, changes: any) {
-    throw new Error('Method not implemented.');
-  }
   constructor(private api: ApiService) {}
 
-  getAllStudents() {
-    return this.api.get<StudentDTO[]>('Student/students');
+  getAllStudents(): Observable<UserDTO[]> {
+    return this.api.get<UserDTO[]>('students');
   }
 
-  getStudentById(id: string) {
-    return this.api.get<StudentDTO>(`students/${id}`);
+  getStudentById(id: string): Observable<UserDTO> {
+    return this.api.get<UserDTO>(`students/${id}`);
   }
 
-updateStudent(id: string, data: UpdateStudentDTO): Observable<StudentDTO> {
-   return this.api.put<StudentDTO>(`students/${id}`, data);
- }
-
-  deleteStudent(id: string) {
-    return this.api.delete<any>(`students/${id}`);
+  updateStudent(id: string, data: UpdateUserDTO): Observable<void> {
+    return this.api.put<void>(`students/${id}`, data);
   }
 
-  createStudent(data: any) {
-    return this.api.post<StudentDTO>('Student', data);
+  deleteStudent(id: string): Observable<void> {
+    return this.api.delete<void>(`students/${id}`);
   }
 
-  getByGradYear(year: number) {
-    return this.api.get<StudentDTO[]>(`students/gradYear/${year}`);
-  }
-
-  getByInstrument(instrument: string) {
-    return this.api.get<StudentDTO[]>(`students/instrument/${instrument}`);
-  }
-
-    getAllInstruments(): Observable<StudentDTO[]> {
-      return this.api.get<StudentDTO[]>('Student/instrument');
-    }
-
-  getStudentVideos(id: string) {
+  getStudentVideos(id: string): Observable<VideoDTO[]> {
     return this.api.get<VideoDTO[]>(`students/${id}/videos`);
   }
 
-  getStudentRatings(id: string) {
+  getStudentRatings(id: string): Observable<RatingDTO[]> {
     return this.api.get<RatingDTO[]>(`students/${id}/ratings`);
   }
 
-  getStudentComments(id: string) {
+  getStudentComments(id: string): Observable<CommentDTO[]> {
     return this.api.get<CommentDTO[]>(`students/${id}/comments`);
   }
 
-  getStudentOffers(id: string) {
+  getStudentOffers(id: string): Observable<OfferDTO[]> {
     return this.api.get<OfferDTO[]>(`students/${id}/offers`);
   }
 
-  expressInterest(studentId: string, bandId: string) {
-    return this.api.post<StudentDTO>(`students/${studentId}/interests`, { bandId });
+  getStudentInterests(id: string): Observable<InterestDTO[]> {
+    return this.api.get<InterestDTO[]>(`students/${id}/interests`);
   }
 
-  getInterests(studentId: string) {
-    return this.api.get<StudentDTO[]>(`students/${studentId}/interests`);
-  }
+
+
+
+updateInterest(studentId: string, dto: { bandId: string; isInterested: boolean }) {
+  return this.api.put(`students/${studentId}/interests/${dto.bandId}`, dto);
+}
+
+
 }

@@ -14,6 +14,7 @@
         // Navigation Properties
         public List<ApplicationUser> Recruiters { get; set; } = new();
         public List<Offer> Offers { get; set; } = new();
-        public List<Interest> InterestedStudents { get; set; } = new();
+        //public List<Interest> InterestedStudents { get; set; } = new();
+        public ICollection<Interest> InterestedStudents { get; set; } = new List<Interest>();
     }
 }
