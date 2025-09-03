@@ -36,7 +36,8 @@ jobs:
           reports: '**/coverage.cobertura.xml'
           targetdir: 'coveragereport'
           reporttypes: 'HtmlInline;Cobertura'
-
+        continue-on-error: true
+        
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
         with:
