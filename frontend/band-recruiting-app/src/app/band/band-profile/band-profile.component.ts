@@ -417,7 +417,7 @@ export class BandProfileComponent implements OnInit {
     isInterested: true
   };
 
-  this.studentService.updateInterest(currentUser.nameid, dto).subscribe({
+  this.studentService.updateInterest(currentUser.nameid, this.bandId, dto).subscribe({
     next: () => {
       this.isInterested = true;
       this.loadInterestedStudents(); // Refresh list/count

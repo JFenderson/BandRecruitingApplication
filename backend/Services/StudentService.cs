@@ -316,27 +316,23 @@ namespace server.Services
             };
 
         }
-
-        public async Task<IEnumerable<InterestDTO>> GetStudentInterestsAsync(string studentId)
+        public async Task<List<InterestDTO>> GetStudentInterestsAsync(string studentId, CancellationToken ct)
         {
-            var interests = await _context.Interests
-                .Where(i => i.StudentId == studentId)
+            return await _context.Interests
+                .Where(i => i.StudentId == studentId && i.IsInterested) // filter here
                 .Select(i => new InterestDTO
                 {
                     InterestId = i.InterestId,
                     StudentId = i.StudentId,
-                    BandId = i.BandId,                // Guid
+                    BandId = i.BandId,
                     BandName = i.Band.Name,
                     SchoolName = i.Band.SchoolName,
                     InterestDate = i.InterestDate,
                     IsInterested = i.IsInterested,
                     UpdatedAt = i.UpdatedAt
                 })
-                .ToArrayAsync();
-
-            return interests;
+                .ToListAsync(ct);
         }
-
         public async Task<IEnumerable<Offer>> GetStudentScholarshipOffersAsync(string studentId)
         {
             return await _context.Offers

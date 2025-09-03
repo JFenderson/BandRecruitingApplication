@@ -21,7 +21,7 @@ namespace server.Services
         Task<int> GetStudentOfferCountAsync(string studentId);
 
         Task<InterestDTO> AddInterestAsync(CreateInterestDTO createInterestDTO);
-        Task<IEnumerable<InterestDTO>> GetStudentInterestsAsync(string studentId);
+        Task<List<InterestDTO>> GetStudentInterestsAsync(string studentId, CancellationToken ct);
         Task<InterestDTO> UpdateInterestByStudent(string studentId, Guid bandId, bool isInterested, CancellationToken ct);
     }
 }

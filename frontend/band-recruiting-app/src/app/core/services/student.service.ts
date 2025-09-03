@@ -51,8 +51,8 @@ export class StudentService {
 
 
 
-updateInterest(studentId: string, dto: { bandId: string; isInterested: boolean }) {
-  return this.api.put(`students/${studentId}/interests/${dto.bandId}`, dto);
+updateInterest(studentId: string,bandId: string, dto: { isInterested: boolean }) {
+  return this.api.put(`students/${studentId}/interests/${bandId}`, dto);
 }
 
 

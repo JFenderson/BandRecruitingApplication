@@ -151,7 +151,7 @@ namespace server.Controllers
         // GET /api/students/{studentId}/interests
         [Authorize(Roles = "Student,Recruiter,Admin")]
         [HttpGet("{studentId}/interests")]
-        public async Task<ActionResult<IEnumerable<InterestDTO>>> GetInterests(string studentId)
-            => Ok(await _studentService.GetStudentInterestsAsync(studentId));
+        public async Task<ActionResult<IEnumerable<InterestDTO>>> GetInterests(string studentId, CancellationToken ct)
+            => Ok(await _studentService.GetStudentInterestsAsync(studentId, ct));
     }
 }

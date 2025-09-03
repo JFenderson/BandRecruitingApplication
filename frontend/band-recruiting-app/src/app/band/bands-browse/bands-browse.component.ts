@@ -189,18 +189,18 @@ export class BandsBrowseComponent implements OnInit {
 
   toggleInterest(band: BandDTO): void {
     const currentUser = this.tokenService.decodeToken();
-    if (!currentUser?.nameid) return;
+    if (!currentUser?.sub) return;
 
-    const studentId = currentUser.nameid;
+    const studentId = currentUser.sub;
     const bandId = band.bandId;
-    const isCurrentlyInterested = this.isInterested(band); // Your own logic to check local interest
+    const isCurrentlyInterested = this.isInterested(band) == true; // Your own logic to check local interest
 
     const dto: UpdateInterestDTO = {
       bandId,
       isInterested: !isCurrentlyInterested
     };
 
-    this.studentService.updateInterest(studentId, dto).subscribe({
+    this.studentService.updateInterest(studentId, bandId, dto).subscribe({
       next: () => {
         if (dto.isInterested) {
           this.interestedBandIds.push(bandId);
@@ -224,10 +224,10 @@ export class BandsBrowseComponent implements OnInit {
 
   confirmExpressInterest(): void {
     if (!this.bandToConfirm) return;
+    
     const token = this.tokenService.decodeToken();
     const studentId = token?.sub;
     if (!studentId) {
-      console.log("studentId", token)
       console.error('Missing studentId from token');
       this.closeInterestConfirm();
       return;
@@ -236,12 +236,10 @@ export class BandsBrowseComponent implements OnInit {
     const bandId = this.bandToConfirm.bandId;
     const bandName = this.bandToConfirm.name;
     const willBeInterested = !this.isCurrentlyInterested;
-    console.log(bandId);
-    console.log(bandName);
-    // Recommended idempotent API
-    const dto: UpdateInterestDTO = { bandId, isInterested: willBeInterested };
-    this.studentService.updateInterest(studentId, dto).subscribe({
 
+    const dto: UpdateInterestDTO = { bandId, isInterested: willBeInterested };
+
+    this.studentService.updateInterest(studentId,bandId, dto).subscribe({
       next: () => this.onInterestSuccess(bandName ?? 'this band', bandId, willBeInterested),
       error: (err: any) => this.onInterestError(err)
 
@@ -257,22 +255,18 @@ export class BandsBrowseComponent implements OnInit {
     if (!this.bandToConfirm) return;
     this.closeInterestConfirm();
 
-    // keep local UI in sync if you store interest ids locally
-    if (nowInterested) {
-      console.log("bandconfirm", bandName)
+ if (nowInterested) {
+    if (!this.interestedBandIds.includes(bandId)) {
       this.interestedBandIds = [...this.interestedBandIds, bandId];
-      this.toastMessage = `You've expressed interest in ${bandName}!`;
-    } else {
-      this.interestedBandIds = this.interestedBandIds.filter(id => id !== bandId);
-      this.toastMessage = `You've withdrawn interest from ${bandName}.`;
     }
+    this.toastMessage = `You've expressed interest in ${bandName}!`;
+  } else {
+    this.interestedBandIds = this.interestedBandIds.filter(id => id !== bandId);
+    this.toastMessage = `You've withdrawn interest from ${bandName}.`;
+  }
 
-    this.showToast = true;
-
-    setTimeout(() => {
-      this.showToast = false;
-      this.router.navigate(['/student-dashboard']);
-    }, 1200);
+  this.showToast = true;
+  setTimeout(() => (this.showToast = false), 2000);
   }
 
   private onInterestError(err: any): void {

@@ -1,4 +1,5 @@
 export interface OfferDTO {
+amount: string|number;
 schoolName: any;
 bandName: any;
     offerId: string;
@@ -17,7 +18,7 @@ export interface CreateOfferDTO {
     bandId: string;
     bandName: string;
     schoolName: string;
-    Amount: string;
+    amount: string;
     status: string;
     offerDate: string;
 }
@@ -28,7 +29,7 @@ export interface UpdateOfferDTO {
     recruiterId: string;
     bandId: string;
     bandName: string;
-    Amount: string;
+    amount: string;
     status: string;
     offerDate: string;
 }
