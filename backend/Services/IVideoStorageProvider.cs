@@ -1,4 +1,6 @@
-﻿namespace server.Services
+﻿using Microsoft.AspNetCore.Http;
+
+namespace server.Services
 {
     public interface IVideoStorageProvider
     {

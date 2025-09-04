@@ -29,20 +29,15 @@ jobs:
       - name: Build (Debug)
         working-directory: ./backend
         run: dotnet build server.sln --configuration Debug --no-restore
-
-      - name: Publish Coverage Report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5
-        with:
-          reports: '**/coverage.cobertura.xml'
-          targetdir: 'coveragereport'
-          reporttypes: 'HtmlInline;Cobertura'
-        continue-on-error: true
         
-      - name: Upload Coverage Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coveragereport
+      - name: Run tests
+        run: dotnet test server.sln --no-build --configuration Release --collect:"XPlat Code Coverage" --logger trx
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Generate Coverage Report
+        run: reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html  
 
   frontend-build-test-dev:
     name: Frontend • Lint, Test, Build (development)

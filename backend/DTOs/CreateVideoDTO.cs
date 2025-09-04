@@ -1,4 +1,6 @@
-﻿namespace server.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace server.DTOs
 {
     public class CreateVideoDTO
     {

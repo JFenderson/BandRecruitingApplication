@@ -1,5 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Transfer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using server.Services;
 
 public class S3VideoStorageProvider : IVideoStorageProvider

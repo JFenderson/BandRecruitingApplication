@@ -1,5 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Transfer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 public class VideoS3Service
 {
