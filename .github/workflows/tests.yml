@@ -1,0 +1,38 @@
+# .github/workflows/tests.yml (if using GitHub Actions)
+name: Run Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./backend
+      
+    - name: Build
+      run: dotnet build --no-restore
+      working-directory: ./backend
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      working-directory: ./backend.Tests
+      
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend.Tests/TestResults/*/coverage.cobertura.xml
+        fail_ci_if_error: true

@@ -1,0 +1,11 @@
+global using Xunit;
+global using FluentAssertions;
+global using Moq;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Mvc.Testing;
+global using Microsoft.Extensions.DependencyInjection;
+global using server.Data;
+global using Models;
+global using server.DTOs;
+global using backend.Tests.TestBase;
+global using backend.Tests.Fixtures;
