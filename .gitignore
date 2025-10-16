@@ -63,3 +63,5 @@ Icon?
 #cloud AWS
 cdk.out/
 node_modules/
+cloudfront_private_key.pem
+cloudfront_public_key.pem

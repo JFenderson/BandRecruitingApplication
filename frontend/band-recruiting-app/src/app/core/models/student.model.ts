@@ -9,6 +9,9 @@ profilePicture: any;
   instrument: string;
   highSchool: string;
   videoUrl?: string;
+  pictureUrl?: string;
+  averageRating?: number; // computed on server or client
+isInterestedInMyBand?: boolean;
 }
 
 export interface UpdateStudentDTO {

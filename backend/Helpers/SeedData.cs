@@ -11,252 +11,357 @@ namespace server.Helpers
 {
     public static class SeedData
     {
+        // Tweak counts here
+        private const int StudentCount = 20;
+        private const int RecruiterCount = 20;
+        private const int VideosPerStudentMin = 1;
+        private const int VideosPerStudentMax = 2;
+        private const int RatingCount = 100;
+        private const int CommentCount = 120;
+        private const int OfferCount = 40;
 
+        // One source of truth for passwords
+        private const string AdminPassword = "Admin123!";
+        private const string StudentPassword = "Password123!";
+        private const string RecruiterPassword = "Password123!";
 
-        public static async Task Initialize(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager)
+        public static async Task Initialize(IServiceProvider sp, UserManager<ApplicationUser> userManager)
         {
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+            var db = sp.GetRequiredService<ApplicationDbContext>();
+            var faker = new Faker();
 
+            await db.Database.MigrateAsync();
 
-            await EnsureRolesExist(roleManager);
-
-            // Seed users and data
-            await SeedBandsAndRecruiters(context, userManager);
+            await EnsureRoles(roleManager);
             await CreateDefaultAdmin(userManager);
-            await CreateStudents(userManager, 20, context);
-            await CreateRecruiters(userManager, 20, context);
-            await CreateOffers(context, 20);
+
+            await SeedBands(db);
+
+            await SeedStudents(db, userManager, StudentCount, faker);
+            await SeedRecruiters(db, userManager, RecruiterCount, faker);
+
+            await SeedVideos(db, faker);
+            await SeedRatings(db, faker);
+            await SeedComments(db, faker);
+            await SeedOffers(db, faker);
+
+            await db.SaveChangesAsync();
         }
 
-        private static async Task EnsureRolesExist(RoleManager<IdentityRole> roleManager)
+        private static async Task EnsureRoles(RoleManager<IdentityRole> roleManager)
         {
-            string[] roleNames = { "Admin", "Recruiter", "Student" };
-
-            foreach (var roleName in roleNames)
+            foreach (var r in new[] { "Admin", "Student", "Recruiter" })
             {
-                if (!await roleManager.RoleExistsAsync(roleName))
+                if (!await roleManager.RoleExistsAsync(r))
                 {
-                    var result = await roleManager.CreateAsync(new IdentityRole(roleName));
-                    if (result.Succeeded)
-                    {
-                        Console.WriteLine($"Created role: {roleName}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Failed to create role: {roleName}");
-                    }
+                    var res = await roleManager.CreateAsync(new IdentityRole(r));
+                    if (!res.Succeeded)
+                        Console.WriteLine($"Role create failed: {r} -> {string.Join(", ", res.Errors.Select(e => e.Description))}");
                 }
             }
         }
 
-
         private static async Task CreateDefaultAdmin(UserManager<ApplicationUser> userManager)
         {
-            var defaultEmail = "admin@bandrecruitingapp.com";
-
-            var existingAdmin = await userManager.FindByEmailAsync(defaultEmail);
-            if (existingAdmin != null)
+            const string email = "admin@bandrecruitingapp.com";
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
             {
-                Console.WriteLine("Admin user already exists.");
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = "System",
+                    LastName = "Administrator",
+                    UserType = "Admin",
+                    Phone = "000-000-0000",
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow,
+                    RefreshToken = GenerateRefreshToken(),
+                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
+                };
+                var create = await userManager.CreateAsync(user, AdminPassword);
+                if (!create.Succeeded)
+                {
+                    Console.WriteLine($"Admin create failed: {string.Join(", ", create.Errors.Select(e => e.Description))}");
+                    return;
+                }
+            }
+
+            // ensure role
+            if (!(await userManager.GetRolesAsync(user)).Contains("Admin"))
+                await userManager.AddToRoleAsync(user, "Admin");
+        }
+
+        private static async Task SeedBands(ApplicationDbContext db)
+        {
+            if (await db.Bands.AnyAsync())
+                return;
+
+            var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Bands.json");
+            if (!File.Exists(jsonPath))
+            {
+                Console.WriteLine($"Bands.json not found at {jsonPath}. Skipping band seeding.");
                 return;
             }
 
-            var adminUser = new ApplicationUser
-            {
-                UserName = defaultEmail,
-                Email = defaultEmail,
-                FirstName = "System",
-                LastName = "Administrator",
-                UserType = "Admin",
-                Phone = "000-000-0000",
-                EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow,
-                RefreshToken = GenerateRefreshToken(),
-                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7),
-            };
+            var json = await File.ReadAllTextAsync(jsonPath);
+            var seeds = JsonSerializer.Deserialize<List<BandSeedModel>>(json) ?? new();
 
-            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            var bands = seeds.Select(h => new Band
+            {
+                BandId = Guid.NewGuid(),
+                SchoolName = h.SchoolName,
+                Name = h.MarchingBand,
+                City = h.City,
+                State = h.State,
+                Conference = h.Conference,
+                Division = h.Division
+            }).ToList();
 
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-                Console.WriteLine("Default Admin user created successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to create Admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-            }
+            await db.Bands.AddRangeAsync(bands);
         }
 
-
-        private static async Task CreateStudents(UserManager<ApplicationUser> userManager, int numStudents, ApplicationDbContext context)
+        private static async Task SeedStudents(ApplicationDbContext db, UserManager<ApplicationUser> um, int count, Faker faker)
         {
-            var faker = new Faker();
-            var rndNum = new Random();
-            var email = faker.Internet.Email();
+            var existing = await db.Users.CountAsync(u => u.UserType == "Student");
+            var toCreate = Math.Max(0, count - existing);
+            if (toCreate == 0) return;
 
-            var instruments = new string[]
-                  {
-                        "Trumpet",
-                        "Trombone",
-                        "Saxophone",
-                        "Tuba",
-                        "Clarinet",
-                        "Snare Drum",
-                        "Tenor Drum",
-                        "Bass Drum",
-                        "Cymbals",
-                        "Flute",
-                        "Mellophone",
-                        "Piccolo",
-                        "Baritone"
-                  };
-
-            for (int i = 0; i < numStudents; i++)
+            string[] instruments =
             {
-                var student = new ApplicationUser
+                "Trumpet","Trombone","Saxophone","Tuba","Clarinet","Snare Drum","Tenor Drum",
+                "Bass Drum","Cymbals","Flute","Mellophone","Piccolo","Baritone"
+            };
+
+            for (int i = 0; i < toCreate; i++)
+            {
+                var email = $"student{existing + i + 1}@example.com";
+                var user = new ApplicationUser
                 {
                     UserType = "Student",
                     UserName = email,
                     Email = email,
-                    FirstName = faker.Person.FirstName,
-                    LastName = faker.Person.LastName,
+                    FirstName = faker.Name.FirstName(),
+                    LastName = faker.Name.LastName(),
                     Phone = faker.Phone.PhoneNumber(),
+                    EmailConfirmed = true,
                     Instrument = faker.PickRandom(instruments),
                     HighSchool = GenerateHighSchoolName(faker),
-                    GraduationYear = faker.Date.Future().Year,
+                    GraduationYear = faker.Date.Future(2).Year,
                     CreatedAt = DateTime.UtcNow,
                     AverageRating = Math.Round(faker.Random.Decimal(1, 5), 1),
                     RefreshToken = GenerateRefreshToken(),
                     RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
                 };
 
-                var result = await userManager.CreateAsync(student, "Password123!");
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(student, "Student");
-                    Console.WriteLine($"Created student: {student.Email}");
-
-                    var bandIds = await context.Bands.Select(b => b.BandId).ToListAsync();
-                    if (!bandIds.Any()) continue;
-                    var interestedBands = faker.PickRandom(bandIds, faker.Random.Int(1, 3));
-
-                    foreach (var bandId in interestedBands)
-                    {
-                        context.Add(new Interest
-                        {
-                            StudentId = student.Id,
-                            BandId = bandId,
-                            InterestDate = DateTime.UtcNow,
-
-                        });
-                        Console.WriteLine($"Student {student.UserName} is interested in BandId: {bandId}");
-                    }
-                }
+                var create = await um.CreateAsync(user, StudentPassword);
+                if (create.Succeeded)
+                    await EnsureRoleAsync(um, user, "Student");
                 else
-                {
-                    Console.WriteLine($"Failed to create student: {string.Join(", ", result.Errors)}");
-                }
+                    Console.WriteLine($"Student create failed: {string.Join(", ", create.Errors.Select(e => e.Description))}");
             }
         }
 
-        private static async Task CreateRecruiters(UserManager<ApplicationUser> userManager, int numRecruiters, ApplicationDbContext context)
+        private static async Task SeedRecruiters(ApplicationDbContext db, UserManager<ApplicationUser> um, int count, Faker faker)
         {
-            var faker = new Faker();
-            var bandIds = await context.Bands.Select(b => b.BandId).ToListAsync();
-            if (bandIds.Count == 0)
+            var bands = await db.Bands.Select(b => b.BandId).ToListAsync();
+            if (!bands.Any())
             {
-                Console.WriteLine("No bands found in the database. Please seed bands before creating recruiters.");
+                Console.WriteLine("No bands found. Recruiter seeding skipped.");
                 return;
             }
 
-            for (int i = 0; i < numRecruiters; i++)
+            var existing = await db.Users.CountAsync(u => u.UserType == "Recruiter");
+            var toCreate = Math.Max(0, count - existing);
+            if (toCreate == 0) // fix up any existing recruiters that have no role or wrong password
             {
-                var randomBandId = faker.PickRandom(bandIds);
-                var recruiterEmail = $"recruiter{i}@hbcu.edu";
-                var recruiter = new ApplicationUser
+                await NormalizeRecruitersAsync(db, um);
+                return;
+            }
+
+            for (int i = 0; i < toCreate; i++)
+            {
+                var email = $"recruiter{existing + i + 1}@hbcu.edu";
+                var user = new ApplicationUser
                 {
                     UserType = "Recruiter",
-                    Email = recruiterEmail,
-                    UserName = recruiterEmail,
-                    FirstName = $"Recruiter{i}",
-                    LastName = "HBCU",
+                    UserName = email,
+                    Email = email,
+                    FirstName = faker.Name.FirstName(),
+                    LastName = faker.Name.LastName(),
                     Phone = faker.Phone.PhoneNumber(),
-                    BandId = randomBandId,
+                    EmailConfirmed = true,
+                    BandId = faker.PickRandom(bands),
                     CreatedAt = DateTime.UtcNow,
                     RefreshToken = GenerateRefreshToken(),
                     RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
                 };
 
-                var result = await userManager.CreateAsync(recruiter, "Password123!");
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(recruiter, "Recruiter");
-                    Console.WriteLine($"Created recruiter: {recruiter.Email}, assigned to BandId: {recruiter.BandId}");
-                }
+                var create = await um.CreateAsync(user, RecruiterPassword);
+                if (create.Succeeded)
+                    await EnsureRoleAsync(um, user, "Recruiter");
                 else
+                    Console.WriteLine($"Recruiter create failed: {string.Join(", ", create.Errors.Select(e => e.Description))}");
+            }
+
+            await NormalizeRecruitersAsync(db, um);
+        }
+
+        private static async Task NormalizeRecruitersAsync(ApplicationDbContext db, UserManager<ApplicationUser> um)
+        {
+            // Ensure all recruiters have role and a password set to RecruiterPassword
+            var recruiters = await db.Users.Where(u => u.UserType == "Recruiter").ToListAsync();
+            foreach (var r in recruiters)
+            {
+                var roles = await um.GetRolesAsync(r);
+                if (!roles.Contains("Recruiter"))
+                    await um.AddToRoleAsync(r, "Recruiter");
+
+                // Reset password to known value if needed
+                if (await um.HasPasswordAsync(r))
                 {
-                    Console.WriteLine($"Failed to create recruiter: {string.Join(", ", result.Errors)}");
+                    var remove = await um.RemovePasswordAsync(r);
+                    if (!remove.Succeeded)
+                    {
+                        Console.WriteLine($"Password remove failed for {r.Email}: {string.Join(", ", remove.Errors.Select(e => e.Description))}");
+                        continue;
+                    }
                 }
+                var add = await um.AddPasswordAsync(r, RecruiterPassword);
+                if (!add.Succeeded)
+                    Console.WriteLine($"Password set failed for {r.Email}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
             }
         }
 
-        private static async Task CreateOffers(ApplicationDbContext context, int numOffers)
+        private static async Task SeedVideos(ApplicationDbContext db, Faker faker)
         {
-            var faker = new Faker();
+            // If videos already exist, keep them
+            if (await db.Set<Video>().AnyAsync()) return;
 
-            var studentIds = await context.Users
-                            .Where(u => u.UserType == "Student")
-                            .Select(s => s.Id)
-                            .ToListAsync();
+            var studentIds = await db.Users.Where(u => u.UserType == "Student").Select(u => u.Id).ToListAsync();
+            if (!studentIds.Any()) return;
 
-            var recruiters = await context.Users
-                            .Where(u => u.UserType == "Recruiter" && u.Band != null)
-                            .Include(r => r.Band)
-                            .Select(r => new
-                            {
-                                RecruiterId = r.Id,
-                                BandId = r.Band.BandId,
-                                BandName = r.Band.Name
-                            })
-                            .ToListAsync();
-
-            if (!studentIds.Any() || !recruiters.Any())
+            var vids = new List<Video>();
+            foreach (var sid in studentIds)
             {
-                Console.WriteLine("No students, recruiters, or bands available to create offers.");
-                return;
+                var count = faker.Random.Int(VideosPerStudentMin, VideosPerStudentMax);
+                for (int i = 0; i < count; i++)
+                {
+                    vids.Add(new Video
+                    {
+                        VideoId = Guid.NewGuid().ToString(),
+                        StudentId = sid,
+                        VideoUrl = $"https://cdn.example.com/videos/{sid}/{Guid.NewGuid()}.mp4",
+                        Title = faker.Lorem.Sentence(3),
+                        Description = faker.Lorem.Sentences(2),
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
             }
 
-            for (int i = 0; i < numOffers; i++)
-            {
-                // Assign a random student, recruiter, and band to the offer
-                var randomStudentId = faker.PickRandom(studentIds);
-                var randomRecruiter = faker.PickRandom(recruiters);
+            await db.AddRangeAsync(vids);
+        }
 
-                var offer = new Offer
+        private static async Task SeedRatings(ApplicationDbContext db, Faker faker)
+        {
+            if (await db.Set<Rating>().AnyAsync()) return;
+
+            var videos = await db.Set<Video>().Select(v => v.VideoId).ToListAsync();
+            var recruiters = await db.Users.Where(u => u.UserType == "Recruiter").Select(r => r.Id).ToListAsync();
+            if (!videos.Any() || !recruiters.Any()) return;
+
+            var ratings = new List<Rating>();
+            for (int i = 0; i < RatingCount; i++)
+            {
+                ratings.Add(new Rating
+                {
+                    RatingId = Guid.NewGuid().ToString(),
+                    VideoId = faker.PickRandom(videos),
+                    RecruiterId = faker.PickRandom(recruiters),
+                    Score = faker.Random.Int(1, 5),
+                    RatingDate = DateTime.UtcNow
+                });
+            }
+
+            await db.AddRangeAsync(ratings);
+        }
+
+        private static async Task SeedComments(ApplicationDbContext db, Faker faker)
+        {
+            if (await db.Set<Comment>().AnyAsync()) return;
+
+            var videos = await db.Set<Video>().Select(v => v.VideoId).ToListAsync();
+            var recruiters = await db.Users.Where(u => u.UserType == "Recruiter").Select(r => r.Id).ToListAsync();
+            if (!videos.Any() || !recruiters.Any()) return;
+
+            var comments = new List<Comment>();
+            for (int i = 0; i < CommentCount; i++)
+            {
+                comments.Add(new Comment
+                {
+                    CommentId = Guid.NewGuid().ToString(),
+                    VideoId = faker.PickRandom(videos),
+                    RecruiterId = faker.PickRandom(recruiters),
+                    Content = faker.Lorem.Sentence(),
+                    CommentDate = DateTime.UtcNow
+                });
+            }
+
+            await db.AddRangeAsync(comments);
+        }
+
+        private static async Task SeedOffers(ApplicationDbContext db, Faker faker)
+        {
+            if (await db.Offers.AnyAsync()) return;
+
+            var students = await db.Users.Where(u => u.UserType == "Student").Select(s => s.Id).ToListAsync();
+            var recruiters = await db.Users
+                .Where(u => u.UserType == "Recruiter" && u.BandId != null)
+                .Select(u => new { u.Id, u.BandId, BandName = u.Band!.Name })
+                .ToListAsync();
+
+            if (!students.Any() || !recruiters.Any()) return;
+
+            var offers = new List<Offer>();
+            for (int i = 0; i < OfferCount; i++)
+            {
+                var rec = faker.PickRandom(recruiters);
+                offers.Add(new Offer
                 {
                     OfferId = Guid.NewGuid().ToString(),
-                    StudentId = randomStudentId,
-                    RecruiterId = randomRecruiter.RecruiterId,
-                    BandId = randomRecruiter.BandId,  // Use the BandId associated with the recruiter
-                    BandName = randomRecruiter.BandName, // Use the BandName associated with the recruiter
-                    Amount = faker.Random.Int(1000, 10000), // Random scholarship amount
+                    StudentId = faker.PickRandom(students),
+                    RecruiterId = rec.Id,
+                    BandId = rec.BandId!,
+                    BandName = rec.BandName,
+                    Amount = faker.Random.Int(1000, 10000),
                     Status = "Pending",
                     OfferDate = DateTime.UtcNow
-                };
-
-                context.Offers.Add(offer);
-                Console.WriteLine($"Created offer for student {randomStudentId} by recruiter {randomRecruiter.RecruiterId}, Band: {randomRecruiter.BandName}");
+                });
             }
 
-            await context.SaveChangesAsync();
-            Console.WriteLine("Finished creating offers.");
+            await db.Offers.AddRangeAsync(offers);
+        }
+
+        private static async Task EnsureRoleAsync(UserManager<ApplicationUser> um, ApplicationUser user, string role)
+        {
+            var roles = await um.GetRolesAsync(user);
+            if (!roles.Contains(role))
+                await um.AddToRoleAsync(user, role);
+        }
+
+        private static string GenerateRefreshToken()
+        {
+            var bytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
+            return Convert.ToBase64String(bytes);
         }
 
         private static string GenerateHighSchoolName(Faker faker)
         {
-            var formatOptions = new List<Func<string>>
+            var formats = new List<Func<string>>
             {
                 () => $"{faker.Address.City()} High School",
                 () => $"{faker.Name.LastName()} High School",
@@ -265,115 +370,23 @@ namespace server.Helpers
                 () => $"Saint {faker.Name.FirstName()} High School",
                 () => $"{faker.Name.LastName()} Institute"
             };
-
-            var randomFormat = faker.PickRandom(formatOptions);
-            return randomFormat();
+            return faker.PickRandom(formats)();
         }
 
-        private static async Task CreateUserIfNotExists(UserManager<ApplicationUser> userManager, ApplicationUser user, string password, string role)
-        {
-            if (await userManager.FindByEmailAsync(user.Email) == null)
-            {
-                var result = await userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, role);
-                }
-            }
-        }
-
-        private static string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
-
-        public static async Task SeedBandsAndRecruiters(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            var faker = new Faker();
-
-            if (!context.Bands.Any())
-            {
-                var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Bands.json");
-                var jsonData = File.ReadAllText(jsonPath);
-                var bandSeedList = JsonSerializer.Deserialize<List<BandSeedModel>>(jsonData);
-
-                var bands = bandSeedList.Select(h => new Band
-                {
-                    BandId = Guid.NewGuid(),
-                    SchoolName = h.SchoolName,
-                    Name = h.MarchingBand,
-                    City = h.City,
-                    State = h.state,
-                    Conference = h.Conference,
-                    Division = h.Division
-                }).ToList();
-
-                await context.Bands.AddRangeAsync(bands);
-                await context.SaveChangesAsync();
-            }
-
-            // Fetch bands to use their IDs
-            var bandList = context.Bands.ToList();
-
-            // Seed Recruiters
-            if (!context.Users.Any(u => u.UserType == "Recruiter"))
-            {
-                var rng = new Random();
-                for (int i = 1; i <= 20; i++)
-                {
-                    var band = bandList[i % bandList.Count]; // round-robin or use rng.Next(bandList.Count)
-
-                    var recruiterUser = new ApplicationUser
-                    {
-                        UserName = $"recruiter{i}@hbcu.edu",
-                        Email = $"recruiter{i}@hbcu.edu",
-                        FirstName = $"Recruiter{i}",
-                        LastName = "HBCU",
-                        Phone = faker.Phone.PhoneNumber(),
-                        EmailConfirmed = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UserType = "Recruiter",
-                        BandId = band.BandId
-                    };
-
-                    var result = await userManager.CreateAsync(recruiterUser, "DefaultP@ss123!");
-
-                    if (result.Succeeded)
-                    {
-                        // No need to add recruiter separately if it’s all in ApplicationUser
-                        Console.WriteLine($"Created recruiter{i}@hbcu.edu");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Failed to create recruiter{i}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                    }
-                }
-            }
-        }
-
-        public class BandSeedModel
+        private class BandSeedModel
         {
             [JsonPropertyName("university")]
-            public string SchoolName { get; set; }
+            public string SchoolName { get; set; } = "";
             [JsonPropertyName("band_name")]
-            public string MarchingBand { get; set; }
+            public string MarchingBand { get; set; } = "";
             [JsonPropertyName("city")]
-            public string City { get; set; }
+            public string City { get; set; } = "";
             [JsonPropertyName("state")]
-            public string state { get; set; }
+            public string State { get; set; } = "";
             [JsonPropertyName("division")]
-            public string Division { get; set; }
+            public string Division { get; set; } = "";
             [JsonPropertyName("conference")]
-            public string Conference { get; set; }
-
+            public string Conference { get; set; } = "";
         }
-
-
-
     }
 }
