@@ -34,11 +34,11 @@ namespace server.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
-                return BadRequest("Invalid login attempt.");
+                return Unauthorized("Invalid login attempt.");
 
             var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!passwordValid)
-                return BadRequest("Invalid login attempt.");
+                return Unauthorized("Invalid login attempt.");
 
             var roles = await _userManager.GetRolesAsync(user); // ✅ get once at the top
 
